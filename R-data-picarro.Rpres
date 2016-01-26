@@ -3,20 +3,36 @@ R and Picarro data
 author: Ben Bond-Lamberty
 date: January 2016
 
-A workshop covering reproducibility, looking at data, summarizing and manipulating data, and issues specific to Picarro data.
+A workshop covering R basics, reproducibility, looking at data, summarizing and manipulating data, and issues specific to Picarro data.
 
 
 The next three hours of your life
 ========================================================
 
 * Introduction: R basics and reproducible research (45 minutes; hands-on: installing the packages we'll need)
-* Examining and cleaning data (30 minutes; hands-on: the `iris` dataset)
+* Examining and cleaning data (45 minutes; hands-on: the `iris` dataset)
 * Summarizing and manipulating data (45 minutes; hands-on: the `babynames` dataset)
-* Bringing things together: working with Picarro data (30 minutes; hands-on: Picarro data)
+* Bringing things together: working with Picarro data (45 minutes; hands-on: Picarro data)
 
 Three hours, 25% lecture and 75% working examples and problems.
 
 Feedback: <a href="mailto:bondlamberty@pnnl">Email</a>  [Twitter](https://twitter.com/BenBondLamberty)
+
+
+Hands-on: setting up R and RStudio
+========================================================
+type: prompt
+incremental: false
+
+If you're doing the exercises and problems, you'll need these
+packages:
+- `dplyr` - fast, flexible tool for working with data frames
+- `ggplot2` - popular package for visualizing data
+
+(These are part of what's known as the *HadleyVerse*.) We'll also use this data package:
+- `babynames` - names provided to the SSA 1880-2013
+
+These can all be installed using R's `install.packages` command. Let's do that, and get oriented in **RStudio**, now.
 
 
 Focus of this workshop
@@ -42,221 +58,23 @@ Is R the right tool for the job?
 Is R the right tool for the job?
 ========================================================
 
-It might not be. R has limitations and weaknesses:
+It's also very useful during _Talk Like A Pirate Day_.
+
+<img src="images/talk-like-a-pirate.gif" />
+
+
+Is R the right tool for the job?
+========================================================
+
+But it might not be. R has limitations and weaknesses:
 - nontrivial learning curve; quirks; inconsistent syntax
 - documentation patchy and terse
 - package quality varies
 - generally operates in-memory only
 
-
-Things you should know
-========================================================
-type: section
-
-
-
-Things you should know: basics
-========================================================
-
-This workshop assumes you understand the basics of using R:
-
-- What R is
-- How to start and quit it
-- How to get help (`?`)
-
-
-Things you should know: basics
-========================================================
-
-- The idea of *objects*, *functions*, *assignment*, and *comments*
-
-```{r}
-x <- 10 + 2 # `x` is an object
-sum(x) # `sum` is a function
-```
-
-- The idea of *data types*
-```{r}
-y <- "hello"
-z <- TRUE
-```
-
-
-Things you should know: vectors
-========================================================
-
-- The *vector* data type
-
-```{r}
-myvector <- 1:5
-myvector
-```
-
-```{r}
-myvector * 2
-```
-
-***
-
-```{r}
-length(myvector)
-sum(myvector)
-```
-
-
-Things you should know: data frames
-========================================================
-
-- The idea of a *data frame* (tightly coupled vectors)
-
-```r
-head(cars)  # a built-in dataset
-```
-
-```
-  speed dist
-1     4    2
-2     4   10
-3     7    4
-4     7   22
-5     8   16
-6     9   10
-```
-Data frames are the fundamental (in the sense of most frequently used) data type in R.
-
-
-Things you should know: data frames
-========================================================
-
-- How to get information about a data frame
-
-```r
-nrow(cars)
-```
-
-```
-[1] 50
-```
-
-```r
-summary(cars)
-```
-
-```
-     speed           dist       
- Min.   : 4.0   Min.   :  2.00  
- 1st Qu.:12.0   1st Qu.: 26.00  
- Median :15.0   Median : 36.00  
- Mean   :15.4   Mean   : 42.98  
- 3rd Qu.:19.0   3rd Qu.: 56.00  
- Max.   :25.0   Max.   :120.00  
-```
-
-
-Things you should know: data frames
-========================================================
-
-- Basic data frame indexing
-
-```r
-cars[1,]
-```
-
-```
-  speed dist
-1     4    2
-```
-
-```r
-cars[c(1, 3, 4),]
-```
-
-```
-  speed dist
-1     4    2
-3     7    4
-4     7   22
-```
-
-***
-
-
-```r
-# Rows and columns can be specified by number or name
-cars[3, "dist"]
-```
-
-```
-[1] 4
-```
-
-```r
-cars$dist[3]
-```
-
-```
-[1] 4
-```
-
-
-Things you should know: control flow
-========================================================
-
-- Most common control flow uses `if...then...else` and `for`
-
-```r
-if(sum(1:4) == 10) {
-  print("right!")
-} else {
-  print("wrong!")
-}
-```
-
-```
-[1] "right!"
-```
-
-```r
-for(i in 1:4) { cat(i) }
-```
-
-```
-1234
-```
-
-
-Things you should know: scripts
-========================================================
-
-The difference between a *script* (stored program) and *command line* (immediate response).
-
-In general, you want to use scripts, which provide *reproducibility*.
-
-
-```r
-source("myscript.R")
-```
-
-***
-
-<img src="images/mayan_script.gif" />
-
-
-Things you should know: packages
-========================================================
-
-- *Packages* are pieces of software that can be optionally loaded and used. The package system is one of R's enormous strengths: there are thousands, written for all kinds of tasks and needs.
-
-```{r, eval=FALSE}
-library(ggplot2)
-qplot(speed, dist, data = cars)
-```
-
-```{r, echo=FALSE}
-library(ggplot2)
-theme_set(theme_bw())
-qplot(speed, dist, data=cars)
-```
+There are other tools that might be better for your specific need!
+- Python, C++, Hadoop, CDO/NCL, bash, ...
+- Excel in _extremely_ limited circumstances
 
 
 Reproducibility
@@ -318,45 +136,6 @@ Version control
 **JGCRI has a paid GitHub account: private repositories.**
 
 
-Packages and reproducibility
-========================================================
-
-Using *packages* raises an interesting problem though, as the packages may themselves
-change over time (version 1.0, 1.1, ...). How can you guarantee that your script's
-behavior and results won't change?
-
-There are a number of solutions to this problem, but my favorite lightweight one is the [checkpoint](http://cran.r-project.org/web/packages/checkpoint/index.html) package.
-
-
-```r
-library(checkpoint)
-checkpoint("2015-06-20")
-```
-
-This will automatically load and install your script's packages *exactly as they existed on a particular date in the past*.
-
-
-Code style and clarity
-========================================================
-
-Use a clear, consistent code style. Many examples are available.
-
-These two code snippets do the same thing. Which is easier to read? 
-
-```r
-finaldata <- merge(process(read.csv( "rawdata.csv")), otherdata)
-```
-
-
-```r
-# Read data, process and merge it, and plot
-  read.csv("rawdata.csv") %>%
-  process() %>%
-  merge(otherdata) ->
-finaldata
-```
-
-
 Reproducible research example
 ========================================================
 
@@ -377,188 +156,85 @@ This directory is generated by my [default script](https://github.com/bpbond/R_a
 Reproducible research example
 ========================================================
 
-- Sequentially numbered R scripts (0-download.R, 1-process_data.R, ...)
+- Sequentially numbered R scripts (`0-download.R`, `1-process_data.R`, ...)
 - Each script depends on the previous one
 - Each has a discrete, logical function
-- Each produces a *log file* including date/time, what R version, etc.
+- Each produces a *log file* including date/time, what R version was used, etc.
 - This analytical chain starts with raw data
 - ...and ends with figures and tables for ms
 + *or the ms itself!* This presentation, for example, was generated directly from an R file
 
 
-Getting data into R
+R basics
 ========================================================
 type: section
 
 
-Things to install beforehand
-========================================================
-If you're doing the exercises and problems, you should have installed these
-packages beforehand:
-- `dplyr` - fast, flexible tool for working with data frames
-- `reshape2` - reshaping data
-
-(These are part of what's known as the *HadleyVerse*.) We'll also use this data package:
-- `babynames` - names provided to the SSA 1880-2013
-
-These can all be installed using R's `install.packages` command.
-
-
-Getting data into R
+Things you should know: basics
 ========================================================
 
-By far the most common way to bring data into R is via the `read.table` family of functions. In particular, `read.csv` reads a comma separated value file.
+This workshop assumes you understand the basics of using R:
 
-```r
-d <- read.table("mydata.csv", 
-                sep=",", 
-                header=TRUE)
-d <- read.csv("mydata.csv") # same thing
+- What R is
+- How to start and quit it
+- How to get help
+
+```{r, eval=FALSE}
+# Get help for a specific function
+?summary
+
+# Get help for an entire package
+help(package = 'ggplot2')
 ```
 
 
-Getting data into R
+Things you should know: basics
 ========================================================
 
-Common and useful options to `read.table` and its brethren include:
+- The idea of *objects*, *functions*, *assignment*, and *comments*
 
-Option        | Effect
-------------- | -------------
-skip=*n*      | Skip the first *n* lines of the file
-nrows=*n*     | Read *n* rows of data
-sep=*s*       | Look for character *s* separating data
-comment.char=*c*  | Lines beginning with *c* are ignored
-header=TRUE  | Look for a header giving column names
-check.names=TRUE | Check that column names are syntactically correct
+```{r}
+x <- 10 + 2 # `x` is an object
+sum(x) # `sum` is a function
+```
 
-
-Gotcha #2: stringsAsFactors
-========================================================
-type: alert
-
-The behavior of `read.table` leads to an **extremely common** bug for beginners in R.
-
-By default, `read.table` changes strings to `factors`: a number encoding categories (e.g. 0, 1, 2 instead of "Apple", "Banana", "Grape"). This can lead to hard-to-diagnose problems later (for example, when merging data) if you're not expecting it.
-
-The solution:
-
-```r
-d <- read.csv("mydata.csv",
-              stringsAsFactors=FALSE)
+- The idea of *data types*
+```{r}
+x <- 3.14     # numeric
+y <- "hello"  # character
+z <- TRUE     # logical
 ```
 
 
-Getting data into R
+Things you should know: vectors
 ========================================================
 
-`read.table` can also read from data you've copied from another program, from a string, from a compressed file, or from an URL.
+- The *vector* data type
 
-Let's use this ability to read in a dataset, from Pew Research's [Religious Landscape Survey](http://www.pewforum.org/religious-landscape-study/). These particular data examine the relationship between income and religious affiliation.
-
-***
-
-<img src="images/income.gif" width="400" />
-
-
-Exercise: Reading data into R
-========================================================
-type: prompt
-incremental: true
-
-Data are at: http://stat405.had.co.nz/data/pew.txt
-
-
-```r
-pew <- read.???(...)
-pew
-summary(pew)
+```{r}
+myvector <- 1:5
+myvector
 ```
 
-Don't forget to look at the `read.table` help page!
-
-
-```r
-pew <- read.table(
-  file = "http://stat405.had.co.nz/data/pew.txt",
-  header = TRUE,
-  stringsAsFactors = FALSE,
-  check.names = FALSE
-)
-```
-
-
-
-
-Alternatives for getting data into R
-========================================================
-
-The `read.table` functions can be slow and, at their heart, read only from flat text files. But there are *many* other options.
-- A number of packages read Excel files directly. In particular the new `readxl` is fast, stable, and flexible
-- `data.table::fread` reads text files extremely quickly, as does the new `readr` package
-- The `foreign` package provides import facilities for Stat, SAS, Minitab, etc.
-- Relational databases via ` RMySQL` and others
-- Many specialized packages (e.g. `ncdf4` for netCDF, `XML::readHTMLTable` for extracting tables from HTML)
-
-
-Cleaning data
-========================================================
-type: section
-
-
-Examining data frames
-========================================================
-
-In most cases, after you've imported your data, it's in a `data.frame`. The `summary` and `str` functions are useful at this point:
-
-```r
-str(cars); summary(cars)
-```
-
-```
-'data.frame':	50 obs. of  2 variables:
- $ speed: num  4 4 7 7 8 9 10 10 10 11 ...
- $ dist : num  2 10 4 22 16 10 18 26 34 17 ...
-```
-
-```
-     speed           dist       
- Min.   : 4.0   Min.   :  2.00  
- 1st Qu.:12.0   1st Qu.: 26.00  
- Median :15.0   Median : 36.00  
- Mean   :15.4   Mean   : 42.98  
- 3rd Qu.:19.0   3rd Qu.: 56.00  
- Max.   :25.0   Max.   :120.00  
-```
-
-Examining data frames
-========================================================
-
-
-```r
-nrow(cars); ncol(cars)
-```
-
-```
-[1] 50
-```
-
-```
-[1] 2
-```
-
-```r
-dim(cars)
-```
-
-```
-[1] 50  2
+```{r}
+myvector * 2
 ```
 
 ***
 
+```{r}
+length(myvector)
+sum(myvector)
+```
+
+
+Things you should know: data frames
+========================================================
+
+- The idea of a *data frame* (tightly coupled vectors)
 
 ```r
-head(cars)
+head(cars)  # a built-in dataset
 ```
 
 ```
@@ -570,65 +246,67 @@ head(cars)
 5     8   16
 6     9   10
 ```
-
-```r
-tail(cars)
-```
-
-```
-   speed dist
-45    23   54
-46    24   70
-47    24   92
-48    24   93
-49    24  120
-50    25   85
-```
+Data frames are the fundamental (in the sense of most frequently used) data type in R.
 
 
-Examining data frames
+Things you should know: control flow
 ========================================================
 
+- Most common control flow uses `if...then...else` and `for`
 
-```r
-names(cars)
-```
-
-```
-[1] "speed" "dist" 
-```
-
-```r
-unique(cars$speed)
+```{r}
+if(sum(1:4) == 10) {
+  print("right!")
+} else {
+  print("wrong!")
+}
 ```
 
+```{r}
+for(i in 1:4) { cat(i) }
 ```
- [1]  4  7  8  9 10 11 12 13 14 15 16 17 18 19 20 22 23 24 25
+
+
+Things you should know: scripts
+========================================================
+
+The difference between a *script* (stored program) and *command line* (immediate response).
+
+In general, you want to use scripts, which provide *reproducibility*.
+
+
+```{r, eval = FALSE}
+source("myscript.R")
 ```
 
 ***
 
-
-```r
-range(cars$dist)
-```
-
-```
-[1]   2 120
-```
+<img src="images/mayan_script.gif" />
 
 
-Examining data frames
+Things you should know: packages
 ========================================================
 
-We already used `ggplot2` to plot the `cars` dataset. Can also do this using `base` graphics built into R:
+- *Packages* are pieces of software that can be optionally loaded and used. The package system is one of R's enormous strengths: there are thousands, written for all kinds of tasks and needs.
 
-
-```r
-plot(cars$speed, cars$dist)
+```{r, eval=FALSE}
+library(ggplot2)
+qplot(speed, dist, data = cars)
 ```
 
-![plot of chunk unnamed-chunk-29](R-data-workshop-figure/unnamed-chunk-29-1.png) 
+```{r, echo=FALSE}
+library(ggplot2)
+theme_set(theme_bw())
+qplot(speed, dist, data=cars)
+```
+
+
+Hands-on: examining the `iris` dataset
+========================================================
+type: prompt
+incremental: true
+
+Hands-on work in RStudio.
 
 
 Subsetting data frames
@@ -665,46 +343,6 @@ subset(cars, speed < 8)
 ```
 There can be subtle differences but you can generally consider these to be equivalent.
 
-
-Subsetting data frames
-========================================================
-
-Data frames are indexed by row *first* and column *second* (in the more general case of multidimensional arrays, the other dimensions follow).
-
-```r
-cars[1:3, ]
-```
-
-```
-  speed dist
-1     4    2
-2     4   10
-3     7    4
-```
-
-***
-
-Negative notation excludes!
-
-
-```r
-cars[2, -1]
-```
-
-```
-[1] 10
-```
-
-```r
-cars[2, -1, drop=FALSE]
-```
-
-```
-  dist
-2   10
-```
-
-**Gotcha #2½**: R generally simplifies objects when it can...see `drop()`
 
 
 Examining data frames
@@ -1019,8 +657,7 @@ Understanding and dealing with NA
 
 One of R's real strengths is that missing values are a first-class data type: `NA`.
 
-
-```r
+```{r}
 x <- c(1, 2, 3, NA)
 is.na(x) # returns c(F, F, F, T)
 any(is.na(x)) # returns TRUE
@@ -1029,8 +666,7 @@ which(is.na(x)) # returns ...?
 
 Like `NaN` and `Inf`, generally `NA` 'poisons' operations, so it must be handled.
 
-
-```r
+```{r}
 sum(x) # NA
 sum(x, na.rm=TRUE) # 6
 na.omit(data.frame(x))  # remove rows with NA
@@ -1042,14 +678,10 @@ Dealing with dates
 
 R has a `Date` class representing calendar dates, and an `as.Date` function for converting to Dates. The `lubridate` package is often useful (and easier) for these cases:
 
-```r
+```{r}
 library(lubridate)
 x <- c("09-01-01", "09-01-02")
 ymd(x)   # there's also dmy and mdy!
-```
-
-```
-[1] "2009-01-01 UTC" "2009-01-02 UTC"
 ```
 
 Once data are in `Date` format, the time interval between them can be computed simply by subtraction. See also `?difftime`
