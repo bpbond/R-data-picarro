@@ -14,8 +14,6 @@ The next three hours of your life
 * Summarizing and manipulating data (45 minutes; hands-on: the `babynames` dataset)
 * Bringing things together: working with Picarro data (45 minutes; hands-on: Picarro data)
 
-Three hours, 25% lecture and 75% working examples and problems.
-
 Feedback: <a href="mailto:bondlamberty@pnnl">Email</a>  [Twitter](https://twitter.com/BenBondLamberty)
 
 
@@ -73,9 +71,9 @@ We are in the era of 'big data', but even if you work with 'little data' you hav
 
 **Most fundamentally, your results have to be reproducible.**
 
-**Reproducible by yourself, and others.**
+>Your most important collaborator is your future self. It’s important to make a workflow that you can use time and time again, and even pass on to others in such a way that you don’t have to be there to walk them through it. [Source](http://berkeleysciencereview.com/reproducible-collaborative-data-science/)
 
-**At any time in the future.**
+Reproducibility means *scripts* or *programs* tied to *open source software*.
 
 
 You can't reproduce
@@ -173,7 +171,7 @@ type: section
 Things you should know: basics
 ========================================================
 
-This workshop assumes you understand the basics of using R:
+This workshop assumes you understand a few basics of R:
 
 - What R is
 - How to start and quit it
@@ -269,7 +267,7 @@ head(cars)  # a built-in dataset
 ```
 
 ```
-  speed dist
+speed dist
 1     4    2
 2     4   10
 3     7    4
@@ -277,13 +275,13 @@ head(cars)  # a built-in dataset
 5     8   16
 6     9   10
 ```
-Data frames are the fundamental (in the sense of most frequently used) data type in R.
+Data frames are the most frequently used data type in R.
 
 
 Things you should know: control flow
 ========================================================
 
-- Most common control flow uses `if...then...else` and `for`
+- Basic  *control flow* statements
 
 
 ```r
@@ -329,17 +327,22 @@ source("myscript.R")
 Things you should know: packages
 ========================================================
 
-- *Packages* are pieces of software that can be optionally loaded and used. The package system is one of R's enormous strengths: there are thousands, written for all kinds of tasks and needs.
+- *Packages* are pieces of software that can be optionally loaded into R. There are thousands, written for all kinds of tasks and needs.
 
 
 ```r
+# The single most popular package is `ggplot2`
 library(ggplot2)
-qplot(speed, dist, data = cars)
+
+# qplot = quick plot
+qplot(speed, 
+      dist, 
+      data = cars)
 ```
 
 ***
 
-![plot of chunk unnamed-chunk-11](R-data-picarro-figure/unnamed-chunk-11-1.png) 
+![plot of chunk unnamed-chunk-11](R-data-picarro-figure/unnamed-chunk-11-1.png)
 
 
 Hands-on: examining the `iris` dataset
@@ -353,67 +356,6 @@ Hands-on work in RStudio.
 * Looking at particular rows and columns
 * Subsetting the data
 * Basic plots of the data
-
-
-Exercise: Examining data frames
-========================================================
-type: prompt
-
-
-```r
-library(babynames)
-summary(babynames)
-```
-
-How many rows and columns are there in the `babynames` dataset?
-
-What name is in row #12345?
-
-How many unique baby names are there?
-
-Make a new data frame with a random 1% of the original rows.
-
-How many 19th century rows are there?
-
-
-Exercise: Examining data frames
-========================================================
-type: prompt
-incremental: true
-
-
-```r
-cat(dim(babynames), 
-    as.character(babynames[12345, "name"]), 
-    length(unique(babynames$name)))
-```
-
-```
-1792091 5 Baxter 92600
-```
-
-```r
-s <- babynames[sample(1:nrow(babynames), 
-                      0.01 * nrow(babynames)),]
-
-sum(babynames$year < 1900) # faster and more memory-efficient than nrow(subset(...))
-```
-
-```
-[1] 52265
-```
-
-
-Cleaning data
-========================================================
-
-Usually, the first thing you'd like to do after importing data is *clean* it.
-
-- change column types
-- computing on columns
-- splitting columns
-- combining columns
-- dealing with `NA` values
 
 
 Computing on columns
@@ -437,41 +379,35 @@ d
 3 3 6 12 not four
 ```
 
-R provides a set of high performance functions for many of these tasks: `cumsum`, `colMeans`, `colSums`, `rowMeans`, `rowSums`, etc.
+Base R provides a set of high performance functions for many of these tasks: `cumsum`, `colMeans`, `colSums`, `rowMeans`, `rowSums`, etc.
 
 
-Exercise: Computing on columns
+Computing on columns
 ========================================================
-type: prompt
-incremental: true
 
-One recent problem I had involved a data frame with multiplexer valve numbers; in the experiment, the multiplexer was automatically switching between valves.
-
-Whenever the valve number changes, we want to assign a new sample number.
+...or more complex. For example, for Picarro data comes with multiplexer valve numbers (i.e., in an experiment, the multiplexer automatically switches between valves). Whenever the valve number changes, we want to assign a new sample number.
 
 
 ```r
-# analyzer is switching between valves 1, 2, and 3
-vnums <- c(1, 1, 2, 3, 3, 3, 1, 2, 2, 3)
-# there are 6 samples here: (1, 1), (2), (3, 3, 3), (1), (2, 2), (3)
-
-# There are ≥ two solutions
+# Toy data set
+# Analyzer is switching between valves 1, 2, and 3
+vn <- c(1, 1, 2, 3, 3, 3, 1, 2, 2, 3)
 ```
+
+There are 6 samples here, and we want to produce `1, 1, 2, 3, 3, 3, 4, 5, 5, 6`.
 
 
 Exercise: Computing on columns
 ========================================================
-type: prompt
-incremental: true
-
 
 
 ```r
 # Works, but slow
-samplenums <- rep(1, length(vnums))
+samplenums <- rep(NA, length(vn))
+samplenums[1] <- 1
 s <- 1
-for(i in seq_along(vnums)[-1]) {
-  if(vnums[i] != vnums[i-1])
+for(i in 2:length(vn)) {
+  if(vn[i] != vn[i-1])
     s <- s + 1
   samplenums[i] <- s
 }
@@ -483,10 +419,21 @@ samplenums
 ```
 
 
+Exercise: Computing on columns
+========================================================
+
+
 ```r
 # Vectorised: fast and elegant
-newvalve <- c(TRUE,
-              vnums[-length(vnums)] != vnums[-1])
+newvalve <- c(TRUE, vn[-length(vn)] != vn[-1])
+newvalve
+```
+
+```
+ [1]  TRUE FALSE  TRUE  TRUE FALSE FALSE  TRUE  TRUE FALSE  TRUE
+```
+
+```r
 cumsum(newvalve)
 ```
 
@@ -495,34 +442,32 @@ cumsum(newvalve)
 ```
 
 
-Combining columns
+Exercise: Computing on columns - time
 ========================================================
 
-Combining columns is generally easy.
 
-```r
-d <- data.frame(x=1:3, y=4:6)
-d$z <- with(d, paste("pasted", x, "and", y))  # note use of `with` here
-d
-```
 
-```
-  x y              z
-1 1 4 pasted 1 and 4
-2 2 5 pasted 2 and 5
-3 3 6 pasted 3 and 6
-```
+This has big consequences!
+
+For a data frame with 1,100,000 rows:
+
+**The larger lesson to take away here** is that in R, `for` loops are rarely the fastest way to do something (although they may be the clearest).
+
+***
+
+![plot of chunk unnamed-chunk-17](R-data-picarro-figure/unnamed-chunk-17-1.png)
 
 
 Understanding and dealing with NA
 ========================================================
 
-One of R's real strengths is that missing values are a first-class data type: `NA`.
+One of R's strengths is that missing values are a first-class data type: `NA`.
 
 
 ```r
 x <- c(1, 2, 3, NA)
-is.na(x) # returns c(F, F, F, T)
+# Which values are NA?
+is.na(x)
 ```
 
 ```
@@ -530,22 +475,26 @@ is.na(x) # returns c(F, F, F, T)
 ```
 
 ```r
-any(is.na(x)) # returns TRUE
+any(is.na(x))
 ```
 
 ```
 [1] TRUE
 ```
 
+***
+
+
 ```r
-which(is.na(x)) # returns ...?
+# What does this return?
+which(is.na(x))
 ```
 
-```
-[1] 4
-```
 
-Like `NaN` and `Inf`, generally `NA` 'poisons' operations, so it must be handled.
+Understanding and dealing with NA
+========================================================
+
+Like `NaN` and `Inf`, generally `NA` 'poisons' operations, so NA values must be explicitly ignored and/or removed.
 
 
 ```r
@@ -557,22 +506,11 @@ sum(x) # NA
 ```
 
 ```r
-sum(x, na.rm=TRUE) # 6
+sum(x, na.rm = TRUE)
 ```
 
 ```
 [1] 6
-```
-
-```r
-na.omit(data.frame(x))  # remove rows with NA
-```
-
-```
-  x
-1 1
-2 2
-3 3
 ```
 
 
@@ -584,8 +522,8 @@ R has a `Date` class representing calendar dates, and an `as.Date` function for 
 
 ```r
 library(lubridate)
-x <- c("09-01-01", "09-01-02")
-ymd(x)   # there's also dmy and mdy!
+x <- c("09-01-01", "09-01-02") # character!
+ymd(x)   # there's also dmy, mdy, ymd_hms, etc.
 ```
 
 ```
@@ -593,59 +531,6 @@ ymd(x)   # there's also dmy and mdy!
 ```
 
 Once data are in `Date` format, the time interval between them can be computed simply by subtraction. See also `?difftime`
-
-
-Quiz: Cleaning Data
-========================================================
-type: prompt
-incremental: true
-
-
-```r
-x <- -2:2
-y <- 4/x 
-y  # prints...?
-```
-
-```
-[1]  -2  -4 Inf   4   2
-```
-
-```r
-y <- y[is.finite(y)]
-y  # prints...?
-```
-
-```
-[1] -2 -4  4  2
-```
-
-***
-
-
-```r
-is.numeric(NA)
-```
-
-```
-[1] FALSE
-```
-
-```r
-is.numeric(Inf)
-```
-
-```
-[1] TRUE
-```
-
-```r
-is.infinite(Inf)
-```
-
-```
-[1] TRUE
-```
 
 
 Merging datasets
@@ -667,7 +552,7 @@ Let's say we have a data frame containing information on how pretty each of the 
 Merging datasets
 ========================================================
 
-`merge` looks for names in common between two data frames, and uses these to merge. Options allow us to control the merge behavior.
+`merge` looks for names in common between two data frames, and uses these to merge.
 
 
 ```r
@@ -685,10 +570,10 @@ merge(iris, howpretty)
 6  setosa          5.4   ugly
 ```
 
-The `dplyr` package has more varied, faster database-style join operations.
+(NB - viewing only a few columns and rows.) The `dplyr` package has more varied, faster database-style join operations.
 
 
-Summarizing and operating on data
+Summarizing and manipulating data
 ========================================================
 type: section
 
@@ -699,7 +584,7 @@ History lesson
 <img src="images/history.png" width="850" />
 
 
-Summarizing and operating on data
+Summarizing and manipulating data
 ========================================================
 
 Thinking back to the typical data pipeline, we often want to summarize data by groups as an intermediate or final step. For example, for each subgroup we might want to:
@@ -720,39 +605,21 @@ Split-apply-combine
 
 These are generally known as *split-apply-combine* problems.
 
-<img src="images/splitapply.png" width="650" />
+<img src="images/split_apply_combine.png" width="600" />
 
-From https://ramnathv.github.io/pycon2014-r/explore/sac.html
+From https://github.com/ramnathv/rblocks/issues/8
 
 
 The apply family
 ========================================================
 
-Traditionally the *apply* family of functions was R's solution. Unfortunately they have inconsistent and confusing syntax, middling performance, and functional quirks.
-
-Function      | Description
-------------- | ------------
-base::apply   |  Apply Functions Over Array Margins
-base::by      |  Apply a Function to a Data Frame Split by Factors
-base::eapply  |  Apply a Function Over Values in an Environment
-**base::lapply**  |  **Apply a Function over a List or Vector**
-base::mapply  |  Apply a Function to Multiple List or Vector Arguments
-base::rapply  |  Recursively Apply a Function to a List
-base::tapply  |  Apply a Function Over a Ragged Array
-
-https://nsaunders.wordpress.com/2010/08/20/a-brief-introduction-to-apply-in-r/ provides a simple, readable summary of these.
-
-
-aggregate
-========================================================
-
-R also has a built-in `aggregate` function. It's not particularly fast or flexible, and confusingly has a number of different forms. 
+Base R has the *apply* family of functions. Unfortunately they have inconsistent and confusing syntax, middling performance, and functional quirks. R also has an `aggregate` function. It's not particularly fast or flexible, and confusingly has different forms. 
 
 It can however be useful for simple operations:
 
 
 ```r
-aggregate(dist ~ speed, data=cars, FUN=max)
+aggregate(dist ~ speed, data=cars, FUN = max)
 ```
 
 ```
@@ -782,7 +649,7 @@ aggregate(dist ~ speed, data=cars, FUN=max)
 dplyr
 ========================================================
 
-The newer `dplyr` package makes a different tradeoff: it specializes in data frames, recognizing that most people use them most of the time, and is extremely fast.
+The newer `dplyr` package specializes in data frames, recognizing that most people use them most of the time, and is **extremely fast**.
 
 `dplyr` also allows you to work with remote, out-of-memory databases, using exactly the same tools, because dplyr will translate your R code into the appropriate SQL.
 
@@ -792,11 +659,7 @@ In other words, `dplyr` abstracts away *how* your data is stored.
 Operation pipelines in R
 ========================================================
 
-`dplyr` *imports*, and its examples make heavy use of, the [magrittr](https://github.com/smbache/magrittr) package, which changes R syntax (remember, every operation is a function) to introduce a **pipe** operator `%>%`. This 
-* structures sequences of data operations left-to-right (as opposed to inside-out)
-* avoids nested function calls
-* minimizes the need for local variables
-* makes it easy to add steps anywhere in a sequence of operations
+`dplyr` *imports*, and its examples make heavy use of, the [magrittr](https://github.com/smbache/magrittr) package, which introduces a **pipeline** operator `%>%` to R.
 
 Not everyone is a fan of piping, and there are situations where it's not appropriate; but we'll stick to `dplyr` convention and use it frequently.
 
@@ -806,33 +669,23 @@ Operation pipelines in R
 
 Standard R notation:
 
+
 ```r
 x <- read_my_data(f)
-y <- process_data(clean_data(x), otherdata)
+y <- merge_data(clean_data(x), otherdata)
 z <- summarize_data(y)
 ```
 
-Notation using a `magrittr` pipe:
+Notation using a `magrittr` pipeline:
+
 
 ```r
-z <- read_my_data(f) %>%
+read_my_data(f) %>%
   clean_data() %>%
-  process_data(otherdata) %>%
-  summarize_data()
+  merge_data(otherdata) %>%
+  summarize_data() ->
+  z
 ```
-
-
-Operation pipelines in R
-========================================================
-
-Basic `magrittr` piping summary:
-
-* `x %>% f` is equivalent to `f(x)`
-* `x %>% f(y)` is equivalent to `f(x, y)`
-* `x %>% f %>% g %>% h` is equivalent to `h(g(f(x)))`
-* `x %>% f(y, .)` is equivalent to `f(y, x)`
-
-Remember, `magrittr` is independent of `dplyr` - you can use pipes anywhere useful.
 
 
 Verbs
@@ -854,14 +707,271 @@ Grouping
 
 
 
-
-
-
-
-
-
-
+```r
+library(dplyr)
+library(babynames)
+group_by(babynames, year, sex)
+```
 
 ```
-Error in eval(expr, envir, enclos) : could not find function "group_by"
+Source: local data frame [1,792,091 x 5]
+Groups: year, sex [268]
+
+    year   sex      name     n       prop
+   (dbl) (chr)     (chr) (int)      (dbl)
+1   1880     F      Mary  7065 0.07238359
+2   1880     F      Anna  2604 0.02667896
+3   1880     F      Emma  2003 0.02052149
+4   1880     F Elizabeth  1939 0.01986579
+5   1880     F    Minnie  1746 0.01788843
+6   1880     F  Margaret  1578 0.01616720
+7   1880     F       Ida  1472 0.01508119
+8   1880     F     Alice  1414 0.01448696
+9   1880     F    Bertha  1320 0.01352390
+10  1880     F     Sarah  1288 0.01319605
+..   ...   ...       ...   ...        ...
 ```
+
+
+Summarizing iris
+========================================================
+
+
+```r
+iris %>% 
+  group_by(Species) %>% 
+  summarise(msl = mean(Sepal.Length))
+```
+
+```
+Source: local data frame [3 x 2]
+
+     Species   msl
+      (fctr) (dbl)
+1     setosa 5.006
+2 versicolor 5.936
+3  virginica 6.588
+```
+
+
+Summarizing iris
+========================================================
+
+We can apply (multiple) functions across (multiple) columns.
+
+
+```r
+iris %>% 
+  group_by(Species) %>% 
+  summarise_each(funs(mean, median, sd), 
+                 Sepal.Length)
+```
+
+```
+Source: local data frame [3 x 4]
+
+     Species  mean median        sd
+      (fctr) (dbl)  (dbl)     (dbl)
+1     setosa 5.006    5.0 0.3524897
+2 versicolor 5.936    5.9 0.5161711
+3  virginica 6.588    6.5 0.6358796
+```
+
+
+Summarizing babynames
+========================================================
+
+Note that each summary operation peels off one grouping layer. What does this calculate?
+
+
+```r
+babynames %>%
+  group_by(year, sex) %>% 
+  summarise(prop = max(prop), 
+            name = name[which.max(prop)])
+```
+
+```
+Source: local data frame [268 x 4]
+Groups: year [?]
+
+    year   sex       prop  name
+   (dbl) (chr)      (dbl) (chr)
+1   1880     F 0.07238359  Mary
+2   1880     M 0.08154561  John
+3   1881     F 0.06998999  Mary
+4   1881     M 0.08098075  John
+5   1882     F 0.07042473  Mary
+6   1882     M 0.07831552  John
+7   1883     F 0.06673052  Mary
+8   1883     M 0.07907113  John
+9   1884     F 0.06698985  Mary
+10  1884     M 0.07648564  John
+..   ...   ...        ...   ...
+```
+
+
+Summarizing babynames
+========================================================
+
+<img src="images/popular_babynames.png" width="800" />
+
+https://en.wikipedia.org/wiki/Linda_(1946_song)
+
+
+Summarizing babynames
+========================================================
+
+In general `dplyr` is ~10x faster than the older `plyr` package, which in turn is ~10x faster than base R.
+
+Base R also tends to require many more lines of code.
+
+
+Hands-on: manipulating the `babynames` dataset
+========================================================
+type: prompt
+incremental: false
+
+Load the dataset using `library(babynames)`. Read its help page.
+
+How many rows and columns are there in the `babynames` dataset? What name is in row #12345? How many unique baby names are there?
+
+How many 19th century rows are there?
+
+Make a new data frame with a random 1% of the original rows. Hint: `sample()`.
+
+Calculate the 5th most popular name for girls in each year. Hint: `nth()`.
+
+
+Processing Picarro data
+========================================================
+type: section
+
+
+Picarro data
+========================================================
+
+The Picarro outputs text files with names like 
+
+>CFADS2283-20150831-171845Z-DataLog_User.dat 
+
+>(1.2 MB)
+
+They're bulky and I will often store them gzip'd or zip'd (R doesn't care and will transparently decompress them on reading).
+
+>CFADS2283-20150831-171845Z-DataLog_User.dat.gz
+
+>0.1 MB
+
+
+Picarro data
+========================================================
+
+These files are straightfoward text files.
+
+<img src="images/datafile.png" width="800" />
+
+
+Picarro data
+========================================================
+
+Data in the Picarro output stream include:
+
+* **`DATE`: yyyy-mm-dd format**
+* **`TIME`: hh:mm:ss.sss**
+* Time in other forms: `FRAC_DAYS_SINCE_JAN1`, `FRAC_HRS_SINCE_JAN1`, `JULIAN_DAYS`, `EPOCH_TIME`
+* `ALARM_STATUS` and `INST_STATUS`
+* `species`
+* **`MPVPosition` and `solenoid_valves`**
+* **Gas data: `CH4`, `CH4_dry`, `CO2`, `CO2_dry`, `H2O`, `h2o_reported`**
+
+
+Picarro data cautions
+========================================================
+type: alert
+incremental: true
+
+**Fractional `MPVPosition` valve numbers**
+
+The analyzer records fractional valve numbers when switching between multiplexer valves. You'll want to discard these.
+
+**Date and time stamps**
+
+Know what time the analyzer is set to. If local time, does your experiment cross a daylight savings transition? Does it cross into a new year (which would screw up e.g. `FRAC_HRS_SINCE_JAN1`)?
+
+I recommend setting it to UTC and LEAVE IT THERE. Then it's easy to convert the `DATE` and `TIME` fields into a true R date field and adjust to local time zone if necessary.
+
+
+Hands-on: Picarro data
+========================================================
+type: prompt
+
+Let's open the `picarro.R` file, which I started but didn't finish.
+
+At this point, we have the tools to complete the job. Can you help?
+
+
+Picarro pipeline solution
+========================================================
+
+
+```r
+rawdata %>%
+  filter(MPVPosition == floor(MPVPosition)) %>%
+  select(samplenum, DATETIME, MPVPosition, 
+         CH4_dry, CO2_dry) %>%
+  left_join(valvedata, by = "MPVPosition") %>%
+  group_by(samplenum) %>%
+  mutate(secs = difftime(DATETIME, 
+                         min(DATETIME), 
+                         units = "secs"),
+         secs = as.numeric(secs)) %>%
+  filter(soilcore != "J") ->
+  cleandata
+```
+
+
+Last thoughts
+========================================================
+
+>The best thing about R is that it was written by statisticians. The worst thing about R is that it was written by statisticians.
+>
+>-- Bow Cowgill
+
+All the source code for this presentation is available at https://github.com/bpbond/R-data-picarro
+
+
+Resources
+========================================================
+type: section
+
+
+Resources
+========================================================
+
+* [CRAN](http://cran.r-project.org) - The Comprehensive R Archive Network. Ground zero for R.
+* [GitHub](https://github.com/JGCRI) - The JGCRI organization page on GitHub.
+* [RStudio](http://www.rstudio.com) - the integrated development environment for R. Makes many things hugely easier.
+* [Advanced R](http://adv-r.had.co.nz) - the companion website for “Advanced R”, a book in Chapman & Hall’s R Series. Detailed, in depth look at many of the issues covered here.
+
+
+Resources
+========================================================
+
+R has many contributed *packages* across a wide variety of scientific fields. Almost anything you want to do will have packages to support it.
+
+[CRAN](http://cran.r-project.org) also provides "Task Views". For example:
+
+***
+
+- Bayesian
+- Clinical Trials
+- Differential Equations
+- Finance
+- Genetics
+- HPC
+- Meta-analysis
+- Optimization
+- [**Reproducible Research**](http://cran.r-project.org/web/views/ReproducibleResearch.html)
+- Spatial Statistics
+- Time Series

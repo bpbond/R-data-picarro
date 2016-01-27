@@ -21,3 +21,4 @@ vignettes/*.pdf
 
 # Presentation tempfiles
 R-data-picarro-figure/
+R-data-picarro-cache/
