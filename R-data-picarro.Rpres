@@ -181,7 +181,7 @@ Things you should know: basics
 
 ```{r}
 x <- 10 + 2 # `x` is an object
-sum(x) # `sum` is a function
+log(x) # `log` is a function
 ```
 
 - The idea of *data types*
@@ -532,11 +532,11 @@ aggregate(dist ~ speed,
 dplyr
 ========================================================
 
-The newer `dplyr` package specializes in data frames, recognizing that most people use them most of the time, and is **extremely fast**.
+The newer `dplyr` package specializes in data frames, recognizing that most people use them most of the time.
 
-`dplyr` also allows you to work with remote, out-of-memory databases, using exactly the same tools, because dplyr will translate your R code into the appropriate SQL.
+`dplyr` also allows you to work with remote, out-of-memory databases, using exactly the same tools, because it abstracts away *how* your data is stored.
 
-In other words, `dplyr` abstracts away *how* your data is stored.
+`dplyr` is **extremely fast**.
 
 
 Operation pipelines in R
@@ -562,9 +562,9 @@ Notation using a `magrittr` pipeline:
 
 ```{r, eval=FALSE}
 read_my_data(f) %>%
-  clean_data() %>%
+  clean_data %>%
   merge_data(otherdata) %>%
-  summarize_data() ->
+  summarize_data ->
   z
 ```
 
@@ -575,10 +575,10 @@ Verbs
 `dplyr` provides functions for each basic *verb* of data manipulation. These tend to have analogues in base R, but use a consistent, compact syntax, and are very high performance.
 
 * `filter()` - subset rows; like `base::subset()`
-* `arrange()` - reorder rows; is a wrapper for `order()`
+* `arrange()` - reorder rows; like `order()`
 * `select()` - select columns
-* `mutate()` - add new columns; like `base::transform()
-* `summarise()` - like `aggregate` or `plyr::ddply`
+* `mutate()` - add new columns
+* `summarise()` - like `aggregate`
 
 
 Grouping
@@ -632,7 +632,7 @@ iris %>%
 Summarizing babynames
 ========================================================
 
-Note that each summary operation peels off one grouping layer. What does this calculate?
+What does this calculate?
 
 ```{r}
 babynames %>%
@@ -668,8 +668,6 @@ incremental: false
 Load the dataset using `library(babynames)`. Read its help page. Look at its structure (rows, columns, summary).
 
 Use `dplyr` to calculate the total number of names in the SSA database for each year. 
-
-Make a new data frame with a random 1% of the original rows. Hint: `sample()`.
 
 Calculate the 5th most popular name for girls in each year. Hint: `nth()`.
 
