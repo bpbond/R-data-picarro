@@ -10,6 +10,7 @@ print("Information about the `iris` dataset:")
 # in a script. From the command line, you can just type `summary(iris)` e.g.
 print(summary(iris))
 print(names(iris))
+?iris # get help about iris
 readline("<RETURN>")
 
 print("Number of rows and columms:")
@@ -26,6 +27,7 @@ print(tail(iris))
 # Data frames are indexed by [row, column]
 print("Indexing into data frames:")
 print(iris[3,])  # row 3
+print(iris[3:5,]) # rows 3-5
 print(head(iris[c(2, 3)]))  # columns 2 and 3
 print(head(iris[-2]))  # not column 2
 readline("<RETURN>")
