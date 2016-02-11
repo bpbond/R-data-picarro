@@ -1,9 +1,9 @@
-R and (Picarro) data
+Reproducible data analysis using R
 ========================================================
 author: Ben Bond-Lamberty
-date: January 2016
+date: February 2016
 
-A workshop covering R basics; reproducibility; data exploration, summarizing and manipulation; and issues specific to Picarro data.
+A workshop covering R basics; reproducibility; pipelines; and data summarizing and manipulation.
 
 
 The next three hours of your life
@@ -55,7 +55,7 @@ type: section
 Reproducibility
 ========================================================
 
-We are in the era of 'big data', but even if you work with 'little data' you have to acquire some skills to deal with those data.
+We are in the era of collaborative 'big data', but even if you work by yourself with 'little data' you have to have some skills to deal with those data.
 
 **Most fundamentally, your results have to be reproducible.**
 
@@ -124,13 +124,7 @@ This directory is backed up both *locally* and *remotely*, and is under *version
 Reproducible research example
 ========================================================
 
-- Sequentially numbered R scripts (`0-download.R`, `1-process_data.R`, ...)
-- Each script depends on the previous one
-- Each has a discrete, logical task
-- Each produces a *log file* including date/time, what R version was used, etc.
-- This analytical chain starts with raw data
-- ...and ends with figures and tables for ms
-+ *or the ms itself!* This presentation, for example, was generated directly from an R file
+<img src="images/repository.png" />
 
 
 Hands-on: setting up R and RStudio
@@ -709,30 +703,29 @@ Grouping
 `dplyr` verbs become particularly powerful when used in conjunction with *groups* we define in the dataset. The `group_by` function converts an existing data frame into a grouped `tbl`.
 
 
-
 ```r
 library(dplyr)
-library(babynames)
-babynames %>% group_by(year, sex)
+cars %>%
+  group_by(speed)
 ```
 
 ```
-Source: local data frame [1,792,091 x 5]
-Groups: year, sex [268]
+Source: local data frame [50 x 2]
+Groups: speed [19]
 
-    year   sex      name     n       prop
-   (dbl) (chr)     (chr) (int)      (dbl)
-1   1880     F      Mary  7065 0.07238359
-2   1880     F      Anna  2604 0.02667896
-3   1880     F      Emma  2003 0.02052149
-4   1880     F Elizabeth  1939 0.01986579
-5   1880     F    Minnie  1746 0.01788843
-6   1880     F  Margaret  1578 0.01616720
-7   1880     F       Ida  1472 0.01508119
-8   1880     F     Alice  1414 0.01448696
-9   1880     F    Bertha  1320 0.01352390
-10  1880     F     Sarah  1288 0.01319605
-..   ...   ...       ...   ...        ...
+   speed  dist
+   (dbl) (dbl)
+1      4     2
+2      4    10
+3      7     4
+4      7    22
+5      8    16
+6      9    10
+7     10    18
+8     10    26
+9     10    34
+10    11    17
+..   ...   ...
 ```
 
 
@@ -823,6 +816,34 @@ Source: local data frame [3 x 4]
 Summarizing babynames
 ========================================================
 
+
+```r
+library(babynames)
+babynames
+```
+
+```
+Source: local data frame [1,792,091 x 5]
+
+    year   sex      name     n       prop
+   (dbl) (chr)     (chr) (int)      (dbl)
+1   1880     F      Mary  7065 0.07238359
+2   1880     F      Anna  2604 0.02667896
+3   1880     F      Emma  2003 0.02052149
+4   1880     F Elizabeth  1939 0.01986579
+5   1880     F    Minnie  1746 0.01788843
+6   1880     F  Margaret  1578 0.01616720
+7   1880     F       Ida  1472 0.01508119
+8   1880     F     Alice  1414 0.01448696
+9   1880     F    Bertha  1320 0.01352390
+10  1880     F     Sarah  1288 0.01319605
+..   ...   ...       ...   ...        ...
+```
+
+
+Summarizing babynames
+========================================================
+
 What does this calculate?
 
 
@@ -864,11 +885,11 @@ https://en.wikipedia.org/wiki/Linda_(1946_song)
 Why use dplyr?
 ========================================================
 
-In general `dplyr` is ~10x faster than the older `plyr` package.
+* Clean, concise, and consistent syntax.
 
-And `plyr` was ~10x faster than base R.
+* In general `dplyr` is ~10x faster than the older `plyr` package. (And `plyr` was ~10x faster than base R.)
 
-Base R also tends to require more lines of code.
+* Same code can work with data frames or remote databases.
 
 
 Hands-on: manipulating the `babynames` dataset

@@ -1,9 +1,9 @@
-R and (Picarro) data
+Reproducible data analysis using R
 ========================================================
 author: Ben Bond-Lamberty
-date: January 2016
+date: February 2016
 
-A workshop covering R basics; reproducibility; data exploration, summarizing and manipulation; and issues specific to Picarro data.
+A workshop covering R basics; reproducibility; pipelines; and data summarizing and manipulation.
 
 
 The next three hours of your life
@@ -55,7 +55,7 @@ type: section
 Reproducibility
 ========================================================
 
-We are in the era of 'big data', but even if you work with 'little data' you have to acquire some skills to deal with those data.
+We are in the era of collaborative 'big data', but even if you work by yourself with 'little data' you have to have some skills to deal with those data.
 
 **Most fundamentally, your results have to be reproducible.**
 
@@ -124,13 +124,7 @@ This directory is backed up both *locally* and *remotely*, and is under *version
 Reproducible research example
 ========================================================
 
-- Sequentially numbered R scripts (`0-download.R`, `1-process_data.R`, ...)
-- Each script depends on the previous one
-- Each has a discrete, logical task
-- Each produces a *log file* including date/time, what R version was used, etc.
-- This analytical chain starts with raw data
-- ...and ends with figures and tables for ms
-+ *or the ms itself!* This presentation, for example, was generated directly from an R file
+<img src="images/repository.png" />
 
 
 Hands-on: setting up R and RStudio
@@ -586,11 +580,10 @@ Grouping
 
 `dplyr` verbs become particularly powerful when used in conjunction with *groups* we define in the dataset. The `group_by` function converts an existing data frame into a grouped `tbl`.
 
-
 ```{r}
 library(dplyr)
-library(babynames)
-babynames %>% group_by(year, sex)
+cars %>%
+  group_by(speed)
 ```
 
 
@@ -632,6 +625,15 @@ iris %>%
 Summarizing babynames
 ========================================================
 
+```{r}
+library(babynames)
+babynames
+```
+
+
+Summarizing babynames
+========================================================
+
 What does this calculate?
 
 ```{r}
@@ -653,11 +655,11 @@ https://en.wikipedia.org/wiki/Linda_(1946_song)
 Why use dplyr?
 ========================================================
 
-In general `dplyr` is ~10x faster than the older `plyr` package.
+* Clean, concise, and consistent syntax.
 
-And `plyr` was ~10x faster than base R.
+* In general `dplyr` is ~10x faster than the older `plyr` package. (And `plyr` was ~10x faster than base R.)
 
-Base R also tends to require more lines of code.
+* Same code can work with data frames or remote databases.
 
 
 Hands-on: manipulating the `babynames` dataset
