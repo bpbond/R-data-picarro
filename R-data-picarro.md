@@ -2,8 +2,11 @@ Reproducible data analysis using R
 ========================================================
 author: Ben Bond-Lamberty
 date: February 2016
+font-family: 'Helvetica'
 
-A workshop covering R basics; reproducibility; pipelines; and data summarizing and manipulation.
+A workshop covering a bit of R basics; reproducibility; graphics and pipelines; and data summarizing and manipulation.
+
+Purdue University
 
 
 The next three hours of your life
@@ -23,14 +26,6 @@ Is R the right tool for the job?
 >R has simple and obvious appeal. Through R, you can sift through complex data sets, manipulate data through sophisticated modeling functions, and create sleek graphics to represent the numbers, in just a few lines of code...R’s greatest asset is the vibrant ecosystem has developed around it: The R community is constantly adding new packages and features to its already rich function sets.
 >
 >-- [The 9 Best Languages For Crunching Data](http://www.fastcompany.com/3030716/the-9-best-languages-for-crunching-data)
-
-
-Is R the right tool for the job?
-========================================================
-
-It's also very useful during _Talk Like A Pirate Day_.
-
-<img src="images/talk-like-a-pirate.gif" />
 
 
 Is R the right tool for the job?
@@ -61,7 +56,7 @@ We are in the era of collaborative 'big data', but even if you work by yourself 
 
 >Your most important collaborator is your future self. It’s important to make a workflow that you can use time and time again, and even pass on to others in such a way that you don’t have to be there to walk them through it. [Source](http://berkeleysciencereview.com/reproducible-collaborative-data-science/)
 
-Reproducibility means *scripts* or *programs* tied to *open source software*.
+Reproducibility generally means *scripts* or *programs* tied to *open source software*.
 
 
 You can't reproduce
@@ -118,7 +113,7 @@ output/
 rawdata/
 ```
 
-This directory is backed up both *locally* and *remotely*, and is under *version control*, so it's easy to track changes over time.
+This directory contains *scripts* that are backed up both *locally* and *remotely*. It is under *version control*, so it's easy to track changes over time.
 
 
 Reproducible research example
@@ -142,7 +137,7 @@ We'll also use this data package:
 
 Finally, we'll download a [repository](https://github.com/bpbond/R-data-picarro) (collection of code and data) for this workshop.
 
-Let's do that, and get oriented in **RStudio**, now.
+Let's do that, and get oriented in [RStudio](https://www.rstudio.com/products/RStudio/), now.
 
 
 R basics
@@ -161,7 +156,8 @@ This workshop assumes you understand a few basics of R:
 
 
 ```r
-# Get help for a specific function
+# This is a comment
+# Get help for the `summary` function
 ?summary
 
 # Get help for an entire package
@@ -246,12 +242,13 @@ Things you should know: data frames
 
 - The idea of a *data frame* (tightly coupled vectors)
 
+
 ```r
-head(cars)  # a built-in dataset
+head(cars)  # one of R's built-in datasets
 ```
 
 ```
-speed dist
+  speed dist
 1     4    2
 2     4   10
 3     7    4
@@ -259,6 +256,7 @@ speed dist
 5     8   16
 6     9   10
 ```
+
 Data frames are the most frequently used data type in R.
 
 
@@ -315,7 +313,8 @@ Things you should know: packages
 
 
 ```r
-# The single most popular package is `ggplot2`
+# The single most popular R  
+# package is `ggplot2`
 library(ggplot2)
 
 # qplot = quick plot
@@ -326,7 +325,7 @@ qplot(speed,
 
 ***
 
-![plot of chunk unnamed-chunk-11](R-data-picarro-figure/unnamed-chunk-11-1.png)
+![plot of chunk unnamed-chunk-12](R-data-picarro-figure/unnamed-chunk-12-1.png)
 
 
 Hands-on: examining the `iris` dataset
@@ -352,22 +351,22 @@ This can be simple...
 d <- data.frame(x = 1:3)
 d$y <- d$x * 2
 d$z <- cumsum(d$y) # cumulative sum
-d$four <- ifelse(d$y == 4, "four", "not four") 
+d$four <- ifelse(d$y == 4, "four", "not 4") 
 d
 ```
 
 ```
-  x y  z     four
-1 1 2  2 not four
-2 2 4  6     four
-3 3 6 12 not four
+  x y  z  four
+1 1 2  2 not 4
+2 2 4  6  four
+3 3 6 12 not 4
 ```
 
 
 Computing on columns
 ========================================================
 
-...or more complex. For example, for Picarro data comes with multiplexer valve numbers (i.e., in an experiment, the multiplexer automatically switches between valves). Whenever the valve number changes, we want to assign a new sample number.
+...or more complex. For example, for [Picarro](http://www.picarro.com/products_solutions/trace_gas_analyzers/co_co2_ch4_h2o) data comes with multiplexer valve numbers (i.e., in an experiment, the multiplexer automatically switches between valves). Whenever the valve number changes, we want to assign a new sample number.
 
 
 ```r
@@ -388,6 +387,8 @@ Exercise: Computing on columns
 samplenums <- rep(NA, length(vn))
 samplenums[1] <- 1
 s <- 1
+
+# Loop and compare valve numbes one by one
 for(i in 2:length(vn)) {
   if(vn[i] != vn[i-1])
     s <- s + 1
@@ -436,9 +437,12 @@ For a data frame with 1,100,000 rows:
 
 **The larger lesson to take away here** is that in R, `for` loops are rarely the fastest way to do something (although they may be the clearest).
 
+When possible, take advantage of R's *vectorised operations*.
+
+
 ***
 
-![plot of chunk unnamed-chunk-17](R-data-picarro-figure/unnamed-chunk-17-1.png)
+![plot of chunk unnamed-chunk-18](R-data-picarro-figure/unnamed-chunk-18-1.png)
 
 
 Understanding and dealing with NA
@@ -565,7 +569,7 @@ merge(iris, howpretty)
 6  setosa          5.4   ugly
 ```
 
-(NB - viewing only a few columns and rows.) The `dplyr` package has more varied, faster database-style join operations.
+(Viewing only a few columns and rows.) The `dplyr` package has more varied, faster database-style join operations.
 
 
 Summarizing and manipulating data
@@ -813,7 +817,7 @@ Source: local data frame [3 x 4]
 ```
 
 
-Summarizing babynames
+Introduction `babynames`
 ========================================================
 
 
@@ -897,7 +901,9 @@ Hands-on: manipulating the `babynames` dataset
 type: prompt
 incremental: false
 
-Load the dataset using `library(babynames)`. Read its help page. Look at its structure (rows, columns, summary).
+Load the dataset using `library(babynames)`.
+
+Read its help page. Look at its structure (rows, columns, summary).
 
 Use `dplyr` to calculate the total number of names in the SSA database for each year. 
 
@@ -989,39 +995,15 @@ Let's open the `picarro.R` file, which I started but didn't finish.
 At this point, we have the tools to complete the job. Can you help?
 
 
-Picarro pipeline solution
-========================================================
-
-
-```r
-rawdata %>%
-  filter(MPVPosition == floor(MPVPosition)) %>%
-  select(samplenum, DATETIME, MPVPosition, 
-         CH4_dry, CO2_dry) %>%
-  left_join(valvedata, by = "MPVPosition") %>%
-  group_by(samplenum) %>%
-  mutate(secs = difftime(DATETIME, 
-                         min(DATETIME), 
-                         units = "secs"),
-         secs = as.numeric(secs)) %>%
-  filter(soilcore != "J") ->
-  cleandata
-```
-
-
 Things we didn't talk about
 ========================================================
 
-General:
-
+- reading data into R (not much)
+- working with non-text data
 - reshaping data
-- writing/saving data
+- writing data
 - graphing data
 
-Specifically for Picarro data:
-
-- gas concentration profile characteristics
-- how to compute fluxes
 
 
 Last thoughts
@@ -1042,7 +1024,7 @@ type: section
 Resources
 ========================================================
 
-* [CRAN](http://cran.r-project.org) - The Comprehensive R Archive Network. Ground zero for R.
+* [CRAN](http://cran.r-project.org) - The Comprehensive R Archive Network.
 * [GitHub](https://github.com/JGCRI) - The JGCRI organization page on GitHub.
 * [RStudio](http://www.rstudio.com) - the integrated development environment for R. Makes many things hugely easier.
 * [Advanced R](http://adv-r.had.co.nz) - the companion website for “Advanced R”, a book in Chapman & Hall’s R Series. Detailed, in depth look at many of the issues covered here.

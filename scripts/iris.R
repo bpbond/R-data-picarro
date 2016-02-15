@@ -55,6 +55,7 @@ print(pairs(iris[-5]))   # remove 5th column (species) before plotting
 readline("<RETURN>")
 
 # Use the `ggplot2` package for generally easier, better graphing
+# Less time fiddling with graphics = more time analyzing data
 library(ggplot2)
 
 print("Petal.Width versus Petal.Length:")
