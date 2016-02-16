@@ -15,9 +15,9 @@ The next three hours of your life
 * Introduction: R basics and reproducible research (45 minutes; hands-on: installing the packages we'll need)
 * Examining and cleaning data (45 minutes; hands-on: the `iris` dataset)
 * Summarizing and manipulating data (45 minutes; hands-on: the `babynames` dataset)
-* Bringing things together: working with Picarro data (45 minutes; hands-on: Picarro data)
+* Bringing things together: working with Picarro data (45 minutes; hands-on: real-world scientific data)
 
-Feedback: <a href="mailto:bondlamberty@pnnl">Email</a>  [Twitter](https://twitter.com/BenBondLamberty)
+Feedback: <a href="mailto:bondlamberty@pnnl">bondlamberty@pnnl.gov</a> or  [@BenBondLamberty](https://twitter.com/BenBondLamberty).
 
 
 Is R the right tool for the job?
@@ -62,11 +62,13 @@ Reproducibility generally means *scripts* or *programs* tied to *open source sof
 You can't reproduce
 ========================================================
 ...what doesn't exist.
-- Gozilla ate my computer
-+ backup
-+ ideally *continuous*
-- Godzilla ate my office
-+ cloud
+
+**Gozilla ate my computer!**
+* backup
+* ideally *continuous*
+
+**Godzilla destroyed my office!!!!!!**
+* offsite (cloud)
 
 ***
 
@@ -90,9 +92,9 @@ Version control
 
 **Git** (and website **GitHub**) are the most popular version control tools for use with R, and many other languages:
 - version control
-- sharing code with collaborators
+- sharing code with collaborators in a *repository*
 - issue tracking
-- social coding
+- public or private
 
 ***
 
@@ -220,20 +222,22 @@ myvector[2:3]
 
 
 ```r
-myvector * 2
-```
-
-```
-[1]  2  4  6  8 10
-```
-
-
-```r
 sum(myvector)
 ```
 
 ```
 [1] 15
+```
+
+*Vectorised operations* operate on a vector all at once:
+
+
+```r
+myvector * 2
+```
+
+```
+[1]  2  4  6  8 10
 ```
 
 
@@ -313,11 +317,11 @@ Things you should know: packages
 
 
 ```r
-# The single most popular R  
-# package is `ggplot2`
+# The single most popular R package is `ggplot2`
 library(ggplot2)
 
-# qplot = quick plot
+# qplot:
+# a "quick plot" function in ggplot2
 qplot(speed, 
       dist, 
       data = cars)
@@ -366,7 +370,7 @@ d
 Computing on columns
 ========================================================
 
-...or more complex. For example, for [Picarro](http://www.picarro.com/products_solutions/trace_gas_analyzers/co_co2_ch4_h2o) data comes with multiplexer valve numbers (i.e., in an experiment, the multiplexer automatically switches between valves). Whenever the valve number changes, we want to assign a new sample number.
+...or more complex. For example, the [Picarro](http://www.picarro.com/products_solutions/trace_gas_analyzers/co_co2_ch4_h2o) gas analyzer produces data with multiplexer valve numbers (i.e., in an experiment, the multiplexer automatically switches between valves). Whenever the valve number changes, we want to assign a new sample number.
 
 
 ```r
@@ -418,7 +422,7 @@ newvalve
 ```
 
 ```r
-cumsum(newvalve)
+cumsum(newvalve)  # "cumulative sum"
 ```
 
 ```
@@ -817,7 +821,7 @@ Source: local data frame [3 x 4]
 ```
 
 
-Introduction `babynames`
+Introduction to `babynames`
 ========================================================
 
 
@@ -972,13 +976,13 @@ I recommend setting it to UTC and LEAVE IT THERE. Then it's easy to convert the 
 Getting data into R
 ========================================================
 
-The most common way to bring data into R is via `read.table`:
+The most common way to bring data into R is via `read.table()`:
 
 ```r
 d <- read.table("mydata.csv", header = TRUE)
 ```
 
-The `readr` package provides read_table, which is faster and easier to use.
+The `readr` package provides `read_table()`, which is faster and easier to use.
 
 ```r
 library(readr)
