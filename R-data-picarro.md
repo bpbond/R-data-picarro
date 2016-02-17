@@ -64,7 +64,7 @@ You can't reproduce
 ...what doesn't exist.
 
 **Gozilla ate my computer!**
-* backup
+* *automated* backup
 * ideally *continuous*
 
 **Godzilla destroyed my office!!!!!!**
@@ -80,7 +80,7 @@ You can't reproduce
 
 ...what you've lost. What if you need access to a file as it existed 1, 10, or 100, or 1000 days ago?
 - Incremental backups (minimum)
-- Version control (better). A *repository* holds files and tracks changes
+- Version control (better). A *repository* holds files and tracks changes: what, by whom, why
 
 ***
 
@@ -681,7 +681,7 @@ y <- merge_data(clean_data(x), otherdata)
 z <- summarize_data(y)
 ```
 
-Notation using a `magrittr` pipeline:
+Pipeline notation:
 
 
 ```r
@@ -821,7 +821,7 @@ Source: local data frame [3 x 4]
 ```
 
 
-Introduction to `babynames`
+Introducting `babynames`
 ========================================================
 
 
