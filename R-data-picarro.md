@@ -1,4 +1,4 @@
-MORE reproducible data analysis using R
+(More) reproducible data analysis using R
 ========================================================
 author: Ben Bond-Lamberty
 date: August 2016
@@ -14,21 +14,14 @@ The plan
 
 * Introduction: reproducible research and repository design (45 minutes; hands-on: installing the packages we'll need)
 * Examining and cleaning data (45 minutes; hands-on: the `iris` and `Pew` datasets, CMIP5 example)
-* Summarizing and manipulating data (45 minutes; hands-on: the `babynames` dataset)
+* Summarizing and manipulating data (90 minutes; hands-on: the `babynames` dataset)
 
 **This workshop assumes you understand the basics of R.**
 
 Feedback: <a href="mailto:bondlamberty@pnnl">bondlamberty@pnnl.gov</a> or  [@BenBondLamberty](https://twitter.com/BenBondLamberty).
 
 
-Is R the right tool for the job?
-========================================================
-
-R is great, but it might not be the right (or at least only) thing you want. There are other tools that might be better for your specific need!
-- Python, C++, Hadoop, CDO/NCL, bash, ...
-
-
-Reproducibility and repositories
+Reproducibility
 ========================================================
 type: section
 
@@ -159,7 +152,7 @@ Finally, we'll download a [repository](https://github.com/bpbond/R-data-picarro)
 Let's do that now.
 
 
-R basics
+Getting ready to process data in R
 ========================================================
 type: section
 
@@ -167,145 +160,42 @@ type: section
 Things you should know: basics
 ========================================================
 
-This workshop assumes you understand a few basics of R:
+This workshop assumes you understand the basics of R:
 
-- What R is
-- How to start and quit it
-- How to get help
+- What R is, how to start and quit it
+- How to get help, both in R and out
 
 
 ```r
-# This is a comment
 # Get help for the `summary` function
 ?summary
 
+# Looks for a topic
+apropos("GLM")
+
 # Get help for an entire package
-help(package = 'ggplot2')
+help(package = 'tidyr')
 ```
 
 
-Things you should know: vectors
+Things you should know: vectors and data frames
 ========================================================
 
-- The *vector* data type
+- A `data.frame` is what we'll mostly use today
+- Under the hood, it's actually a `list` of `vector` structures:
 
 
 ```r
-myvector <- 1:5
-myvector <- c(1, 2, 3, 4, 5)
-myvector <- seq(1, 5)
-myvector
+str(cars)
 ```
 
 ```
-[1] 1 2 3 4 5
+'data.frame':	50 obs. of  2 variables:
+ $ speed: num  4 4 7 7 8 9 10 10 10 11 ...
+ $ dist : num  2 10 4 22 16 10 18 26 34 17 ...
 ```
 
-```r
-myvector[2:3]
-```
-
-```
-[1] 2 3
-```
-
-***
-
-
-```r
-sum(myvector)
-```
-
-```
-[1] 15
-```
-
-*Vectorised operations* operate on a vector all at once:
-
-
-```r
-myvector * 2
-```
-
-```
-[1]  2  4  6  8 10
-```
-
-
-Things you should know: scripts
-========================================================
-
-The difference between a *script* (stored program) and *command line* (immediate response).
-
-In general, you want to use scripts, which provide *reproducibility*.
-
-
-
-```r
-source("myscript.R")
-```
-
-***
-
-<img src="images/mayan_script.gif" />
-
-
-Things you should know: packages
-========================================================
-
-- *Packages* are pieces of software that can be loaded into R. There are thousands, for all kinds of tasks and needs.
-
-
-```r
-# The single most popular R package is `ggplot2`
-library(ggplot2)
-
-# qplot:
-# a "quick plot" function in ggplot2
-qplot(speed, 
-      dist, 
-      data = cars)
-```
-
-***
-
-![plot of chunk unnamed-chunk-7](R-data-picarro-figure/unnamed-chunk-7-1.png)
-
-
-Hands-on: examining the `iris` dataset
-========================================================
-type: prompt
-incremental: false
-
-Hands-on work in RStudio.
-* Built-in datasets
-* Using `summary`, `names`, `head`, `tail`
-* Looking at particular rows and columns
-* Subsetting the data
-* Basic plots of the data
-
-
-Computing on columns
-========================================================
-
-This can be simple...
-
-
-```r
-d <- data.frame(x = 1:3)
-d$y <- d$x * 2
-d$z <- cumsum(d$y) # cumulative sum
-d$four <- ifelse(d$y == 4, "four", "not 4") 
-d
-```
-
-```
-  x y  z  four
-1 1 2  2 not 4
-2 2 4  6  four
-3 3 6 12 not 4
-```
-
+- Lists are also extremely useful - learn how to use them efficiently (e.g. `lapply`)
 
 
 Understanding and dealing with NA
@@ -315,13 +205,13 @@ One of R's strengths is that missing values are a first-class data type: `NA`.
 
 
 ```r
-x <- c(1, 2, 3, NA)
+x <- c(1, 2, 3, NA, 5)
 # Which are NA?
 is.na(x)
 ```
 
 ```
-[1] FALSE FALSE FALSE  TRUE
+[1] FALSE FALSE FALSE  TRUE FALSE
 ```
 
 ```r
@@ -348,7 +238,7 @@ x[!is.na(x)]
 ```
 
 ```
-[1] 1 2 3
+[1] 1 2 3 5
 ```
 
 
@@ -359,7 +249,15 @@ Like `NaN` and `Inf`, generally `NA` 'poisons' operations, so NA values must be 
 
 
 ```r
-x <- c(1, 2, 3, NA)
+x <- c(1, 2, 3, NA, 5)
+any(is.na(x))
+```
+
+```
+[1] TRUE
+```
+
+```r
 sum(x) # NA
 ```
 
@@ -372,70 +270,80 @@ sum(x, na.rm = TRUE)
 ```
 
 ```
-[1] 6
+[1] 11
 ```
 
 
-Dealing with dates
+Things you should know: vectorization
 ========================================================
 
-R has a `Date` class representing calendar dates, and an `as.Date` function for converting to Dates. The `lubridate` package is often useful (and easier) for these cases:
+- *Vectorised operations* operate on a vector or data frame all at once. One of the simplest:
 
 
 ```r
-library(lubridate)
-x <- c("09-01-01", "09-01-02") # character!
-ymd(x)   # there's also dmy, ymd_hms, etc.
+myvector <- 1:5
+myvector * 2
 ```
 
 ```
-[1] "2009-01-01" "2009-01-02"
+[1]  2  4  6  8 10
 ```
 
-Once data are in `Date` format, the time interval between them can be computed simply by subtraction. See `?difftime`
-
-
-Merging datasets
-========================================================
-
-Often, as we clean and reshape data, we want to merge different datasets together. The built-in `merge` command does this well.
-
-Let's say we have a data frame containing information on how pretty each of the `iris` species is:
-
-
-```
-     Species pretty
-1     setosa   ugly
-2 versicolor     ok
-3  virginica lovely
-```
-
-
-Merging datasets
-========================================================
-
-`merge` looks for names in common between two data frames, and uses these to merge.
+This is **really important**. You want to take advantage of R's capabilities here, and avoid labor-intensive `for` loops.
 
 
 ```r
-merge(iris, howpretty)
+for(i in seq_along(myvector)) {
+  myvector[i] <- myvector[i] * 2
+}
 ```
 
 
+Things you should know: packages
+========================================================
+
+- *Packages* are pieces of software that can be loaded into R. There are thousands, for all kinds of tasks and needs.
+
+
+```r
+# The single most popular R package is `ggplot2`
+library(ggplot2)
+
+# qplot:
+# a "quick plot" function in ggplot2
+qplot(speed, dist, data = cars)
 ```
-  Species Sepal.Length pretty
-1  setosa          5.1   ugly
-2  setosa          4.9   ugly
-3  setosa          4.7   ugly
-4  setosa          4.6   ugly
-5  setosa          5.0   ugly
-6  setosa          5.4   ugly
-```
 
-(Viewing only a few columns and rows.) The `dplyr` package has more varied, faster database-style join operations.
+You'll also see the double-colon notation, `ggplot2::qplot`, which denotes accessing the _exported symbol_ of a _package_ (technically, a namespace).
+***
+
+![plot of chunk unnamed-chunk-9](R-data-picarro-figure/unnamed-chunk-9-1.png)
 
 
-Summarizing and manipulating data
+Is R the right tool for the job?
+========================================================
+
+R is great, but it might not be the right (or at least only) thing you want. There are other tools that might be better for your specific need!
+- Python, C++, Hadoop, CDO/NCL, bash, ...
+
+**CDO** is a good example here: we spent a while developing the [RCMIP5](https://cran.r-project.org/web/packages/RCMIP5/index.html) R package for processing CMIP5 data, only to discover the already-existing [CDO](https://code.zmaw.de/projects/cdo), which is more robust, much more capable, and _far_ faster.
+
+It's almost always a good idea to do some research!
+
+
+Hands-on: Examining `iris` in base R
+========================================================
+type: prompt
+incremental: false
+
+* Print a summary of the built-in `iris` data. How many rows and columns does it have?
+* What's the maximum `Petal.Length` value? What row is it in? (See `which.max`.)
+* Pull out (using base R's `subset`) all the observations with `Petal.Length` greater than 6. How many observations are there?
+* Remove colums 1 and 3 from `iris`. What are the names of the remaining columns? 
+* Look at the underlying structure of `iris` using `str()`.
+
+
+Reshaping and tidying data
 ========================================================
 type: section
 
@@ -446,12 +354,66 @@ History lesson
 <img src="images/history.png" width="850" />
 
 
-Operation pipelines in R
+'Tidy' data
+========================================================
+
+We're going to use `tidyr` today, the successor to the popular `reshape2` package. It focuses on tools to clean and _tidy_ data.
+
+>Tidy datasets are easy to manipulate, model and visualise, and have a specific structure: each variable is a column, each observation is a row, and each type of observational unit is a table.
+
+http://vita.had.co.nz/papers/tidy-data.pdf
+
+
+'Tidy' data
+========================================================
+
+We _clean_ and _reshape_ data to get it from an untidy form (above) to a tidy one (below).
+
+
+|             |Treatment A | Treatment B|
+|:------------|:-----------|-----------:|
+|John Smith   |--          |           2|
+|Jane Doe     |16          |          11|
+|Mary Johnson |3           |           1|
+
+```
+          name treatment result
+1   John Smith         a     NA
+2     Jane Doe         a     16
+3 Mary Johnson         a      3
+4   John Smith         b      2
+5     Jane Doe         b     11
+6 Mary Johnson         b      1
+```
+
+
+Pipelines in R
 ========================================================
 
 `dplyr` and `tidyr` both *import* the [magrittr](https://github.com/smbache/magrittr) package, which introduces a **pipeline** operator `%>%` to R.
 
-Not everyone is a fan of piping, and there are situations where it's not appropriate; but we'll use it frequently.
+Not everyone is a fan of piping, and there are situations where it's not appropriate; but we'll follow `dplyr` convention and use it frequently.
+
+
+`magrittr` pipelines in R
+========================================================
+
+`%>%` _pipes_ the output of one command into the input of the next. Standard R notation:
+
+
+```r
+nrow(iris)
+```
+
+Notation using pipes:
+
+
+```r
+library(magrittr)
+iris %>% nrow
+```
+
+By default the output goes in as the _first_ parameter of the next function, but you can change this.
 
 
 `magrittr` pipelines in R
@@ -481,16 +443,18 @@ read_my_data(f) %>%
 Reshaping datasets
 ========================================================
 
-This is a **CRITICALLY** important skill, because often data aren't in the form you want. Let's look at the `head()` of the `iris` dataset:
+Now that we understand pipes, let's look at reshaping data. This is important, because often data aren't in the form (_tidy_ or not) you want. 
+
+The `head()` of the `iris` dataset:
 
 ```
-  Sepal.Length Sepal.Width Petal.Length
-1          5.1         3.5          1.4
-2          4.9         3.0          1.4
-3          4.7         3.2          1.3
-4          4.6         3.1          1.5
-5          5.0         3.6          1.4
-6          5.4         3.9          1.7
+  Sepal.Length Petal.Width Species
+1          5.1         0.2  setosa
+2          4.9         0.2  setosa
+3          4.7         0.2  setosa
+4          4.6         0.2  setosa
+5          5.0         0.2  setosa
+6          5.4         0.4  setosa
 ```
 
 Discuss: why is this not a great form for the data?
@@ -500,6 +464,8 @@ Reshaping datasets
 
 The `tidyr::gather` function 'gathers' the data, taking multiple columns and collapsing them into key-value pairs.
 
+It's very similar in function, though not in syntax, to the older `reshape2::melt` command that makes 'molten' data.
+
 
 Reshaping datasets
 ========================================================
@@ -507,14 +473,17 @@ Reshaping datasets
 Remember the form of `iris`:
 
 
+```r
+str(iris)
 ```
-  Sepal.Length Sepal.Width Petal.Length
-1          5.1         3.5          1.4
-2          4.9         3.0          1.4
-3          4.7         3.2          1.3
-4          4.6         3.1          1.5
-5          5.0         3.6          1.4
-6          5.4         3.9          1.7
+
+```
+'data.frame':	150 obs. of  5 variables:
+ $ Sepal.Length: num  5.1 4.9 4.7 4.6 5 5.4 4.6 5 4.4 4.9 ...
+ $ Sepal.Width : num  3.5 3 3.2 3.1 3.6 3.9 3.4 3.4 2.9 3.1 ...
+ $ Petal.Length: num  1.4 1.4 1.3 1.5 1.4 1.7 1.4 1.5 1.4 1.5 ...
+ $ Petal.Width : num  0.2 0.2 0.2 0.2 0.2 0.4 0.3 0.2 0.2 0.1 ...
+ $ Species     : Factor w/ 3 levels "setosa","versicolor",..: 1 1 1 1 1 1 1 1 1 1 ...
 ```
 
 
@@ -1777,6 +1746,7 @@ You can also work the opposite way, spreading data _across columns_.
 
 The `tidyr::spread` functions is actually considerably less functional than `reshape2::cast`. This is by design, but it's also frustrating.
 
+
 Reshaping datasets
 ========================================================
 
@@ -1804,6 +1774,7 @@ df %>% spread(x, y)
 2 6 NA  4
 ```
 
+
 Reshaping datasets
 ========================================================
 
@@ -1829,6 +1800,404 @@ df %>%
 1 5 a 3
 4 6 b 4
 ```
+
+
+Merging datasets
+========================================================
+
+Often, as we clean and reshape data, we want to merge different datasets together. The built-in `merge` command does this well.
+
+Let's say we have a data frame containing information on how pretty each of the `iris` species is:
+
+
+```r
+howpretty <- data.frame(
+  Species = unique(iris$Species), 
+  pretty = c("ugly", "ok", "lovely"))
+howpretty
+```
+
+```
+     Species pretty
+1     setosa   ugly
+2 versicolor     ok
+3  virginica lovely
+```
+
+
+Merging datasets
+========================================================
+
+`merge` looks for names in common between two data frames, and uses these to merge.
+
+
+```r
+merge(iris, howpretty)
+```
+
+
+```
+  Species Sepal.Length pretty
+1  setosa          5.1   ugly
+2  setosa          4.9   ugly
+3  setosa          4.7   ugly
+4  setosa          4.6   ugly
+5  setosa          5.0   ugly
+6  setosa          5.4   ugly
+```
+
+(Viewing only a few columns and rows.) The `dplyr` package has more varied, faster database-style join operations.
+
+
+Hands-on: Reshaping `pew`
+========================================================
+type: prompt
+incremental: false
+
+
+```r
+pew <- read.table(
+  file = "http://stat405.had.co.nz/data/pew.txt",
+  header = TRUE,
+  stringsAsFactors = FALSE,
+  check.names = FALSE)
+pew[1:3]
+```
+
+```
+                  religion <$10k $10-20k
+1                 Agnostic    27      34
+2                  Atheist    12      27
+3                 Buddhist    27      21
+4                 Catholic   418     617
+5       Don’t know/refused    15      14
+6         Evangelical Prot   575     869
+7                    Hindu     1       9
+8  Historically Black Prot   228     244
+9        Jehovah's Witness    20      27
+10                  Jewish    19      19
+11           Mainline Prot   289     495
+12                  Mormon    29      40
+13                  Muslim     6       7
+14                Orthodox    13      17
+15         Other Christian     9       7
+16            Other Faiths    20      33
+17   Other World Religions     5       2
+18            Unaffiliated   217     299
+```
+
+
+Hands-on: Reshaping `pew`
+========================================================
+type: prompt
+incremental: false
+
+* Reshape `pew` to a 'tidy' format, with column names "religion", "income", and "count".
+
+* Reshape the tidy `pew` into a form with the different religions as column headers (variables) and income as rows (observations).
+
+
+
+
+Hands-on: Reshaping `pew`
+========================================================
+type: prompt
+incremental: false
+
+
+```r
+pew %>%
+  gather(income, count, -religion)
+```
+
+
+```
+      religion             income count
+1     Agnostic              <$10k    27
+2      Atheist              <$10k    12
+3     Buddhist              <$10k    27
+4     Catholic              <$10k   418
+5   Don’t know              <$10k    15
+6   Evangelica              <$10k   575
+7        Hindu              <$10k     1
+8   Historical              <$10k   228
+9   Jehovah's               <$10k    20
+10      Jewish              <$10k    19
+11  Mainline P              <$10k   289
+12      Mormon              <$10k    29
+13      Muslim              <$10k     6
+14    Orthodox              <$10k    13
+15  Other Chri              <$10k     9
+16  Other Fait              <$10k    20
+17  Other Worl              <$10k     5
+18  Unaffiliat              <$10k   217
+19    Agnostic            $10-20k    34
+20     Atheist            $10-20k    27
+21    Buddhist            $10-20k    21
+22    Catholic            $10-20k   617
+23  Don’t know            $10-20k    14
+24  Evangelica            $10-20k   869
+25       Hindu            $10-20k     9
+26  Historical            $10-20k   244
+27  Jehovah's             $10-20k    27
+28      Jewish            $10-20k    19
+29  Mainline P            $10-20k   495
+30      Mormon            $10-20k    40
+31      Muslim            $10-20k     7
+32    Orthodox            $10-20k    17
+33  Other Chri            $10-20k     7
+34  Other Fait            $10-20k    33
+35  Other Worl            $10-20k     2
+36  Unaffiliat            $10-20k   299
+37    Agnostic            $20-30k    60
+38     Atheist            $20-30k    37
+39    Buddhist            $20-30k    30
+40    Catholic            $20-30k   732
+41  Don’t know            $20-30k    15
+42  Evangelica            $20-30k  1064
+43       Hindu            $20-30k     7
+44  Historical            $20-30k   236
+45  Jehovah's             $20-30k    24
+46      Jewish            $20-30k    25
+47  Mainline P            $20-30k   619
+48      Mormon            $20-30k    48
+49      Muslim            $20-30k     9
+50    Orthodox            $20-30k    23
+51  Other Chri            $20-30k    11
+52  Other Fait            $20-30k    40
+53  Other Worl            $20-30k     3
+54  Unaffiliat            $20-30k   374
+55    Agnostic            $30-40k    81
+56     Atheist            $30-40k    52
+57    Buddhist            $30-40k    34
+58    Catholic            $30-40k   670
+59  Don’t know            $30-40k    11
+60  Evangelica            $30-40k   982
+61       Hindu            $30-40k     9
+62  Historical            $30-40k   238
+63  Jehovah's             $30-40k    24
+64      Jewish            $30-40k    25
+65  Mainline P            $30-40k   655
+66      Mormon            $30-40k    51
+67      Muslim            $30-40k    10
+68    Orthodox            $30-40k    32
+69  Other Chri            $30-40k    13
+70  Other Fait            $30-40k    46
+71  Other Worl            $30-40k     4
+72  Unaffiliat            $30-40k   365
+73    Agnostic            $40-50k    76
+74     Atheist            $40-50k    35
+75    Buddhist            $40-50k    33
+76    Catholic            $40-50k   638
+77  Don’t know            $40-50k    10
+78  Evangelica            $40-50k   881
+79       Hindu            $40-50k    11
+80  Historical            $40-50k   197
+81  Jehovah's             $40-50k    21
+82      Jewish            $40-50k    30
+83  Mainline P            $40-50k   651
+84      Mormon            $40-50k    56
+85      Muslim            $40-50k     9
+86    Orthodox            $40-50k    32
+87  Other Chri            $40-50k    13
+88  Other Fait            $40-50k    49
+89  Other Worl            $40-50k     2
+90  Unaffiliat            $40-50k   341
+91    Agnostic            $50-75k   137
+92     Atheist            $50-75k    70
+93    Buddhist            $50-75k    58
+94    Catholic            $50-75k  1116
+95  Don’t know            $50-75k    35
+96  Evangelica            $50-75k  1486
+97       Hindu            $50-75k    34
+98  Historical            $50-75k   223
+99  Jehovah's             $50-75k    30
+100     Jewish            $50-75k    95
+101 Mainline P            $50-75k  1107
+102     Mormon            $50-75k   112
+103     Muslim            $50-75k    23
+104   Orthodox            $50-75k    47
+105 Other Chri            $50-75k    14
+106 Other Fait            $50-75k    63
+107 Other Worl            $50-75k     7
+108 Unaffiliat            $50-75k   528
+109   Agnostic           $75-100k   122
+110    Atheist           $75-100k    73
+111   Buddhist           $75-100k    62
+112   Catholic           $75-100k   949
+113 Don’t know           $75-100k    21
+114 Evangelica           $75-100k   949
+115      Hindu           $75-100k    47
+116 Historical           $75-100k   131
+117 Jehovah's            $75-100k    15
+118     Jewish           $75-100k    69
+119 Mainline P           $75-100k   939
+120     Mormon           $75-100k    85
+121     Muslim           $75-100k    16
+122   Orthodox           $75-100k    38
+123 Other Chri           $75-100k    18
+124 Other Fait           $75-100k    46
+125 Other Worl           $75-100k     3
+126 Unaffiliat           $75-100k   407
+127   Agnostic          $100-150k   109
+128    Atheist          $100-150k    59
+129   Buddhist          $100-150k    39
+130   Catholic          $100-150k   792
+131 Don’t know          $100-150k    17
+132 Evangelica          $100-150k   723
+133      Hindu          $100-150k    48
+134 Historical          $100-150k    81
+135 Jehovah's           $100-150k    11
+136     Jewish          $100-150k    87
+137 Mainline P          $100-150k   753
+138     Mormon          $100-150k    49
+139     Muslim          $100-150k     8
+140   Orthodox          $100-150k    42
+141 Other Chri          $100-150k    14
+142 Other Fait          $100-150k    40
+143 Other Worl          $100-150k     4
+144 Unaffiliat          $100-150k   321
+145   Agnostic              >150k    84
+146    Atheist              >150k    74
+147   Buddhist              >150k    53
+148   Catholic              >150k   633
+149 Don’t know              >150k    18
+150 Evangelica              >150k   414
+151      Hindu              >150k    54
+152 Historical              >150k    78
+153 Jehovah's               >150k     6
+154     Jewish              >150k   151
+155 Mainline P              >150k   634
+156     Mormon              >150k    42
+157     Muslim              >150k     6
+158   Orthodox              >150k    46
+159 Other Chri              >150k    12
+160 Other Fait              >150k    41
+161 Other Worl              >150k     4
+162 Unaffiliat              >150k   258
+163   Agnostic Don't know/refused    96
+164    Atheist Don't know/refused    76
+165   Buddhist Don't know/refused    54
+166   Catholic Don't know/refused  1489
+167 Don’t know Don't know/refused   116
+168 Evangelica Don't know/refused  1529
+169      Hindu Don't know/refused    37
+170 Historical Don't know/refused   339
+171 Jehovah's  Don't know/refused    37
+172     Jewish Don't know/refused   162
+173 Mainline P Don't know/refused  1328
+174     Mormon Don't know/refused    69
+175     Muslim Don't know/refused    22
+176   Orthodox Don't know/refused    73
+177 Other Chri Don't know/refused    18
+178 Other Fait Don't know/refused    71
+179 Other Worl Don't know/refused     8
+180 Unaffiliat Don't know/refused   597
+```
+
+
+Hands-on: Reshaping `pew`
+========================================================
+type: prompt
+incremental: false
+
+
+```r
+pew %>%
+  gather(income, count, -religion) %>%
+  spread(religion, count)
+```
+
+
+```
+               income Agnostic Atheist
+1               <$10k       27      12
+2               >150k       84      74
+3             $10-20k       34      27
+4           $100-150k      109      59
+5             $20-30k       60      37
+6             $30-40k       81      52
+7             $40-50k       76      35
+8             $50-75k      137      70
+9            $75-100k      122      73
+10 Don't know/refused       96      76
+```
+
+
+More on tidying data
+========================================================
+
+Sometimes a column encodes multiple pieces of information, and we want to split it. For example, say we have a `data.frame` of CMIP5 filenames:
+
+
+
+
+```
+                                               filename
+1       dissic_Oyr_HadGEM2-ES_rcp85_r1i1p1_2100-2107.nc
+2 npp_Lmon_CESM1-BGC_historical_r1i1p1_185001-200512.nc
+3     npp_Lmon_HadGEM2-ES_rcp45_r3i1p1_208012-210011.nc
+```
+
+
+More on tidying data
+========================================================
+
+We can use `tidyr::separate` to split this into individual columns:
+
+
+```r
+cmip5 %>%
+  separate(filename,
+           into = c("var", "domain", 
+                    "model","scenario", 
+                    "en", "yrs"), 
+           sep = "_")
+```
+
+
+```
+     var domain      model   scenario     en
+1 dissic    Oyr HadGEM2-ES      rcp85 r1i1p1
+2    npp   Lmon  CESM1-BGC historical r1i1p1
+3    npp   Lmon HadGEM2-ES      rcp45 r3i1p1
+```
+
+
+More on tidying data
+========================================================
+
+`tidyr` functions can also:
+
+* complete data (i.e., fill in missing combinations)
+* separate multiple values into different rows
+
+```
+  x     y     z
+1 1     a     1
+2 2 d,e,f 2,3,4
+3 3   g,h   5,6
+```
+
+
+```r
+separate_rows(df, y, z, convert = TRUE)
+```
+
+```
+  x y z
+1 1 a 1
+2 2 d 2
+3 2 e 3
+4 2 f 4
+5 3 g 5
+6 3 h 6
+```
+
+
+Summarizing data
+========================================================
+type: section
 
 
 Summarizing and manipulating data
@@ -1902,13 +2271,13 @@ The newer `dplyr` package specializes in data frames, recognizing that most peop
 
 `dplyr` also allows you to work with remote, out-of-memory databases, using exactly the same tools, because it abstracts away *how* your data is stored.
 
-`dplyr` is **extremely fast**.
+`dplyr` is flexible and **extremely fast**.
 
 
 Verbs
 ========================================================
 
-`dplyr` provides functions for each basic *verb* of data manipulation. These tend to have analogues in base R, but use a consistent, compact syntax, and are very high performance.
+`dplyr` provides functions for each basic *verb* of data manipulation. These almost all have analogues in base R, but use a consistent, compact syntax, and are very high performance.
 
 * `filter()` - subset rows; like `base::subset()`
 * `arrange()` - reorder rows; like `order()`
@@ -1920,7 +2289,7 @@ Verbs
 Grouping
 ========================================================
 
-`dplyr` verbs become particularly powerful when used in conjunction with *groups* we define in the dataset. The `group_by` function converts an existing data frame into a grouped `tbl`.
+`dplyr` verbs become particularly powerful when used in conjunction with *groups* we define in the dataset.
 
 
 ```r
@@ -2016,6 +2385,28 @@ We can apply (multiple) functions across (multiple) columns.
 ```r
 iris %>% 
   group_by(Species) %>% 
+  summarise_all(mean)
+```
+
+```
+# A tibble: 3 x 5
+     Species Sepal.Length Sepal.Width Petal.Length Petal.Width
+      <fctr>        <dbl>       <dbl>        <dbl>       <dbl>
+1     setosa        5.006       3.428        1.462       0.246
+2 versicolor        5.936       2.770        4.260       1.326
+3  virginica        6.588       2.974        5.552       2.026
+```
+
+
+Summarizing iris
+========================================================
+
+We can apply (multiple) functions across (multiple) columns.
+
+
+```r
+iris %>% 
+  group_by(Species) %>% 
   summarise_each(funs(mean, median, sd), 
                  Sepal.Length)
 ```
@@ -2060,6 +2451,39 @@ babynames
 Summarizing babynames
 ========================================================
 
+Describe the individual steps here, and try them yourself:
+
+
+```r
+babynames %>%
+  group_by(year, sex) %>% 
+  summarise(n = n()) %>%
+  spread(sex, n)
+```
+
+```
+Source: local data frame [135 x 3]
+Groups: year [135]
+
+    year     F     M
+*  <dbl> <int> <int>
+1   1880   942  1058
+2   1881   938   997
+3   1882  1028  1099
+4   1883  1054  1030
+5   1884  1172  1125
+6   1885  1197  1097
+7   1886  1282  1110
+8   1887  1306  1067
+9   1888  1474  1177
+10  1889  1479  1111
+# ... with 125 more rows
+```
+
+
+Summarizing babynames
+========================================================
+
 What does this calculate?
 
 
@@ -2098,41 +2522,122 @@ Summarizing babynames
 https://en.wikipedia.org/wiki/Linda_(1946_song)
 
 
-Why use dplyr?
+Summarizing babynames
 ========================================================
 
-* Clean, concise, and consistent syntax.
-
-* In general `dplyr` is ~10x faster than the older `plyr` package. (And `plyr` was ~10x faster than base R.)
-
-* Same code can work with data frames or remote databases.
+The `dplyr` package thus allows us to clearly and compactly specify a series of data-processing operations.
 
 
-Hands-on: manipulating the `babynames` dataset
+```r
+my_data %>%
+  # Prepare for processing
+  filter(by some condition) %>%
+  group_by(groups) %>%
+  
+  # Summarize / compute
+  summarise(variables of interest) %>%
+  mutate(new_column = ...) %>%
+  
+  # Format for output
+  arrange(sort_variables) %>%
+  select(-columns_to_remove) ->
+  output_data
+```
+
+
+Hands-on: `babynames`
 ========================================================
 type: prompt
 incremental: false
 
-Load the dataset using `library(babynames)`.
-
-Read its help page. Look at its structure (rows, columns, summary).
-
-Use `dplyr` to calculate the total number of names in the SSA database for each year. 
-
-Calculate the 5th most popular name for girls in each year. Hint: `nth()`.
+* Load the dataset using `library(babynames)`.
+* Read its help page. Look at its structure (rows, columns, summary). How many unique names are there in the database?
 
 
+Hands-on: `babynames`
+========================================================
+type: prompt
+incremental: false
+
+* Use `dplyr` to calculate the total number of names in the SSA database for each year. This will involve a `group_by` step and then a `summarise` step.
+
+![plot of chunk unnamed-chunk-47](R-data-picarro-figure/unnamed-chunk-47-1.png)
 
 
-Things we didn't talk about
+Hands-on: `babynames`
+========================================================
+type: prompt
+incremental: false
+
+* Does your name occur in the SSA database? Plot the number of entries for it (or any name) name over time. This will involve a `filter` step, a `group_by` step, and a `summarise` step (and finally a `qplot`).
+
+
+```r
+babynames %>% 
+  ... %>%
+  qplot(year, prop, data = ., color = sex)
+```
+
+
+Hands-on: `babynames`
+========================================================
+type: prompt
+incremental: false
+
+* Harder: compute the _rank_ of your name over time.
+
+
+```r
+babynames %>% 
+  group_by(year) %>% 
+  mutate(rank = min_rank(desc(prop))) %>% 
+  filter(name == "Benjamin", sex == "M") %>% 
+  qplot(year, rank, data = .)
+```
+
+![plot of chunk unnamed-chunk-49](R-data-picarro-figure/unnamed-chunk-49-1.png)
+
+
+Hands-on: `babynames`
+========================================================
+type: prompt
+incremental: false
+
+* What's happening here?
+
+
+```r
+babynames %>% 
+  group_by(name) %>%
+  summarise(totaln = sum(n)) %>%
+  mutate(rnk = 
+           min_rank(desc(totaln))) %>%
+  filter(rnk <= 10) ->
+  top10
+
+babynames%>%
+  filter(name %in% top10$name) %>%
+  qplot(year, prop, data = ., color = name) +
+    facet_wrap(~name)
+```
+
+
+Hands-on: `babynames`
+========================================================
+type: prompt
+incremental: false
+
+![plot of chunk unnamed-chunk-51](R-data-picarro-figure/unnamed-chunk-51-1.png)
+
+
+Things we didn't talk much about
 ========================================================
 
-- reading data into R (not much)
-- working with non-text data
-- reshaping data
-- writing data
+- reading data into R: reading from spreadsheets (`readxl`), reading large datasets
+- working with non-text data: binary, netcdf, spatial
+- lists, matrices, and arrays
 - graphing data
-
+- parallelization or performance
 
 
 Last thoughts

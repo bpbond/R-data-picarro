@@ -1,4 +1,4 @@
-MORE reproducible data analysis using R
+(More) reproducible data analysis using R
 ========================================================
 author: Ben Bond-Lamberty
 date: August 2016
@@ -14,21 +14,14 @@ The plan
 
 * Introduction: reproducible research and repository design (45 minutes; hands-on: installing the packages we'll need)
 * Examining and cleaning data (45 minutes; hands-on: the `iris` and `Pew` datasets, CMIP5 example)
-* Summarizing and manipulating data (45 minutes; hands-on: the `babynames` dataset)
+* Summarizing and manipulating data (90 minutes; hands-on: the `babynames` dataset)
 
 **This workshop assumes you understand the basics of R.**
 
 Feedback: <a href="mailto:bondlamberty@pnnl">bondlamberty@pnnl.gov</a> or  [@BenBondLamberty](https://twitter.com/BenBondLamberty).
 
 
-Is R the right tool for the job?
-========================================================
-
-R is great, but it might not be the right (or at least only) thing you want. There are other tools that might be better for your specific need!
-- Python, C++, Hadoop, CDO/NCL, bash, ...
-
-
-Reproducibility and repositories
+Reproducibility
 ========================================================
 type: section
 
@@ -159,7 +152,7 @@ Finally, we'll download a [repository](https://github.com/bpbond/R-data-picarro)
 Let's do that now.
 
 
-R basics
+Getting ready to process data in R
 ========================================================
 type: section
 
@@ -167,116 +160,34 @@ type: section
 Things you should know: basics
 ========================================================
 
-This workshop assumes you understand a few basics of R:
+This workshop assumes you understand the basics of R:
 
-- What R is
-- How to start and quit it
-- How to get help
+- What R is, how to start and quit it
+- How to get help, both in R and out
 
 ```{r, eval=FALSE}
-# This is a comment
 # Get help for the `summary` function
 ?summary
 
+# Looks for a topic
+apropos("GLM")
+
 # Get help for an entire package
-help(package = 'ggplot2')
+help(package = 'tidyr')
 ```
 
 
-Things you should know: vectors
+Things you should know: vectors and data frames
 ========================================================
 
-- The *vector* data type
+- A `data.frame` is what we'll mostly use today
+- Under the hood, it's actually a `list` of `vector` structures:
 
 ```{r}
-myvector <- 1:5
-myvector <- c(1, 2, 3, 4, 5)
-myvector <- seq(1, 5)
-myvector
-myvector[2:3]
+str(cars)
 ```
 
-***
-
-```{r}
-sum(myvector)
-```
-
-*Vectorised operations* operate on a vector all at once:
-
-```{r}
-myvector * 2
-```
-
-
-Things you should know: scripts
-========================================================
-
-The difference between a *script* (stored program) and *command line* (immediate response).
-
-In general, you want to use scripts, which provide *reproducibility*.
-
-
-```{r, eval = FALSE}
-source("myscript.R")
-```
-
-***
-
-<img src="images/mayan_script.gif" />
-
-
-Things you should know: packages
-========================================================
-
-- *Packages* are pieces of software that can be loaded into R. There are thousands, for all kinds of tasks and needs.
-
-```{r, eval=FALSE}
-# The single most popular R package is `ggplot2`
-library(ggplot2)
-
-# qplot:
-# a "quick plot" function in ggplot2
-qplot(speed, 
-      dist, 
-      data = cars)
-```
-
-***
-
-```{r, echo=FALSE}
-library(ggplot2)
-theme_set(theme_bw())
-qplot(speed, dist, data=cars)
-```
-
-
-Hands-on: examining the `iris` dataset
-========================================================
-type: prompt
-incremental: false
-
-Hands-on work in RStudio.
-* Built-in datasets
-* Using `summary`, `names`, `head`, `tail`
-* Looking at particular rows and columns
-* Subsetting the data
-* Basic plots of the data
-
-
-Computing on columns
-========================================================
-
-This can be simple...
-
-```{r}
-d <- data.frame(x = 1:3)
-d$y <- d$x * 2
-d$z <- cumsum(d$y) # cumulative sum
-d$four <- ifelse(d$y == 4, "four", "not 4") 
-d
-```
-
+- Lists are also extremely useful - learn how to use them efficiently (e.g. `lapply`)
 
 
 Understanding and dealing with NA
@@ -285,7 +196,7 @@ Understanding and dealing with NA
 One of R's strengths is that missing values are a first-class data type: `NA`.
 
 ```{r}
-x <- c(1, 2, 3, NA)
+x <- c(1, 2, 3, NA, 5)
 # Which are NA?
 is.na(x)
 any(is.na(x))
@@ -305,57 +216,80 @@ Understanding and dealing with NA
 Like `NaN` and `Inf`, generally `NA` 'poisons' operations, so NA values must be explicitly ignored and/or removed.
 
 ```{r}
-x <- c(1, 2, 3, NA)
+x <- c(1, 2, 3, NA, 5)
+any(is.na(x))
 sum(x) # NA
 sum(x, na.rm = TRUE)
 ```
 
 
-Dealing with dates
+Things you should know: vectorization
 ========================================================
 
-R has a `Date` class representing calendar dates, and an `as.Date` function for converting to Dates. The `lubridate` package is often useful (and easier) for these cases:
+- *Vectorised operations* operate on a vector or data frame all at once. One of the simplest:
 
 ```{r}
-library(lubridate)
-x <- c("09-01-01", "09-01-02") # character!
-ymd(x)   # there's also dmy, ymd_hms, etc.
+myvector <- 1:5
+myvector * 2
 ```
 
-Once data are in `Date` format, the time interval between them can be computed simply by subtraction. See `?difftime`
+This is **really important**. You want to take advantage of R's capabilities here, and avoid labor-intensive `for` loops.
 
-
-Merging datasets
-========================================================
-
-Often, as we clean and reshape data, we want to merge different datasets together. The built-in `merge` command does this well.
-
-Let's say we have a data frame containing information on how pretty each of the `iris` species is:
-
-```{r, echo=FALSE}
-howpretty <- data.frame(Species = unique(iris$Species), 
-                        pretty = c("ugly", "ok", "lovely"))
-howpretty
+```{r}
+for(i in seq_along(myvector)) {
+  myvector[i] <- myvector[i] * 2
+}
 ```
 
 
-Merging datasets
+Things you should know: packages
 ========================================================
 
-`merge` looks for names in common between two data frames, and uses these to merge.
+- *Packages* are pieces of software that can be loaded into R. There are thousands, for all kinds of tasks and needs.
 
 ```{r, eval=FALSE}
-merge(iris, howpretty)
+# The single most popular R package is `ggplot2`
+library(ggplot2)
+
+# qplot:
+# a "quick plot" function in ggplot2
+qplot(speed, dist, data = cars)
 ```
+
+You'll also see the double-colon notation, `ggplot2::qplot`, which denotes accessing the _exported symbol_ of a _package_ (technically, a namespace).
+***
 
 ```{r, echo=FALSE}
-head(merge(iris, howpretty)[c(1, 2, 6)])
+library(ggplot2)
+theme_set(theme_bw())
+qplot(speed, dist, data=cars)
 ```
 
-(Viewing only a few columns and rows.) The `dplyr` package has more varied, faster database-style join operations.
+
+Is R the right tool for the job?
+========================================================
+
+R is great, but it might not be the right (or at least only) thing you want. There are other tools that might be better for your specific need!
+- Python, C++, Hadoop, CDO/NCL, bash, ...
+
+**CDO** is a good example here: we spent a while developing the [RCMIP5](https://cran.r-project.org/web/packages/RCMIP5/index.html) R package for processing CMIP5 data, only to discover the already-existing [CDO](https://code.zmaw.de/projects/cdo), which is more robust, much more capable, and _far_ faster.
+
+It's almost always a good idea to do some research!
 
 
-Summarizing and manipulating data
+Hands-on: Examining `iris` in base R
+========================================================
+type: prompt
+incremental: false
+
+* Print a summary of the built-in `iris` data. How many rows and columns does it have?
+* What's the maximum `Petal.Length` value? What row is it in? (See `which.max`.)
+* Pull out (using base R's `subset`) all the observations with `Petal.Length` greater than 6. How many observations are there?
+* Remove colums 1 and 3 from `iris`. What are the names of the remaining columns? 
+* Look at the underlying structure of `iris` using `str()`.
+
+
+Reshaping and tidying data
 ========================================================
 type: section
 
@@ -366,12 +300,53 @@ History lesson
 <img src="images/history.png" width="850" />
 
 
-Operation pipelines in R
+'Tidy' data
+========================================================
+
+We're going to use `tidyr` today, the successor to the popular `reshape2` package. It focuses on tools to clean and _tidy_ data.
+
+>Tidy datasets are easy to manipulate, model and visualise, and have a specific structure: each variable is a column, each observation is a row, and each type of observational unit is a table.
+
+http://vita.had.co.nz/papers/tidy-data.pdf
+
+
+'Tidy' data
+========================================================
+
+We _clean_ and _reshape_ data to get it from an untidy form (above) to a tidy one (below).
+
+```{r, echo=FALSE}
+df <- data.frame(` ` = c("John Smith", "Jane Doe", "Mary Johnson"), `Treatment A` = c("--", 16, 3), `Treatment B` = c(2, 11, 1), check.names = FALSE)
+kable(df)
+data.frame(name = c("John Smith", "Jane Doe", "Mary Johnson", "John Smith", "Jane Doe", "Mary Johnson"), treatment = c("a", "a", "a", "b", "b", "b"), result = c(NA, 16, 3, 2, 11, 1))
+```
+
+
+Pipelines in R
 ========================================================
 
 `dplyr` and `tidyr` both *import* the [magrittr](https://github.com/smbache/magrittr) package, which introduces a **pipeline** operator `%>%` to R.
 
-Not everyone is a fan of piping, and there are situations where it's not appropriate; but we'll use it frequently.
+Not everyone is a fan of piping, and there are situations where it's not appropriate; but we'll follow `dplyr` convention and use it frequently.
+
+
+`magrittr` pipelines in R
+========================================================
+
+`%>%` _pipes_ the output of one command into the input of the next. Standard R notation:
+
+```{r, eval=FALSE}
+nrow(iris)
+```
+
+Notation using pipes:
+
+```{r, eval=FALSE}
+library(magrittr)
+iris %>% nrow
+```
+
+By default the output goes in as the _first_ parameter of the next function, but you can change this.
 
 
 `magrittr` pipelines in R
@@ -399,9 +374,11 @@ read_my_data(f) %>%
 Reshaping datasets
 ========================================================
 
-This is a **CRITICALLY** important skill, because often data aren't in the form you want. Let's look at the `head()` of the `iris` dataset:
+Now that we understand pipes, let's look at reshaping data. This is important, because often data aren't in the form (_tidy_ or not) you want. 
+
+The `head()` of the `iris` dataset:
 ```{r, echo=FALSE}
-head(iris[1:3])
+head(iris[c(1, 4, 5)])
 ```
 
 Discuss: why is this not a great form for the data?
@@ -411,14 +388,16 @@ Reshaping datasets
 
 The `tidyr::gather` function 'gathers' the data, taking multiple columns and collapsing them into key-value pairs.
 
+It's very similar in function, though not in syntax, to the older `reshape2::melt` command that makes 'molten' data.
+
 
 Reshaping datasets
 ========================================================
 
 Remember the form of `iris`:
 
-```{r, echo=FALSE}
-head(iris[1:3])
+```{r}
+str(iris)
 ```
 
 
@@ -466,6 +445,7 @@ You can also work the opposite way, spreading data _across columns_.
 
 The `tidyr::spread` functions is actually considerably less functional than `reshape2::cast`. This is by design, but it's also frustrating.
 
+
 Reshaping datasets
 ========================================================
 
@@ -477,6 +457,7 @@ df
 df %>% spread(x, y)
 ```
 
+
 Reshaping datasets
 ========================================================
 
@@ -486,6 +467,169 @@ df %>%
   spread(x, y) %>% 
   gather(x, y, a:b, na.rm = TRUE)
 ```
+
+
+Merging datasets
+========================================================
+
+Often, as we clean and reshape data, we want to merge different datasets together. The built-in `merge` command does this well.
+
+Let's say we have a data frame containing information on how pretty each of the `iris` species is:
+
+```{r}
+howpretty <- data.frame(
+  Species = unique(iris$Species), 
+  pretty = c("ugly", "ok", "lovely"))
+howpretty
+```
+
+
+Merging datasets
+========================================================
+
+`merge` looks for names in common between two data frames, and uses these to merge.
+
+```{r, eval=FALSE}
+merge(iris, howpretty)
+```
+
+```{r, echo=FALSE}
+head(merge(iris, howpretty)[c(1, 2, 6)])
+```
+
+(Viewing only a few columns and rows.) The `dplyr` package has more varied, faster database-style join operations.
+
+
+Hands-on: Reshaping `pew`
+========================================================
+type: prompt
+incremental: false
+
+```{r}
+pew <- read.table(
+  file = "http://stat405.had.co.nz/data/pew.txt",
+  header = TRUE,
+  stringsAsFactors = FALSE,
+  check.names = FALSE)
+pew[1:3]
+```
+
+
+Hands-on: Reshaping `pew`
+========================================================
+type: prompt
+incremental: false
+
+* Reshape `pew` to a 'tidy' format, with column names "religion", "income", and "count".
+
+* Reshape the tidy `pew` into a form with the different religions as column headers (variables) and income as rows (observations).
+
+```{r, echo=FALSE}
+pew %>%
+  gather(income, count, -religion) ->
+  tidypew
+tidypew$religion <- substr(tidypew$religion, 1, 10)  # for clean display
+tidypew %>%
+  spread(religion, count) ->
+  pew_wide
+```
+
+
+Hands-on: Reshaping `pew`
+========================================================
+type: prompt
+incremental: false
+
+```{r, eval=FALSE}
+pew %>%
+  gather(income, count, -religion)
+```
+
+```{r, echo=FALSE}
+tidypew[1:3]
+```
+
+
+Hands-on: Reshaping `pew`
+========================================================
+type: prompt
+incremental: false
+
+```{r, eval=FALSE}
+pew %>%
+  gather(income, count, -religion) %>%
+  spread(religion, count)
+```
+
+```{r, echo=FALSE}
+pew_wide[1:3]
+```
+
+
+More on tidying data
+========================================================
+
+Sometimes a column encodes multiple pieces of information, and we want to split it. For example, say we have a `data.frame` of CMIP5 filenames:
+
+```{r, echo=FALSE}
+cmip5 <- data.frame(filename = c("dissic_Oyr_HadGEM2-ES_rcp85_r1i1p1_2100-2107.nc", "npp_Lmon_CESM1-BGC_historical_r1i1p1_185001-200512.nc", "npp_Lmon_HadGEM2-ES_rcp45_r3i1p1_208012-210011.nc"))
+```
+
+```{r, echo=FALSE}
+cmip5
+```
+
+
+More on tidying data
+========================================================
+
+We can use `tidyr::separate` to split this into individual columns:
+
+```{r, eval=FALSE}
+cmip5 %>%
+  separate(filename,
+           into = c("var", "domain", 
+                    "model","scenario", 
+                    "en", "yrs"), 
+           sep = "_")
+```
+
+```{r, echo=FALSE}
+cmip5 %>%
+  separate(filename,
+           into = c("var", "domain", 
+                    "model","scenario", 
+                    "en", "yrs"), 
+           sep = "_") -> cmip5
+cmip5[1:5]
+```
+
+
+More on tidying data
+========================================================
+
+`tidyr` functions can also:
+
+* complete data (i.e., fill in missing combinations)
+* separate multiple values into different rows
+```{r echo=FALSE}
+df <- data.frame(
+  x = 1:3,
+  y = c("a", "d,e,f", "g,h"),
+  z = c("1", "2,3,4", "5,6"),
+  stringsAsFactors = FALSE
+)
+df
+```
+
+```{r}
+separate_rows(df, y, z, convert = TRUE)
+```
+
+
+Summarizing data
+========================================================
+type: section
 
 
 Summarizing and manipulating data
@@ -535,13 +679,13 @@ The newer `dplyr` package specializes in data frames, recognizing that most peop
 
 `dplyr` also allows you to work with remote, out-of-memory databases, using exactly the same tools, because it abstracts away *how* your data is stored.
 
-`dplyr` is **extremely fast**.
+`dplyr` is flexible and **extremely fast**.
 
 
 Verbs
 ========================================================
 
-`dplyr` provides functions for each basic *verb* of data manipulation. These tend to have analogues in base R, but use a consistent, compact syntax, and are very high performance.
+`dplyr` provides functions for each basic *verb* of data manipulation. These almost all have analogues in base R, but use a consistent, compact syntax, and are very high performance.
 
 * `filter()` - subset rows; like `base::subset()`
 * `arrange()` - reorder rows; like `order()`
@@ -553,7 +697,7 @@ Verbs
 Grouping
 ========================================================
 
-`dplyr` verbs become particularly powerful when used in conjunction with *groups* we define in the dataset. The `group_by` function converts an existing data frame into a grouped `tbl`.
+`dplyr` verbs become particularly powerful when used in conjunction with *groups* we define in the dataset.
 
 ```{r}
 library(dplyr)
@@ -592,6 +736,18 @@ We can apply (multiple) functions across (multiple) columns.
 ```{r}
 iris %>% 
   group_by(Species) %>% 
+  summarise_all(mean)
+```
+
+
+Summarizing iris
+========================================================
+
+We can apply (multiple) functions across (multiple) columns.
+
+```{r}
+iris %>% 
+  group_by(Species) %>% 
   summarise_each(funs(mean, median, sd), 
                  Sepal.Length)
 ```
@@ -603,6 +759,19 @@ Introducting `babynames`
 ```{r}
 library(babynames)
 babynames
+```
+
+
+Summarizing babynames
+========================================================
+
+Describe the individual steps here, and try them yourself:
+
+```{r}
+babynames %>%
+  group_by(year, sex) %>% 
+  summarise(n = n()) %>%
+  spread(sex, n)
 ```
 
 
@@ -627,41 +796,134 @@ Summarizing babynames
 https://en.wikipedia.org/wiki/Linda_(1946_song)
 
 
-Why use dplyr?
+Summarizing babynames
 ========================================================
 
-* Clean, concise, and consistent syntax.
+The `dplyr` package thus allows us to clearly and compactly specify a series of data-processing operations.
 
-* In general `dplyr` is ~10x faster than the older `plyr` package. (And `plyr` was ~10x faster than base R.)
+```{r, eval=FALSE}
+my_data %>%
+  # Prepare for processing
+  filter(by some condition) %>%
+  group_by(groups) %>%
+  
+  # Summarize / compute
+  summarise(variables of interest) %>%
+  mutate(new_column = ...) %>%
+  
+  # Format for output
+  arrange(sort_variables) %>%
+  select(-columns_to_remove) ->
+  output_data
+```
 
-* Same code can work with data frames or remote databases.
 
-
-Hands-on: manipulating the `babynames` dataset
+Hands-on: `babynames`
 ========================================================
 type: prompt
 incremental: false
 
-Load the dataset using `library(babynames)`.
-
-Read its help page. Look at its structure (rows, columns, summary).
-
-Use `dplyr` to calculate the total number of names in the SSA database for each year. 
-
-Calculate the 5th most popular name for girls in each year. Hint: `nth()`.
+* Load the dataset using `library(babynames)`.
+* Read its help page. Look at its structure (rows, columns, summary). How many unique names are there in the database?
 
 
+Hands-on: `babynames`
+========================================================
+type: prompt
+incremental: false
+
+* Use `dplyr` to calculate the total number of names in the SSA database for each year. This will involve a `group_by` step and then a `summarise` step.
+
+```{r, echo=FALSE}
+babynames %>%
+  group_by(year, sex) %>% 
+  summarise(n=sum(n)) %>% 
+  qplot(year, n, data = ., color = sex)
+```
 
 
-Things we didn't talk about
+Hands-on: `babynames`
+========================================================
+type: prompt
+incremental: false
+
+* Does your name occur in the SSA database? Plot the number of entries for it (or any name) name over time. This will involve a `filter` step, a `group_by` step, and a `summarise` step (and finally a `qplot`).
+
+```{r, eval=FALSE}
+babynames %>% 
+  ... %>%
+  qplot(year, prop, data = ., color = sex)
+```
+
+
+Hands-on: `babynames`
+========================================================
+type: prompt
+incremental: false
+
+* Harder: compute the _rank_ of your name over time.
+
+```{r}
+babynames %>% 
+  group_by(year) %>% 
+  mutate(rank = min_rank(desc(prop))) %>% 
+  filter(name == "Benjamin", sex == "M") %>% 
+  qplot(year, rank, data = .)
+```
+
+
+Hands-on: `babynames`
+========================================================
+type: prompt
+incremental: false
+
+* What's happening here?
+
+```{r, eval=FALSE}
+babynames %>% 
+  group_by(name) %>%
+  summarise(totaln = sum(n)) %>%
+  mutate(rnk = 
+           min_rank(desc(totaln))) %>%
+  filter(rnk <= 10) ->
+  top10
+
+babynames%>%
+  filter(name %in% top10$name) %>%
+  qplot(year, prop, data = ., color = name) +
+    facet_wrap(~name)
+```
+
+
+Hands-on: `babynames`
+========================================================
+type: prompt
+incremental: false
+
+```{r, cache=TRUE, echo=FALSE}
+babynames %>% 
+  group_by(sex, name) %>%
+  summarise(totaln = sum(n)) %>%
+  mutate(rnk = 
+           min_rank(desc(totaln))) %>%
+  filter(rnk <= 10) ->
+  top10
+
+babynames%>%
+  filter(name %in% top10$name) %>%
+  qplot(year, prop, data = ., color = sex) +
+  facet_wrap(~name)
+```
+
+
+Things we didn't talk much about
 ========================================================
 
-- reading data into R (not much)
-- working with non-text data
-- reshaping data
-- writing data
+- reading data into R: reading from spreadsheets (`readxl`), reading large datasets
+- working with non-text data: binary, netcdf, spatial
+- lists, matrices, and arrays
 - graphing data
-
+- parallelization or performance
 
 
 Last thoughts
