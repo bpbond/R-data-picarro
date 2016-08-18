@@ -1,21 +1,22 @@
-Reproducible data analysis using R
+MORE reproducible data analysis using R
 ========================================================
 author: Ben Bond-Lamberty
-date: February 2016
+date: August 2016
 font-family: 'Helvetica'
 
-A workshop covering a bit of R basics; reproducibility; graphics and pipelines; and data summarizing and manipulation.
+A workshop covering reproducibility and repository design; data cleaning and reshaping; and using the `dplyr` package for computation.
 
-Purdue University
+JGCRI
 
 
-The next three hours of your life
+The plan
 ========================================================
 
-* Introduction: R basics and reproducible research (45 minutes; hands-on: installing the packages we'll need)
-* Examining and cleaning data (45 minutes; hands-on: the `iris` dataset)
+* Introduction: reproducible research and repository design (45 minutes; hands-on: installing the packages we'll need)
+* Examining and cleaning data (45 minutes; hands-on: the `iris` and `Pew` datasets, CMIP5 example)
 * Summarizing and manipulating data (45 minutes; hands-on: the `babynames` dataset)
-* Bringing things together: working with Picarro data (45 minutes; hands-on: real-world scientific data)
+
+**This workshop assumes you understand the basics of R.**
 
 Feedback: <a href="mailto:bondlamberty@pnnl">bondlamberty@pnnl.gov</a> or  [@BenBondLamberty](https://twitter.com/BenBondLamberty).
 
@@ -23,26 +24,11 @@ Feedback: <a href="mailto:bondlamberty@pnnl">bondlamberty@pnnl.gov</a> or  [@Ben
 Is R the right tool for the job?
 ========================================================
 
->R has simple and obvious appeal. Through R, you can sift through complex data sets, manipulate data through sophisticated modeling functions, and create sleek graphics to represent the numbers, in just a few lines of code...R’s greatest asset is the vibrant ecosystem has developed around it: The R community is constantly adding new packages and features to its already rich function sets.
->
->-- [The 9 Best Languages For Crunching Data](http://www.fastcompany.com/3030716/the-9-best-languages-for-crunching-data)
-
-
-Is R the right tool for the job?
-========================================================
-
-But it might not be. R has limitations and weaknesses:
-- nontrivial learning curve; quirks; inconsistent syntax
-- documentation patchy and terse
-- package quality varies
-- not designed for *large* datasets
-
-There are other tools that might be better for your specific need!
+R is great, but it might not be the right (or at least only) thing you want. There are other tools that might be better for your specific need!
 - Python, C++, Hadoop, CDO/NCL, bash, ...
-- Excel in _extremely_ limited circumstances
 
 
-Reproducibility
+Reproducibility and repositories
 ========================================================
 type: section
 
@@ -50,13 +36,23 @@ type: section
 Reproducibility
 ========================================================
 
-We are in the era of collaborative 'big data', but even if you work by yourself with 'little data' you have to have some skills to deal with those data.
-
-**Most fundamentally, your results have to be reproducible.**
+We are in the era of collaborative 'big data', but even if you work by yourself with 'little data' you have to have some skills to deal with those data, now and in the future.
 
 >Your most important collaborator is your future self. It’s important to make a workflow that you can use time and time again, and even pass on to others in such a way that you don’t have to be there to walk them through it. [Source](http://berkeleysciencereview.com/reproducible-collaborative-data-science/)
 
 Reproducibility generally means *scripts* or *programs* tied to *open source software*.
+
+
+Reproducibility
+========================================================
+
+...is not all or nothing. A great, succinct resource here is Karl Broman's "initial steps toward reproducible research" webpage:
+
+http://kbroman.org/steps2rr/
+
+>Organizing analyses so that they are reproducible is not easy. It requires diligence and a considerable investment of time: to learn new computational tools, and to organize and document analyses as you go.
+
+>But partially reproducible is better than not at all reproducible. Just try to make your next paper or project better organized than the last.
 
 
 You can't reproduce
@@ -110,12 +106,31 @@ A typical project/paper directory for me:
 2-process_data.R
 3-analyze_data.R
 4-make_graphs.R
-logs/
-output/
+logfiles/
+processed_data/
 rawdata/
+outputs/
 ```
 
-This directory contains *scripts* that are backed up both *locally* and *remotely*. It is under *version control*, so it's easy to track changes over time.
+This directory contains (and perhaps other) *scripts* that are backed up both *locally* and *remotely*. It is under *version control*, so it's easy to track changes, by multiple people and over time.
+
+
+Reproducible research example
+========================================================
+
+A typical project/paper directory for me:
+```
+1-download.R
+2-process_data.R
+3-analyze_data.R
+4-make_graphs.R
+logfiles/
+processed_data/
+rawdata/
+outputs/
+```
+
+For me almost any project starts from my [default script](https://github.com/bpbond/R_analysis_script).
 
 
 Reproducible research example
@@ -123,6 +138,7 @@ Reproducible research example
 
 <img src="images/repository.png" />
 
+From [this paper of mine](http://iopscience.iop.org/article/10.1088/1748-9326/11/8/084004/meta).
 
 Hands-on: setting up R and RStudio
 ========================================================
@@ -132,6 +148,7 @@ incremental: false
 If you're doing the exercises and problems, you'll need these
 packages:
 - `dplyr` - fast, flexible tool for working with data frames
+- `tidyr` - reshaping and cleaning data
 - `ggplot2` - popular package for visualizing data
 
 We'll also use this data package:
@@ -139,7 +156,7 @@ We'll also use this data package:
 
 Finally, we'll download a [repository](https://github.com/bpbond/R-data-picarro) (collection of code and data) for this workshop.
 
-Let's do that, and get oriented in [RStudio](https://www.rstudio.com/products/RStudio/), now.
+Let's do that now.
 
 
 R basics
@@ -166,26 +183,6 @@ help(package = 'ggplot2')
 ```
 
 
-Things you should know: basics
-========================================================
-
-- The idea of *objects*, *functions*, *assignment*, and *comments*
-
-```{r}
-x <- 10 + 2 # `x` is an object
-log(x) # `log` is a function
-```
-
-- The idea of *data types*
-```{r}
-x <- 3.14     # numeric
-y <- "hello"  # character
-z <- TRUE     # logical
-# We're going to avoid this next one
-f <- factor(c("apple", "pear", "banana")) 
-```
-
-
 Things you should know: vectors
 ========================================================
 
@@ -209,37 +206,6 @@ sum(myvector)
 
 ```{r}
 myvector * 2
-```
-
-
-Things you should know: data frames
-========================================================
-
-- The idea of a *data frame* (tightly coupled vectors)
-
-```{r}
-head(cars)  # one of R's built-in datasets
-
-```
-
-Data frames are the most frequently used data type in R.
-
-
-Things you should know: control flow
-========================================================
-
-- Basic  *control flow* statements
-
-```{r}
-if(sum(1:4) == 10) {
-  print("right!")
-} else {
-  print("wrong!")
-}
-```
-
-```{r}
-for(i in 1:4) { cat(i) }
 ```
 
 
@@ -311,88 +277,6 @@ d$four <- ifelse(d$y == 4, "four", "not 4")
 d
 ```
 
-
-Computing on columns
-========================================================
-
-...or more complex. For example, the [Picarro](http://www.picarro.com/products_solutions/trace_gas_analyzers/co_co2_ch4_h2o) gas analyzer produces data with multiplexer valve numbers (i.e., in an experiment, the multiplexer automatically switches between valves). Whenever the valve number changes, we want to assign a new sample number.
-
-```{r}
-# Toy data set
-# Analyzer is switching between valves 1, 2, and 3
-vn <- c(1, 1, 2, 3, 3, 3, 1, 2, 2, 3)
-```
-
-There are 6 samples here, and we want to produce `1, 1, 2, 3, 3, 3, 4, 5, 5, 6`.
-
-
-Exercise: Computing on columns
-========================================================
-
-```{r}
-# Works, but slow
-samplenums <- rep(NA, length(vn))
-samplenums[1] <- 1
-s <- 1
-
-# Loop and compare valve numbes one by one
-for(i in 2:length(vn)) {
-  if(vn[i] != vn[i-1])
-    s <- s + 1
-  samplenums[i] <- s
-}
-samplenums
-```
-
-
-Exercise: Computing on columns
-========================================================
-
-```{r}
-# Vectorised: fast and elegant
-newvalve <- vn[-length(vn)] != vn[-1]
-newvalve <- c(TRUE, newvalve)
-newvalve
-cumsum(newvalve)  # "cumulative sum"
-```
-
-
-Exercise: Computing on columns - time
-========================================================
-
-```{r, echo=FALSE}
-vnums <- rep(c(1, 2, 2, 3, 3, 3, 1, 1, 2, 3, 3), 100000)
-```
-
-This has big consequences!
-
-For a data frame with `r prettyNum(length(vnums), big.mark=",")` rows:
-
-**The larger lesson to take away here** is that in R, `for` loops are rarely the fastest way to do something (although they may be the clearest).
-
-When possible, take advantage of R's *vectorised operations*.
-
-
-***
-
-```{r, cache=TRUE, echo=FALSE}
-slowtime <- system.time({
-  samplenums <- rep(1, length(vnums))
-  s <- 1
-  for(i in seq_along(vnums)[-1]) {
-    if(vnums[i] != vnums[i-1])
-      s <- s + 1
-    samplenums[i] <- s
-  }
-})
-
-fasttime <- system.time(cumsum(c(TRUE, vnums[-length(vnums)] != vnums[-1])))
-
-d <- data.frame(Algorithm=c("for loop", "cumsum"), Time_s=c(slowtime[3], fasttime[3]))
-library(ggplot2)
-theme_set(theme_bw())
-ggplot(d, aes(Algorithm, Time_s)) + geom_bar(stat='identity') + ylab("Time (seconds)")
-```
 
 
 Understanding and dealing with NA
@@ -482,6 +366,128 @@ History lesson
 <img src="images/history.png" width="850" />
 
 
+Operation pipelines in R
+========================================================
+
+`dplyr` and `tidyr` both *import* the [magrittr](https://github.com/smbache/magrittr) package, which introduces a **pipeline** operator `%>%` to R.
+
+Not everyone is a fan of piping, and there are situations where it's not appropriate; but we'll use it frequently.
+
+
+`magrittr` pipelines in R
+========================================================
+
+Standard R notation:
+
+```{r, eval=FALSE}
+x <- read_my_data(f)
+y <- merge_data(clean_data(x), otherdata)
+z <- summarize_data(y)
+```
+
+Pipeline notation:
+
+```{r, eval=FALSE}
+read_my_data(f) %>%
+  clean_data %>%
+  merge_data(otherdata) %>%
+  summarize_data ->
+  z
+```
+
+
+Reshaping datasets
+========================================================
+
+This is a **CRITICALLY** important skill, because often data aren't in the form you want. Let's look at the `head()` of the `iris` dataset:
+```{r, echo=FALSE}
+head(iris[1:3])
+```
+
+Discuss: why is this not a great form for the data?
+
+Reshaping datasets
+========================================================
+
+The `tidyr::gather` function 'gathers' the data, taking multiple columns and collapsing them into key-value pairs.
+
+
+Reshaping datasets
+========================================================
+
+Remember the form of `iris`:
+
+```{r, echo=FALSE}
+head(iris[1:3])
+```
+
+
+Reshaping datasets
+========================================================
+
+We call `gather`, telling it that we want to 'gather' everything *except* for `species`, and we want the resulting columns to be named `variable` and `value`:
+
+```{r}
+library(tidyr)
+iris %>% 
+  gather(variable, value, -Species)
+```
+
+
+Reshaping datasets
+========================================================
+
+We call `gather`, telling it that we want to 'gather' everything *except* for `species`, and we want the resulting columns to be named `variable` and `value`:
+
+```{r, echo=FALSE}
+library(tidyr)
+iris %>% 
+  gather(variable, value, -Species) %>% head
+```
+
+What's the problem here, though?
+
+
+Reshaping datasets
+========================================================
+
+```{r}
+iris %>% 
+  gather(variable, value, -Species) %>% 
+  separate(variable, 
+           into = c("part", "dimension"))
+``` 
+
+
+Reshaping datasets
+========================================================
+
+You can also work the opposite way, spreading data _across columns_.
+
+The `tidyr::spread` functions is actually considerably less functional than `reshape2::cast`. This is by design, but it's also frustrating.
+
+Reshaping datasets
+========================================================
+
+```{r}
+df <- data.frame(x = c("a", "b"), 
+                 y = c(3, 4), 
+                 z = c(5, 6))
+df
+df %>% spread(x, y)
+```
+
+Reshaping datasets
+========================================================
+
+```{r}
+df
+df %>% 
+  spread(x, y) %>% 
+  gather(x, y, a:b, na.rm = TRUE)
+```
+
+
 Summarizing and manipulating data
 ========================================================
 
@@ -530,36 +536,6 @@ The newer `dplyr` package specializes in data frames, recognizing that most peop
 `dplyr` also allows you to work with remote, out-of-memory databases, using exactly the same tools, because it abstracts away *how* your data is stored.
 
 `dplyr` is **extremely fast**.
-
-
-Operation pipelines in R
-========================================================
-
-`dplyr` *imports*, and its examples make heavy use of, the [magrittr](https://github.com/smbache/magrittr) package, which introduces a **pipeline** operator `%>%` to R.
-
-Not everyone is a fan of piping, and there are situations where it's not appropriate; but we'll stick to `dplyr` convention and use it frequently.
-
-
-Operation pipelines in R
-========================================================
-
-Standard R notation:
-
-```{r, eval=FALSE}
-x <- read_my_data(f)
-y <- merge_data(clean_data(x), otherdata)
-z <- summarize_data(y)
-```
-
-Pipeline notation:
-
-```{r, eval=FALSE}
-read_my_data(f) %>%
-  clean_data %>%
-  merge_data(otherdata) %>%
-  summarize_data ->
-  z
-```
 
 
 Verbs
@@ -675,87 +651,6 @@ Use `dplyr` to calculate the total number of names in the SSA database for each 
 Calculate the 5th most popular name for girls in each year. Hint: `nth()`.
 
 
-Processing Picarro data
-========================================================
-type: section
-
-
-Picarro data
-========================================================
-
-The Picarro outputs text files with names like 
-
->CFADS2283-20150831-171845Z-DataLog_User.dat 
-
->(1.2 MB)
-
-They're bulky and I will often store them gzip'd or zip'd (R will transparently decompress on reading).
-
->CFADS2283-20150831-171845Z-DataLog_User.dat.gz
-
->0.1 MB
-
-
-Picarro data
-========================================================
-
-These files are straightfoward text files.
-
-<img src="images/datafile.png" width="800" />
-
-
-Picarro data
-========================================================
-
-Data in the Picarro output stream include:
-
-* **`DATE`: yyyy-mm-dd format**
-* **`TIME`: hh:mm:ss.sss**
-* Time in other forms: `FRAC_DAYS_SINCE_JAN1`, `FRAC_HRS_SINCE_JAN1`, `JULIAN_DAYS`, `EPOCH_TIME`
-* `ALARM_STATUS` and `INST_STATUS`
-* `species`
-* **`MPVPosition` and `solenoid_valves`**
-* **Gas data: `CH4`, `CH4_dry`, `CO2`, `CO2_dry`, `H2O`, `h2o_reported`**
-
-
-Picarro data cautions
-========================================================
-type: alert
-incremental: true
-
-**Fractional `MPVPosition` valve numbers**
-
-The analyzer records fractional valve numbers when switching between multiplexer valves. You'll want to discard these.
-
-**Date and time stamps**
-
-Know what time the analyzer is set to. If local time, does your experiment cross a daylight savings transition? Does it cross into a new year (which would screw up e.g. `FRAC_HRS_SINCE_JAN1`)?
-
-I recommend setting it to UTC and LEAVE IT THERE. Then it's easy to convert the `DATE` and `TIME` fields into a true R date field and adjust to local time zone if necessary.
-
-
-Getting data into R
-========================================================
-
-The most common way to bring data into R is via `read.table()`:
-```{r, eval=FALSE}
-d <- read.table("mydata.csv", header = TRUE)
-```
-
-The `readr` package provides `read_table()`, which is faster and easier to use.
-```{r, eval=FALSE}
-library(readr)
-d <- read_table("mydata.csv")
-```
-
-
-Hands-on: Picarro data
-========================================================
-type: prompt
-
-Let's open the `picarro.R` file, which I started but didn't finish.
-
-At this point, we have the tools to complete the job. Can you help?
 
 
 Things we didn't talk about
