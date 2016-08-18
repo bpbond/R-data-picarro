@@ -4,7 +4,7 @@ author: Ben Bond-Lamberty
 date: August 2016
 font-family: 'Helvetica'
 
-A workshop covering reproducibility and repository design; data cleaning and reshaping; and using the `dplyr` package for computation.
+A workshop covering reproducibility and repository design; data cleaning and reshaping using `tidyr`; and using the `dplyr` package for computation.
 
 JGCRI
 
@@ -129,9 +129,10 @@ For me almost any project starts from my [default script](https://github.com/bpb
 Reproducible research example
 ========================================================
 
-<img src="images/repository.png" />
+<img src="images/repository.png" width="600" />
 
 From [this paper of mine](http://iopscience.iop.org/article/10.1088/1748-9326/11/8/084004/meta).
+
 
 Hands-on: setting up R and RStudio
 ========================================================
@@ -146,10 +147,6 @@ packages:
 
 We'll also use this data package:
 - `babynames` - names provided to the SSA 1880-2013
-
-Finally, we'll download a [repository](https://github.com/bpbond/R-data-picarro) (collection of code and data) for this workshop.
-
-Let's do that now.
 
 
 Getting ready to process data in R
@@ -178,7 +175,7 @@ help(package = 'tidyr')
 ```
 
 
-Things you should know: vectors and data frames
+TYSK: vectors and data frames
 ========================================================
 
 - A `data.frame` is what we'll mostly use today
@@ -198,14 +195,14 @@ str(cars)
 - Lists are also extremely useful - learn how to use them efficiently (e.g. `lapply`)
 
 
-Understanding and dealing with NA
+TYSK: NA and friends
 ========================================================
 
 One of R's strengths is that missing values are a first-class data type: `NA`.
 
 
 ```r
-x <- c(1, 2, 3, NA, 5)
+x <- c(1:3, NA, 5)
 # Which are NA?
 is.na(x)
 ```
@@ -241,40 +238,10 @@ x[!is.na(x)]
 [1] 1 2 3 5
 ```
 
-
-Understanding and dealing with NA
-========================================================
-
-Like `NaN` and `Inf`, generally `NA` 'poisons' operations, so NA values must be explicitly ignored and/or removed.
+It's also useful to be familiar with `is.infinite` and `is.nan`.
 
 
-```r
-x <- c(1, 2, 3, NA, 5)
-any(is.na(x))
-```
-
-```
-[1] TRUE
-```
-
-```r
-sum(x) # NA
-```
-
-```
-[1] NA
-```
-
-```r
-sum(x, na.rm = TRUE)
-```
-
-```
-[1] 11
-```
-
-
-Things you should know: vectorization
+TYSK: vectorization
 ========================================================
 
 - *Vectorised operations* operate on a vector or data frame all at once. One of the simplest:
@@ -299,28 +266,25 @@ for(i in seq_along(myvector)) {
 ```
 
 
-Things you should know: packages
+TYSK: packages
 ========================================================
 
 - *Packages* are pieces of software that can be loaded into R. There are thousands, for all kinds of tasks and needs.
 
 
 ```r
-# The single most popular R package is `ggplot2`
 library(ggplot2)
-
-# qplot:
-# a "quick plot" function in ggplot2
+# qplot: a "quick plot" function in ggplot2
 qplot(speed, dist, data = cars)
 ```
 
 You'll also see the double-colon notation, `ggplot2::qplot`, which denotes accessing the _exported symbol_ of a _package_ (technically, a namespace).
 ***
 
-![plot of chunk unnamed-chunk-9](R-data-picarro-figure/unnamed-chunk-9-1.png)
+![plot of chunk unnamed-chunk-8](R-data-picarro-figure/unnamed-chunk-8-1.png)
 
 
-Is R the right tool for the job?
+TYSK: is R the right tool for the job?
 ========================================================
 
 R is great, but it might not be the right (or at least only) thing you want. There are other tools that might be better for your specific need!
@@ -340,7 +304,7 @@ incremental: false
 * What's the maximum `Petal.Length` value? What row is it in? (See `which.max`.)
 * Pull out (using base R's `subset`) all the observations with `Petal.Length` greater than 6. How many observations are there?
 * Remove colums 1 and 3 from `iris`. What are the names of the remaining columns? 
-* Look at the underlying structure of `iris` using `str()`.
+* Look at the underlying structure of `iris` using `str()` and `class()`.
 
 
 Reshaping and tidying data
@@ -387,7 +351,7 @@ We _clean_ and _reshape_ data to get it from an untidy form (above) to a tidy on
 ```
 
 
-Pipelines in R
+Brief detour: pipelines in R
 ========================================================
 
 `dplyr` and `tidyr` both *import* the [magrittr](https://github.com/smbache/magrittr) package, which introduces a **pipeline** operator `%>%` to R.
@@ -490,617 +454,617 @@ str(iris)
 Reshaping datasets
 ========================================================
 
-We call `gather`, telling it that we want to 'gather' everything *except* for `species`, and we want the resulting columns to be named `variable` and `value`:
+We call `gather`, telling it that we want to 'gather' everything *except* for `Species`, and we want the resulting columns to be named `variable` and `value`:
 
 
 ```r
 library(tidyr)
 iris %>% 
-  gather(variable, value, -Species)
+  gather(variable, value_cm, -Species)
 ```
 
 ```
-       Species     variable value
-1       setosa Sepal.Length   5.1
-2       setosa Sepal.Length   4.9
-3       setosa Sepal.Length   4.7
-4       setosa Sepal.Length   4.6
-5       setosa Sepal.Length   5.0
-6       setosa Sepal.Length   5.4
-7       setosa Sepal.Length   4.6
-8       setosa Sepal.Length   5.0
-9       setosa Sepal.Length   4.4
-10      setosa Sepal.Length   4.9
-11      setosa Sepal.Length   5.4
-12      setosa Sepal.Length   4.8
-13      setosa Sepal.Length   4.8
-14      setosa Sepal.Length   4.3
-15      setosa Sepal.Length   5.8
-16      setosa Sepal.Length   5.7
-17      setosa Sepal.Length   5.4
-18      setosa Sepal.Length   5.1
-19      setosa Sepal.Length   5.7
-20      setosa Sepal.Length   5.1
-21      setosa Sepal.Length   5.4
-22      setosa Sepal.Length   5.1
-23      setosa Sepal.Length   4.6
-24      setosa Sepal.Length   5.1
-25      setosa Sepal.Length   4.8
-26      setosa Sepal.Length   5.0
-27      setosa Sepal.Length   5.0
-28      setosa Sepal.Length   5.2
-29      setosa Sepal.Length   5.2
-30      setosa Sepal.Length   4.7
-31      setosa Sepal.Length   4.8
-32      setosa Sepal.Length   5.4
-33      setosa Sepal.Length   5.2
-34      setosa Sepal.Length   5.5
-35      setosa Sepal.Length   4.9
-36      setosa Sepal.Length   5.0
-37      setosa Sepal.Length   5.5
-38      setosa Sepal.Length   4.9
-39      setosa Sepal.Length   4.4
-40      setosa Sepal.Length   5.1
-41      setosa Sepal.Length   5.0
-42      setosa Sepal.Length   4.5
-43      setosa Sepal.Length   4.4
-44      setosa Sepal.Length   5.0
-45      setosa Sepal.Length   5.1
-46      setosa Sepal.Length   4.8
-47      setosa Sepal.Length   5.1
-48      setosa Sepal.Length   4.6
-49      setosa Sepal.Length   5.3
-50      setosa Sepal.Length   5.0
-51  versicolor Sepal.Length   7.0
-52  versicolor Sepal.Length   6.4
-53  versicolor Sepal.Length   6.9
-54  versicolor Sepal.Length   5.5
-55  versicolor Sepal.Length   6.5
-56  versicolor Sepal.Length   5.7
-57  versicolor Sepal.Length   6.3
-58  versicolor Sepal.Length   4.9
-59  versicolor Sepal.Length   6.6
-60  versicolor Sepal.Length   5.2
-61  versicolor Sepal.Length   5.0
-62  versicolor Sepal.Length   5.9
-63  versicolor Sepal.Length   6.0
-64  versicolor Sepal.Length   6.1
-65  versicolor Sepal.Length   5.6
-66  versicolor Sepal.Length   6.7
-67  versicolor Sepal.Length   5.6
-68  versicolor Sepal.Length   5.8
-69  versicolor Sepal.Length   6.2
-70  versicolor Sepal.Length   5.6
-71  versicolor Sepal.Length   5.9
-72  versicolor Sepal.Length   6.1
-73  versicolor Sepal.Length   6.3
-74  versicolor Sepal.Length   6.1
-75  versicolor Sepal.Length   6.4
-76  versicolor Sepal.Length   6.6
-77  versicolor Sepal.Length   6.8
-78  versicolor Sepal.Length   6.7
-79  versicolor Sepal.Length   6.0
-80  versicolor Sepal.Length   5.7
-81  versicolor Sepal.Length   5.5
-82  versicolor Sepal.Length   5.5
-83  versicolor Sepal.Length   5.8
-84  versicolor Sepal.Length   6.0
-85  versicolor Sepal.Length   5.4
-86  versicolor Sepal.Length   6.0
-87  versicolor Sepal.Length   6.7
-88  versicolor Sepal.Length   6.3
-89  versicolor Sepal.Length   5.6
-90  versicolor Sepal.Length   5.5
-91  versicolor Sepal.Length   5.5
-92  versicolor Sepal.Length   6.1
-93  versicolor Sepal.Length   5.8
-94  versicolor Sepal.Length   5.0
-95  versicolor Sepal.Length   5.6
-96  versicolor Sepal.Length   5.7
-97  versicolor Sepal.Length   5.7
-98  versicolor Sepal.Length   6.2
-99  versicolor Sepal.Length   5.1
-100 versicolor Sepal.Length   5.7
-101  virginica Sepal.Length   6.3
-102  virginica Sepal.Length   5.8
-103  virginica Sepal.Length   7.1
-104  virginica Sepal.Length   6.3
-105  virginica Sepal.Length   6.5
-106  virginica Sepal.Length   7.6
-107  virginica Sepal.Length   4.9
-108  virginica Sepal.Length   7.3
-109  virginica Sepal.Length   6.7
-110  virginica Sepal.Length   7.2
-111  virginica Sepal.Length   6.5
-112  virginica Sepal.Length   6.4
-113  virginica Sepal.Length   6.8
-114  virginica Sepal.Length   5.7
-115  virginica Sepal.Length   5.8
-116  virginica Sepal.Length   6.4
-117  virginica Sepal.Length   6.5
-118  virginica Sepal.Length   7.7
-119  virginica Sepal.Length   7.7
-120  virginica Sepal.Length   6.0
-121  virginica Sepal.Length   6.9
-122  virginica Sepal.Length   5.6
-123  virginica Sepal.Length   7.7
-124  virginica Sepal.Length   6.3
-125  virginica Sepal.Length   6.7
-126  virginica Sepal.Length   7.2
-127  virginica Sepal.Length   6.2
-128  virginica Sepal.Length   6.1
-129  virginica Sepal.Length   6.4
-130  virginica Sepal.Length   7.2
-131  virginica Sepal.Length   7.4
-132  virginica Sepal.Length   7.9
-133  virginica Sepal.Length   6.4
-134  virginica Sepal.Length   6.3
-135  virginica Sepal.Length   6.1
-136  virginica Sepal.Length   7.7
-137  virginica Sepal.Length   6.3
-138  virginica Sepal.Length   6.4
-139  virginica Sepal.Length   6.0
-140  virginica Sepal.Length   6.9
-141  virginica Sepal.Length   6.7
-142  virginica Sepal.Length   6.9
-143  virginica Sepal.Length   5.8
-144  virginica Sepal.Length   6.8
-145  virginica Sepal.Length   6.7
-146  virginica Sepal.Length   6.7
-147  virginica Sepal.Length   6.3
-148  virginica Sepal.Length   6.5
-149  virginica Sepal.Length   6.2
-150  virginica Sepal.Length   5.9
-151     setosa  Sepal.Width   3.5
-152     setosa  Sepal.Width   3.0
-153     setosa  Sepal.Width   3.2
-154     setosa  Sepal.Width   3.1
-155     setosa  Sepal.Width   3.6
-156     setosa  Sepal.Width   3.9
-157     setosa  Sepal.Width   3.4
-158     setosa  Sepal.Width   3.4
-159     setosa  Sepal.Width   2.9
-160     setosa  Sepal.Width   3.1
-161     setosa  Sepal.Width   3.7
-162     setosa  Sepal.Width   3.4
-163     setosa  Sepal.Width   3.0
-164     setosa  Sepal.Width   3.0
-165     setosa  Sepal.Width   4.0
-166     setosa  Sepal.Width   4.4
-167     setosa  Sepal.Width   3.9
-168     setosa  Sepal.Width   3.5
-169     setosa  Sepal.Width   3.8
-170     setosa  Sepal.Width   3.8
-171     setosa  Sepal.Width   3.4
-172     setosa  Sepal.Width   3.7
-173     setosa  Sepal.Width   3.6
-174     setosa  Sepal.Width   3.3
-175     setosa  Sepal.Width   3.4
-176     setosa  Sepal.Width   3.0
-177     setosa  Sepal.Width   3.4
-178     setosa  Sepal.Width   3.5
-179     setosa  Sepal.Width   3.4
-180     setosa  Sepal.Width   3.2
-181     setosa  Sepal.Width   3.1
-182     setosa  Sepal.Width   3.4
-183     setosa  Sepal.Width   4.1
-184     setosa  Sepal.Width   4.2
-185     setosa  Sepal.Width   3.1
-186     setosa  Sepal.Width   3.2
-187     setosa  Sepal.Width   3.5
-188     setosa  Sepal.Width   3.6
-189     setosa  Sepal.Width   3.0
-190     setosa  Sepal.Width   3.4
-191     setosa  Sepal.Width   3.5
-192     setosa  Sepal.Width   2.3
-193     setosa  Sepal.Width   3.2
-194     setosa  Sepal.Width   3.5
-195     setosa  Sepal.Width   3.8
-196     setosa  Sepal.Width   3.0
-197     setosa  Sepal.Width   3.8
-198     setosa  Sepal.Width   3.2
-199     setosa  Sepal.Width   3.7
-200     setosa  Sepal.Width   3.3
-201 versicolor  Sepal.Width   3.2
-202 versicolor  Sepal.Width   3.2
-203 versicolor  Sepal.Width   3.1
-204 versicolor  Sepal.Width   2.3
-205 versicolor  Sepal.Width   2.8
-206 versicolor  Sepal.Width   2.8
-207 versicolor  Sepal.Width   3.3
-208 versicolor  Sepal.Width   2.4
-209 versicolor  Sepal.Width   2.9
-210 versicolor  Sepal.Width   2.7
-211 versicolor  Sepal.Width   2.0
-212 versicolor  Sepal.Width   3.0
-213 versicolor  Sepal.Width   2.2
-214 versicolor  Sepal.Width   2.9
-215 versicolor  Sepal.Width   2.9
-216 versicolor  Sepal.Width   3.1
-217 versicolor  Sepal.Width   3.0
-218 versicolor  Sepal.Width   2.7
-219 versicolor  Sepal.Width   2.2
-220 versicolor  Sepal.Width   2.5
-221 versicolor  Sepal.Width   3.2
-222 versicolor  Sepal.Width   2.8
-223 versicolor  Sepal.Width   2.5
-224 versicolor  Sepal.Width   2.8
-225 versicolor  Sepal.Width   2.9
-226 versicolor  Sepal.Width   3.0
-227 versicolor  Sepal.Width   2.8
-228 versicolor  Sepal.Width   3.0
-229 versicolor  Sepal.Width   2.9
-230 versicolor  Sepal.Width   2.6
-231 versicolor  Sepal.Width   2.4
-232 versicolor  Sepal.Width   2.4
-233 versicolor  Sepal.Width   2.7
-234 versicolor  Sepal.Width   2.7
-235 versicolor  Sepal.Width   3.0
-236 versicolor  Sepal.Width   3.4
-237 versicolor  Sepal.Width   3.1
-238 versicolor  Sepal.Width   2.3
-239 versicolor  Sepal.Width   3.0
-240 versicolor  Sepal.Width   2.5
-241 versicolor  Sepal.Width   2.6
-242 versicolor  Sepal.Width   3.0
-243 versicolor  Sepal.Width   2.6
-244 versicolor  Sepal.Width   2.3
-245 versicolor  Sepal.Width   2.7
-246 versicolor  Sepal.Width   3.0
-247 versicolor  Sepal.Width   2.9
-248 versicolor  Sepal.Width   2.9
-249 versicolor  Sepal.Width   2.5
-250 versicolor  Sepal.Width   2.8
-251  virginica  Sepal.Width   3.3
-252  virginica  Sepal.Width   2.7
-253  virginica  Sepal.Width   3.0
-254  virginica  Sepal.Width   2.9
-255  virginica  Sepal.Width   3.0
-256  virginica  Sepal.Width   3.0
-257  virginica  Sepal.Width   2.5
-258  virginica  Sepal.Width   2.9
-259  virginica  Sepal.Width   2.5
-260  virginica  Sepal.Width   3.6
-261  virginica  Sepal.Width   3.2
-262  virginica  Sepal.Width   2.7
-263  virginica  Sepal.Width   3.0
-264  virginica  Sepal.Width   2.5
-265  virginica  Sepal.Width   2.8
-266  virginica  Sepal.Width   3.2
-267  virginica  Sepal.Width   3.0
-268  virginica  Sepal.Width   3.8
-269  virginica  Sepal.Width   2.6
-270  virginica  Sepal.Width   2.2
-271  virginica  Sepal.Width   3.2
-272  virginica  Sepal.Width   2.8
-273  virginica  Sepal.Width   2.8
-274  virginica  Sepal.Width   2.7
-275  virginica  Sepal.Width   3.3
-276  virginica  Sepal.Width   3.2
-277  virginica  Sepal.Width   2.8
-278  virginica  Sepal.Width   3.0
-279  virginica  Sepal.Width   2.8
-280  virginica  Sepal.Width   3.0
-281  virginica  Sepal.Width   2.8
-282  virginica  Sepal.Width   3.8
-283  virginica  Sepal.Width   2.8
-284  virginica  Sepal.Width   2.8
-285  virginica  Sepal.Width   2.6
-286  virginica  Sepal.Width   3.0
-287  virginica  Sepal.Width   3.4
-288  virginica  Sepal.Width   3.1
-289  virginica  Sepal.Width   3.0
-290  virginica  Sepal.Width   3.1
-291  virginica  Sepal.Width   3.1
-292  virginica  Sepal.Width   3.1
-293  virginica  Sepal.Width   2.7
-294  virginica  Sepal.Width   3.2
-295  virginica  Sepal.Width   3.3
-296  virginica  Sepal.Width   3.0
-297  virginica  Sepal.Width   2.5
-298  virginica  Sepal.Width   3.0
-299  virginica  Sepal.Width   3.4
-300  virginica  Sepal.Width   3.0
-301     setosa Petal.Length   1.4
-302     setosa Petal.Length   1.4
-303     setosa Petal.Length   1.3
-304     setosa Petal.Length   1.5
-305     setosa Petal.Length   1.4
-306     setosa Petal.Length   1.7
-307     setosa Petal.Length   1.4
-308     setosa Petal.Length   1.5
-309     setosa Petal.Length   1.4
-310     setosa Petal.Length   1.5
-311     setosa Petal.Length   1.5
-312     setosa Petal.Length   1.6
-313     setosa Petal.Length   1.4
-314     setosa Petal.Length   1.1
-315     setosa Petal.Length   1.2
-316     setosa Petal.Length   1.5
-317     setosa Petal.Length   1.3
-318     setosa Petal.Length   1.4
-319     setosa Petal.Length   1.7
-320     setosa Petal.Length   1.5
-321     setosa Petal.Length   1.7
-322     setosa Petal.Length   1.5
-323     setosa Petal.Length   1.0
-324     setosa Petal.Length   1.7
-325     setosa Petal.Length   1.9
-326     setosa Petal.Length   1.6
-327     setosa Petal.Length   1.6
-328     setosa Petal.Length   1.5
-329     setosa Petal.Length   1.4
-330     setosa Petal.Length   1.6
-331     setosa Petal.Length   1.6
-332     setosa Petal.Length   1.5
-333     setosa Petal.Length   1.5
-334     setosa Petal.Length   1.4
-335     setosa Petal.Length   1.5
-336     setosa Petal.Length   1.2
-337     setosa Petal.Length   1.3
-338     setosa Petal.Length   1.4
-339     setosa Petal.Length   1.3
-340     setosa Petal.Length   1.5
-341     setosa Petal.Length   1.3
-342     setosa Petal.Length   1.3
-343     setosa Petal.Length   1.3
-344     setosa Petal.Length   1.6
-345     setosa Petal.Length   1.9
-346     setosa Petal.Length   1.4
-347     setosa Petal.Length   1.6
-348     setosa Petal.Length   1.4
-349     setosa Petal.Length   1.5
-350     setosa Petal.Length   1.4
-351 versicolor Petal.Length   4.7
-352 versicolor Petal.Length   4.5
-353 versicolor Petal.Length   4.9
-354 versicolor Petal.Length   4.0
-355 versicolor Petal.Length   4.6
-356 versicolor Petal.Length   4.5
-357 versicolor Petal.Length   4.7
-358 versicolor Petal.Length   3.3
-359 versicolor Petal.Length   4.6
-360 versicolor Petal.Length   3.9
-361 versicolor Petal.Length   3.5
-362 versicolor Petal.Length   4.2
-363 versicolor Petal.Length   4.0
-364 versicolor Petal.Length   4.7
-365 versicolor Petal.Length   3.6
-366 versicolor Petal.Length   4.4
-367 versicolor Petal.Length   4.5
-368 versicolor Petal.Length   4.1
-369 versicolor Petal.Length   4.5
-370 versicolor Petal.Length   3.9
-371 versicolor Petal.Length   4.8
-372 versicolor Petal.Length   4.0
-373 versicolor Petal.Length   4.9
-374 versicolor Petal.Length   4.7
-375 versicolor Petal.Length   4.3
-376 versicolor Petal.Length   4.4
-377 versicolor Petal.Length   4.8
-378 versicolor Petal.Length   5.0
-379 versicolor Petal.Length   4.5
-380 versicolor Petal.Length   3.5
-381 versicolor Petal.Length   3.8
-382 versicolor Petal.Length   3.7
-383 versicolor Petal.Length   3.9
-384 versicolor Petal.Length   5.1
-385 versicolor Petal.Length   4.5
-386 versicolor Petal.Length   4.5
-387 versicolor Petal.Length   4.7
-388 versicolor Petal.Length   4.4
-389 versicolor Petal.Length   4.1
-390 versicolor Petal.Length   4.0
-391 versicolor Petal.Length   4.4
-392 versicolor Petal.Length   4.6
-393 versicolor Petal.Length   4.0
-394 versicolor Petal.Length   3.3
-395 versicolor Petal.Length   4.2
-396 versicolor Petal.Length   4.2
-397 versicolor Petal.Length   4.2
-398 versicolor Petal.Length   4.3
-399 versicolor Petal.Length   3.0
-400 versicolor Petal.Length   4.1
-401  virginica Petal.Length   6.0
-402  virginica Petal.Length   5.1
-403  virginica Petal.Length   5.9
-404  virginica Petal.Length   5.6
-405  virginica Petal.Length   5.8
-406  virginica Petal.Length   6.6
-407  virginica Petal.Length   4.5
-408  virginica Petal.Length   6.3
-409  virginica Petal.Length   5.8
-410  virginica Petal.Length   6.1
-411  virginica Petal.Length   5.1
-412  virginica Petal.Length   5.3
-413  virginica Petal.Length   5.5
-414  virginica Petal.Length   5.0
-415  virginica Petal.Length   5.1
-416  virginica Petal.Length   5.3
-417  virginica Petal.Length   5.5
-418  virginica Petal.Length   6.7
-419  virginica Petal.Length   6.9
-420  virginica Petal.Length   5.0
-421  virginica Petal.Length   5.7
-422  virginica Petal.Length   4.9
-423  virginica Petal.Length   6.7
-424  virginica Petal.Length   4.9
-425  virginica Petal.Length   5.7
-426  virginica Petal.Length   6.0
-427  virginica Petal.Length   4.8
-428  virginica Petal.Length   4.9
-429  virginica Petal.Length   5.6
-430  virginica Petal.Length   5.8
-431  virginica Petal.Length   6.1
-432  virginica Petal.Length   6.4
-433  virginica Petal.Length   5.6
-434  virginica Petal.Length   5.1
-435  virginica Petal.Length   5.6
-436  virginica Petal.Length   6.1
-437  virginica Petal.Length   5.6
-438  virginica Petal.Length   5.5
-439  virginica Petal.Length   4.8
-440  virginica Petal.Length   5.4
-441  virginica Petal.Length   5.6
-442  virginica Petal.Length   5.1
-443  virginica Petal.Length   5.1
-444  virginica Petal.Length   5.9
-445  virginica Petal.Length   5.7
-446  virginica Petal.Length   5.2
-447  virginica Petal.Length   5.0
-448  virginica Petal.Length   5.2
-449  virginica Petal.Length   5.4
-450  virginica Petal.Length   5.1
-451     setosa  Petal.Width   0.2
-452     setosa  Petal.Width   0.2
-453     setosa  Petal.Width   0.2
-454     setosa  Petal.Width   0.2
-455     setosa  Petal.Width   0.2
-456     setosa  Petal.Width   0.4
-457     setosa  Petal.Width   0.3
-458     setosa  Petal.Width   0.2
-459     setosa  Petal.Width   0.2
-460     setosa  Petal.Width   0.1
-461     setosa  Petal.Width   0.2
-462     setosa  Petal.Width   0.2
-463     setosa  Petal.Width   0.1
-464     setosa  Petal.Width   0.1
-465     setosa  Petal.Width   0.2
-466     setosa  Petal.Width   0.4
-467     setosa  Petal.Width   0.4
-468     setosa  Petal.Width   0.3
-469     setosa  Petal.Width   0.3
-470     setosa  Petal.Width   0.3
-471     setosa  Petal.Width   0.2
-472     setosa  Petal.Width   0.4
-473     setosa  Petal.Width   0.2
-474     setosa  Petal.Width   0.5
-475     setosa  Petal.Width   0.2
-476     setosa  Petal.Width   0.2
-477     setosa  Petal.Width   0.4
-478     setosa  Petal.Width   0.2
-479     setosa  Petal.Width   0.2
-480     setosa  Petal.Width   0.2
-481     setosa  Petal.Width   0.2
-482     setosa  Petal.Width   0.4
-483     setosa  Petal.Width   0.1
-484     setosa  Petal.Width   0.2
-485     setosa  Petal.Width   0.2
-486     setosa  Petal.Width   0.2
-487     setosa  Petal.Width   0.2
-488     setosa  Petal.Width   0.1
-489     setosa  Petal.Width   0.2
-490     setosa  Petal.Width   0.2
-491     setosa  Petal.Width   0.3
-492     setosa  Petal.Width   0.3
-493     setosa  Petal.Width   0.2
-494     setosa  Petal.Width   0.6
-495     setosa  Petal.Width   0.4
-496     setosa  Petal.Width   0.3
-497     setosa  Petal.Width   0.2
-498     setosa  Petal.Width   0.2
-499     setosa  Petal.Width   0.2
-500     setosa  Petal.Width   0.2
-501 versicolor  Petal.Width   1.4
-502 versicolor  Petal.Width   1.5
-503 versicolor  Petal.Width   1.5
-504 versicolor  Petal.Width   1.3
-505 versicolor  Petal.Width   1.5
-506 versicolor  Petal.Width   1.3
-507 versicolor  Petal.Width   1.6
-508 versicolor  Petal.Width   1.0
-509 versicolor  Petal.Width   1.3
-510 versicolor  Petal.Width   1.4
-511 versicolor  Petal.Width   1.0
-512 versicolor  Petal.Width   1.5
-513 versicolor  Petal.Width   1.0
-514 versicolor  Petal.Width   1.4
-515 versicolor  Petal.Width   1.3
-516 versicolor  Petal.Width   1.4
-517 versicolor  Petal.Width   1.5
-518 versicolor  Petal.Width   1.0
-519 versicolor  Petal.Width   1.5
-520 versicolor  Petal.Width   1.1
-521 versicolor  Petal.Width   1.8
-522 versicolor  Petal.Width   1.3
-523 versicolor  Petal.Width   1.5
-524 versicolor  Petal.Width   1.2
-525 versicolor  Petal.Width   1.3
-526 versicolor  Petal.Width   1.4
-527 versicolor  Petal.Width   1.4
-528 versicolor  Petal.Width   1.7
-529 versicolor  Petal.Width   1.5
-530 versicolor  Petal.Width   1.0
-531 versicolor  Petal.Width   1.1
-532 versicolor  Petal.Width   1.0
-533 versicolor  Petal.Width   1.2
-534 versicolor  Petal.Width   1.6
-535 versicolor  Petal.Width   1.5
-536 versicolor  Petal.Width   1.6
-537 versicolor  Petal.Width   1.5
-538 versicolor  Petal.Width   1.3
-539 versicolor  Petal.Width   1.3
-540 versicolor  Petal.Width   1.3
-541 versicolor  Petal.Width   1.2
-542 versicolor  Petal.Width   1.4
-543 versicolor  Petal.Width   1.2
-544 versicolor  Petal.Width   1.0
-545 versicolor  Petal.Width   1.3
-546 versicolor  Petal.Width   1.2
-547 versicolor  Petal.Width   1.3
-548 versicolor  Petal.Width   1.3
-549 versicolor  Petal.Width   1.1
-550 versicolor  Petal.Width   1.3
-551  virginica  Petal.Width   2.5
-552  virginica  Petal.Width   1.9
-553  virginica  Petal.Width   2.1
-554  virginica  Petal.Width   1.8
-555  virginica  Petal.Width   2.2
-556  virginica  Petal.Width   2.1
-557  virginica  Petal.Width   1.7
-558  virginica  Petal.Width   1.8
-559  virginica  Petal.Width   1.8
-560  virginica  Petal.Width   2.5
-561  virginica  Petal.Width   2.0
-562  virginica  Petal.Width   1.9
-563  virginica  Petal.Width   2.1
-564  virginica  Petal.Width   2.0
-565  virginica  Petal.Width   2.4
-566  virginica  Petal.Width   2.3
-567  virginica  Petal.Width   1.8
-568  virginica  Petal.Width   2.2
-569  virginica  Petal.Width   2.3
-570  virginica  Petal.Width   1.5
-571  virginica  Petal.Width   2.3
-572  virginica  Petal.Width   2.0
-573  virginica  Petal.Width   2.0
-574  virginica  Petal.Width   1.8
-575  virginica  Petal.Width   2.1
-576  virginica  Petal.Width   1.8
-577  virginica  Petal.Width   1.8
-578  virginica  Petal.Width   1.8
-579  virginica  Petal.Width   2.1
-580  virginica  Petal.Width   1.6
-581  virginica  Petal.Width   1.9
-582  virginica  Petal.Width   2.0
-583  virginica  Petal.Width   2.2
-584  virginica  Petal.Width   1.5
-585  virginica  Petal.Width   1.4
-586  virginica  Petal.Width   2.3
-587  virginica  Petal.Width   2.4
-588  virginica  Petal.Width   1.8
-589  virginica  Petal.Width   1.8
-590  virginica  Petal.Width   2.1
-591  virginica  Petal.Width   2.4
-592  virginica  Petal.Width   2.3
-593  virginica  Petal.Width   1.9
-594  virginica  Petal.Width   2.3
-595  virginica  Petal.Width   2.5
-596  virginica  Petal.Width   2.3
-597  virginica  Petal.Width   1.9
-598  virginica  Petal.Width   2.0
-599  virginica  Petal.Width   2.3
-600  virginica  Petal.Width   1.8
+       Species     variable value_cm
+1       setosa Sepal.Length      5.1
+2       setosa Sepal.Length      4.9
+3       setosa Sepal.Length      4.7
+4       setosa Sepal.Length      4.6
+5       setosa Sepal.Length      5.0
+6       setosa Sepal.Length      5.4
+7       setosa Sepal.Length      4.6
+8       setosa Sepal.Length      5.0
+9       setosa Sepal.Length      4.4
+10      setosa Sepal.Length      4.9
+11      setosa Sepal.Length      5.4
+12      setosa Sepal.Length      4.8
+13      setosa Sepal.Length      4.8
+14      setosa Sepal.Length      4.3
+15      setosa Sepal.Length      5.8
+16      setosa Sepal.Length      5.7
+17      setosa Sepal.Length      5.4
+18      setosa Sepal.Length      5.1
+19      setosa Sepal.Length      5.7
+20      setosa Sepal.Length      5.1
+21      setosa Sepal.Length      5.4
+22      setosa Sepal.Length      5.1
+23      setosa Sepal.Length      4.6
+24      setosa Sepal.Length      5.1
+25      setosa Sepal.Length      4.8
+26      setosa Sepal.Length      5.0
+27      setosa Sepal.Length      5.0
+28      setosa Sepal.Length      5.2
+29      setosa Sepal.Length      5.2
+30      setosa Sepal.Length      4.7
+31      setosa Sepal.Length      4.8
+32      setosa Sepal.Length      5.4
+33      setosa Sepal.Length      5.2
+34      setosa Sepal.Length      5.5
+35      setosa Sepal.Length      4.9
+36      setosa Sepal.Length      5.0
+37      setosa Sepal.Length      5.5
+38      setosa Sepal.Length      4.9
+39      setosa Sepal.Length      4.4
+40      setosa Sepal.Length      5.1
+41      setosa Sepal.Length      5.0
+42      setosa Sepal.Length      4.5
+43      setosa Sepal.Length      4.4
+44      setosa Sepal.Length      5.0
+45      setosa Sepal.Length      5.1
+46      setosa Sepal.Length      4.8
+47      setosa Sepal.Length      5.1
+48      setosa Sepal.Length      4.6
+49      setosa Sepal.Length      5.3
+50      setosa Sepal.Length      5.0
+51  versicolor Sepal.Length      7.0
+52  versicolor Sepal.Length      6.4
+53  versicolor Sepal.Length      6.9
+54  versicolor Sepal.Length      5.5
+55  versicolor Sepal.Length      6.5
+56  versicolor Sepal.Length      5.7
+57  versicolor Sepal.Length      6.3
+58  versicolor Sepal.Length      4.9
+59  versicolor Sepal.Length      6.6
+60  versicolor Sepal.Length      5.2
+61  versicolor Sepal.Length      5.0
+62  versicolor Sepal.Length      5.9
+63  versicolor Sepal.Length      6.0
+64  versicolor Sepal.Length      6.1
+65  versicolor Sepal.Length      5.6
+66  versicolor Sepal.Length      6.7
+67  versicolor Sepal.Length      5.6
+68  versicolor Sepal.Length      5.8
+69  versicolor Sepal.Length      6.2
+70  versicolor Sepal.Length      5.6
+71  versicolor Sepal.Length      5.9
+72  versicolor Sepal.Length      6.1
+73  versicolor Sepal.Length      6.3
+74  versicolor Sepal.Length      6.1
+75  versicolor Sepal.Length      6.4
+76  versicolor Sepal.Length      6.6
+77  versicolor Sepal.Length      6.8
+78  versicolor Sepal.Length      6.7
+79  versicolor Sepal.Length      6.0
+80  versicolor Sepal.Length      5.7
+81  versicolor Sepal.Length      5.5
+82  versicolor Sepal.Length      5.5
+83  versicolor Sepal.Length      5.8
+84  versicolor Sepal.Length      6.0
+85  versicolor Sepal.Length      5.4
+86  versicolor Sepal.Length      6.0
+87  versicolor Sepal.Length      6.7
+88  versicolor Sepal.Length      6.3
+89  versicolor Sepal.Length      5.6
+90  versicolor Sepal.Length      5.5
+91  versicolor Sepal.Length      5.5
+92  versicolor Sepal.Length      6.1
+93  versicolor Sepal.Length      5.8
+94  versicolor Sepal.Length      5.0
+95  versicolor Sepal.Length      5.6
+96  versicolor Sepal.Length      5.7
+97  versicolor Sepal.Length      5.7
+98  versicolor Sepal.Length      6.2
+99  versicolor Sepal.Length      5.1
+100 versicolor Sepal.Length      5.7
+101  virginica Sepal.Length      6.3
+102  virginica Sepal.Length      5.8
+103  virginica Sepal.Length      7.1
+104  virginica Sepal.Length      6.3
+105  virginica Sepal.Length      6.5
+106  virginica Sepal.Length      7.6
+107  virginica Sepal.Length      4.9
+108  virginica Sepal.Length      7.3
+109  virginica Sepal.Length      6.7
+110  virginica Sepal.Length      7.2
+111  virginica Sepal.Length      6.5
+112  virginica Sepal.Length      6.4
+113  virginica Sepal.Length      6.8
+114  virginica Sepal.Length      5.7
+115  virginica Sepal.Length      5.8
+116  virginica Sepal.Length      6.4
+117  virginica Sepal.Length      6.5
+118  virginica Sepal.Length      7.7
+119  virginica Sepal.Length      7.7
+120  virginica Sepal.Length      6.0
+121  virginica Sepal.Length      6.9
+122  virginica Sepal.Length      5.6
+123  virginica Sepal.Length      7.7
+124  virginica Sepal.Length      6.3
+125  virginica Sepal.Length      6.7
+126  virginica Sepal.Length      7.2
+127  virginica Sepal.Length      6.2
+128  virginica Sepal.Length      6.1
+129  virginica Sepal.Length      6.4
+130  virginica Sepal.Length      7.2
+131  virginica Sepal.Length      7.4
+132  virginica Sepal.Length      7.9
+133  virginica Sepal.Length      6.4
+134  virginica Sepal.Length      6.3
+135  virginica Sepal.Length      6.1
+136  virginica Sepal.Length      7.7
+137  virginica Sepal.Length      6.3
+138  virginica Sepal.Length      6.4
+139  virginica Sepal.Length      6.0
+140  virginica Sepal.Length      6.9
+141  virginica Sepal.Length      6.7
+142  virginica Sepal.Length      6.9
+143  virginica Sepal.Length      5.8
+144  virginica Sepal.Length      6.8
+145  virginica Sepal.Length      6.7
+146  virginica Sepal.Length      6.7
+147  virginica Sepal.Length      6.3
+148  virginica Sepal.Length      6.5
+149  virginica Sepal.Length      6.2
+150  virginica Sepal.Length      5.9
+151     setosa  Sepal.Width      3.5
+152     setosa  Sepal.Width      3.0
+153     setosa  Sepal.Width      3.2
+154     setosa  Sepal.Width      3.1
+155     setosa  Sepal.Width      3.6
+156     setosa  Sepal.Width      3.9
+157     setosa  Sepal.Width      3.4
+158     setosa  Sepal.Width      3.4
+159     setosa  Sepal.Width      2.9
+160     setosa  Sepal.Width      3.1
+161     setosa  Sepal.Width      3.7
+162     setosa  Sepal.Width      3.4
+163     setosa  Sepal.Width      3.0
+164     setosa  Sepal.Width      3.0
+165     setosa  Sepal.Width      4.0
+166     setosa  Sepal.Width      4.4
+167     setosa  Sepal.Width      3.9
+168     setosa  Sepal.Width      3.5
+169     setosa  Sepal.Width      3.8
+170     setosa  Sepal.Width      3.8
+171     setosa  Sepal.Width      3.4
+172     setosa  Sepal.Width      3.7
+173     setosa  Sepal.Width      3.6
+174     setosa  Sepal.Width      3.3
+175     setosa  Sepal.Width      3.4
+176     setosa  Sepal.Width      3.0
+177     setosa  Sepal.Width      3.4
+178     setosa  Sepal.Width      3.5
+179     setosa  Sepal.Width      3.4
+180     setosa  Sepal.Width      3.2
+181     setosa  Sepal.Width      3.1
+182     setosa  Sepal.Width      3.4
+183     setosa  Sepal.Width      4.1
+184     setosa  Sepal.Width      4.2
+185     setosa  Sepal.Width      3.1
+186     setosa  Sepal.Width      3.2
+187     setosa  Sepal.Width      3.5
+188     setosa  Sepal.Width      3.6
+189     setosa  Sepal.Width      3.0
+190     setosa  Sepal.Width      3.4
+191     setosa  Sepal.Width      3.5
+192     setosa  Sepal.Width      2.3
+193     setosa  Sepal.Width      3.2
+194     setosa  Sepal.Width      3.5
+195     setosa  Sepal.Width      3.8
+196     setosa  Sepal.Width      3.0
+197     setosa  Sepal.Width      3.8
+198     setosa  Sepal.Width      3.2
+199     setosa  Sepal.Width      3.7
+200     setosa  Sepal.Width      3.3
+201 versicolor  Sepal.Width      3.2
+202 versicolor  Sepal.Width      3.2
+203 versicolor  Sepal.Width      3.1
+204 versicolor  Sepal.Width      2.3
+205 versicolor  Sepal.Width      2.8
+206 versicolor  Sepal.Width      2.8
+207 versicolor  Sepal.Width      3.3
+208 versicolor  Sepal.Width      2.4
+209 versicolor  Sepal.Width      2.9
+210 versicolor  Sepal.Width      2.7
+211 versicolor  Sepal.Width      2.0
+212 versicolor  Sepal.Width      3.0
+213 versicolor  Sepal.Width      2.2
+214 versicolor  Sepal.Width      2.9
+215 versicolor  Sepal.Width      2.9
+216 versicolor  Sepal.Width      3.1
+217 versicolor  Sepal.Width      3.0
+218 versicolor  Sepal.Width      2.7
+219 versicolor  Sepal.Width      2.2
+220 versicolor  Sepal.Width      2.5
+221 versicolor  Sepal.Width      3.2
+222 versicolor  Sepal.Width      2.8
+223 versicolor  Sepal.Width      2.5
+224 versicolor  Sepal.Width      2.8
+225 versicolor  Sepal.Width      2.9
+226 versicolor  Sepal.Width      3.0
+227 versicolor  Sepal.Width      2.8
+228 versicolor  Sepal.Width      3.0
+229 versicolor  Sepal.Width      2.9
+230 versicolor  Sepal.Width      2.6
+231 versicolor  Sepal.Width      2.4
+232 versicolor  Sepal.Width      2.4
+233 versicolor  Sepal.Width      2.7
+234 versicolor  Sepal.Width      2.7
+235 versicolor  Sepal.Width      3.0
+236 versicolor  Sepal.Width      3.4
+237 versicolor  Sepal.Width      3.1
+238 versicolor  Sepal.Width      2.3
+239 versicolor  Sepal.Width      3.0
+240 versicolor  Sepal.Width      2.5
+241 versicolor  Sepal.Width      2.6
+242 versicolor  Sepal.Width      3.0
+243 versicolor  Sepal.Width      2.6
+244 versicolor  Sepal.Width      2.3
+245 versicolor  Sepal.Width      2.7
+246 versicolor  Sepal.Width      3.0
+247 versicolor  Sepal.Width      2.9
+248 versicolor  Sepal.Width      2.9
+249 versicolor  Sepal.Width      2.5
+250 versicolor  Sepal.Width      2.8
+251  virginica  Sepal.Width      3.3
+252  virginica  Sepal.Width      2.7
+253  virginica  Sepal.Width      3.0
+254  virginica  Sepal.Width      2.9
+255  virginica  Sepal.Width      3.0
+256  virginica  Sepal.Width      3.0
+257  virginica  Sepal.Width      2.5
+258  virginica  Sepal.Width      2.9
+259  virginica  Sepal.Width      2.5
+260  virginica  Sepal.Width      3.6
+261  virginica  Sepal.Width      3.2
+262  virginica  Sepal.Width      2.7
+263  virginica  Sepal.Width      3.0
+264  virginica  Sepal.Width      2.5
+265  virginica  Sepal.Width      2.8
+266  virginica  Sepal.Width      3.2
+267  virginica  Sepal.Width      3.0
+268  virginica  Sepal.Width      3.8
+269  virginica  Sepal.Width      2.6
+270  virginica  Sepal.Width      2.2
+271  virginica  Sepal.Width      3.2
+272  virginica  Sepal.Width      2.8
+273  virginica  Sepal.Width      2.8
+274  virginica  Sepal.Width      2.7
+275  virginica  Sepal.Width      3.3
+276  virginica  Sepal.Width      3.2
+277  virginica  Sepal.Width      2.8
+278  virginica  Sepal.Width      3.0
+279  virginica  Sepal.Width      2.8
+280  virginica  Sepal.Width      3.0
+281  virginica  Sepal.Width      2.8
+282  virginica  Sepal.Width      3.8
+283  virginica  Sepal.Width      2.8
+284  virginica  Sepal.Width      2.8
+285  virginica  Sepal.Width      2.6
+286  virginica  Sepal.Width      3.0
+287  virginica  Sepal.Width      3.4
+288  virginica  Sepal.Width      3.1
+289  virginica  Sepal.Width      3.0
+290  virginica  Sepal.Width      3.1
+291  virginica  Sepal.Width      3.1
+292  virginica  Sepal.Width      3.1
+293  virginica  Sepal.Width      2.7
+294  virginica  Sepal.Width      3.2
+295  virginica  Sepal.Width      3.3
+296  virginica  Sepal.Width      3.0
+297  virginica  Sepal.Width      2.5
+298  virginica  Sepal.Width      3.0
+299  virginica  Sepal.Width      3.4
+300  virginica  Sepal.Width      3.0
+301     setosa Petal.Length      1.4
+302     setosa Petal.Length      1.4
+303     setosa Petal.Length      1.3
+304     setosa Petal.Length      1.5
+305     setosa Petal.Length      1.4
+306     setosa Petal.Length      1.7
+307     setosa Petal.Length      1.4
+308     setosa Petal.Length      1.5
+309     setosa Petal.Length      1.4
+310     setosa Petal.Length      1.5
+311     setosa Petal.Length      1.5
+312     setosa Petal.Length      1.6
+313     setosa Petal.Length      1.4
+314     setosa Petal.Length      1.1
+315     setosa Petal.Length      1.2
+316     setosa Petal.Length      1.5
+317     setosa Petal.Length      1.3
+318     setosa Petal.Length      1.4
+319     setosa Petal.Length      1.7
+320     setosa Petal.Length      1.5
+321     setosa Petal.Length      1.7
+322     setosa Petal.Length      1.5
+323     setosa Petal.Length      1.0
+324     setosa Petal.Length      1.7
+325     setosa Petal.Length      1.9
+326     setosa Petal.Length      1.6
+327     setosa Petal.Length      1.6
+328     setosa Petal.Length      1.5
+329     setosa Petal.Length      1.4
+330     setosa Petal.Length      1.6
+331     setosa Petal.Length      1.6
+332     setosa Petal.Length      1.5
+333     setosa Petal.Length      1.5
+334     setosa Petal.Length      1.4
+335     setosa Petal.Length      1.5
+336     setosa Petal.Length      1.2
+337     setosa Petal.Length      1.3
+338     setosa Petal.Length      1.4
+339     setosa Petal.Length      1.3
+340     setosa Petal.Length      1.5
+341     setosa Petal.Length      1.3
+342     setosa Petal.Length      1.3
+343     setosa Petal.Length      1.3
+344     setosa Petal.Length      1.6
+345     setosa Petal.Length      1.9
+346     setosa Petal.Length      1.4
+347     setosa Petal.Length      1.6
+348     setosa Petal.Length      1.4
+349     setosa Petal.Length      1.5
+350     setosa Petal.Length      1.4
+351 versicolor Petal.Length      4.7
+352 versicolor Petal.Length      4.5
+353 versicolor Petal.Length      4.9
+354 versicolor Petal.Length      4.0
+355 versicolor Petal.Length      4.6
+356 versicolor Petal.Length      4.5
+357 versicolor Petal.Length      4.7
+358 versicolor Petal.Length      3.3
+359 versicolor Petal.Length      4.6
+360 versicolor Petal.Length      3.9
+361 versicolor Petal.Length      3.5
+362 versicolor Petal.Length      4.2
+363 versicolor Petal.Length      4.0
+364 versicolor Petal.Length      4.7
+365 versicolor Petal.Length      3.6
+366 versicolor Petal.Length      4.4
+367 versicolor Petal.Length      4.5
+368 versicolor Petal.Length      4.1
+369 versicolor Petal.Length      4.5
+370 versicolor Petal.Length      3.9
+371 versicolor Petal.Length      4.8
+372 versicolor Petal.Length      4.0
+373 versicolor Petal.Length      4.9
+374 versicolor Petal.Length      4.7
+375 versicolor Petal.Length      4.3
+376 versicolor Petal.Length      4.4
+377 versicolor Petal.Length      4.8
+378 versicolor Petal.Length      5.0
+379 versicolor Petal.Length      4.5
+380 versicolor Petal.Length      3.5
+381 versicolor Petal.Length      3.8
+382 versicolor Petal.Length      3.7
+383 versicolor Petal.Length      3.9
+384 versicolor Petal.Length      5.1
+385 versicolor Petal.Length      4.5
+386 versicolor Petal.Length      4.5
+387 versicolor Petal.Length      4.7
+388 versicolor Petal.Length      4.4
+389 versicolor Petal.Length      4.1
+390 versicolor Petal.Length      4.0
+391 versicolor Petal.Length      4.4
+392 versicolor Petal.Length      4.6
+393 versicolor Petal.Length      4.0
+394 versicolor Petal.Length      3.3
+395 versicolor Petal.Length      4.2
+396 versicolor Petal.Length      4.2
+397 versicolor Petal.Length      4.2
+398 versicolor Petal.Length      4.3
+399 versicolor Petal.Length      3.0
+400 versicolor Petal.Length      4.1
+401  virginica Petal.Length      6.0
+402  virginica Petal.Length      5.1
+403  virginica Petal.Length      5.9
+404  virginica Petal.Length      5.6
+405  virginica Petal.Length      5.8
+406  virginica Petal.Length      6.6
+407  virginica Petal.Length      4.5
+408  virginica Petal.Length      6.3
+409  virginica Petal.Length      5.8
+410  virginica Petal.Length      6.1
+411  virginica Petal.Length      5.1
+412  virginica Petal.Length      5.3
+413  virginica Petal.Length      5.5
+414  virginica Petal.Length      5.0
+415  virginica Petal.Length      5.1
+416  virginica Petal.Length      5.3
+417  virginica Petal.Length      5.5
+418  virginica Petal.Length      6.7
+419  virginica Petal.Length      6.9
+420  virginica Petal.Length      5.0
+421  virginica Petal.Length      5.7
+422  virginica Petal.Length      4.9
+423  virginica Petal.Length      6.7
+424  virginica Petal.Length      4.9
+425  virginica Petal.Length      5.7
+426  virginica Petal.Length      6.0
+427  virginica Petal.Length      4.8
+428  virginica Petal.Length      4.9
+429  virginica Petal.Length      5.6
+430  virginica Petal.Length      5.8
+431  virginica Petal.Length      6.1
+432  virginica Petal.Length      6.4
+433  virginica Petal.Length      5.6
+434  virginica Petal.Length      5.1
+435  virginica Petal.Length      5.6
+436  virginica Petal.Length      6.1
+437  virginica Petal.Length      5.6
+438  virginica Petal.Length      5.5
+439  virginica Petal.Length      4.8
+440  virginica Petal.Length      5.4
+441  virginica Petal.Length      5.6
+442  virginica Petal.Length      5.1
+443  virginica Petal.Length      5.1
+444  virginica Petal.Length      5.9
+445  virginica Petal.Length      5.7
+446  virginica Petal.Length      5.2
+447  virginica Petal.Length      5.0
+448  virginica Petal.Length      5.2
+449  virginica Petal.Length      5.4
+450  virginica Petal.Length      5.1
+451     setosa  Petal.Width      0.2
+452     setosa  Petal.Width      0.2
+453     setosa  Petal.Width      0.2
+454     setosa  Petal.Width      0.2
+455     setosa  Petal.Width      0.2
+456     setosa  Petal.Width      0.4
+457     setosa  Petal.Width      0.3
+458     setosa  Petal.Width      0.2
+459     setosa  Petal.Width      0.2
+460     setosa  Petal.Width      0.1
+461     setosa  Petal.Width      0.2
+462     setosa  Petal.Width      0.2
+463     setosa  Petal.Width      0.1
+464     setosa  Petal.Width      0.1
+465     setosa  Petal.Width      0.2
+466     setosa  Petal.Width      0.4
+467     setosa  Petal.Width      0.4
+468     setosa  Petal.Width      0.3
+469     setosa  Petal.Width      0.3
+470     setosa  Petal.Width      0.3
+471     setosa  Petal.Width      0.2
+472     setosa  Petal.Width      0.4
+473     setosa  Petal.Width      0.2
+474     setosa  Petal.Width      0.5
+475     setosa  Petal.Width      0.2
+476     setosa  Petal.Width      0.2
+477     setosa  Petal.Width      0.4
+478     setosa  Petal.Width      0.2
+479     setosa  Petal.Width      0.2
+480     setosa  Petal.Width      0.2
+481     setosa  Petal.Width      0.2
+482     setosa  Petal.Width      0.4
+483     setosa  Petal.Width      0.1
+484     setosa  Petal.Width      0.2
+485     setosa  Petal.Width      0.2
+486     setosa  Petal.Width      0.2
+487     setosa  Petal.Width      0.2
+488     setosa  Petal.Width      0.1
+489     setosa  Petal.Width      0.2
+490     setosa  Petal.Width      0.2
+491     setosa  Petal.Width      0.3
+492     setosa  Petal.Width      0.3
+493     setosa  Petal.Width      0.2
+494     setosa  Petal.Width      0.6
+495     setosa  Petal.Width      0.4
+496     setosa  Petal.Width      0.3
+497     setosa  Petal.Width      0.2
+498     setosa  Petal.Width      0.2
+499     setosa  Petal.Width      0.2
+500     setosa  Petal.Width      0.2
+501 versicolor  Petal.Width      1.4
+502 versicolor  Petal.Width      1.5
+503 versicolor  Petal.Width      1.5
+504 versicolor  Petal.Width      1.3
+505 versicolor  Petal.Width      1.5
+506 versicolor  Petal.Width      1.3
+507 versicolor  Petal.Width      1.6
+508 versicolor  Petal.Width      1.0
+509 versicolor  Petal.Width      1.3
+510 versicolor  Petal.Width      1.4
+511 versicolor  Petal.Width      1.0
+512 versicolor  Petal.Width      1.5
+513 versicolor  Petal.Width      1.0
+514 versicolor  Petal.Width      1.4
+515 versicolor  Petal.Width      1.3
+516 versicolor  Petal.Width      1.4
+517 versicolor  Petal.Width      1.5
+518 versicolor  Petal.Width      1.0
+519 versicolor  Petal.Width      1.5
+520 versicolor  Petal.Width      1.1
+521 versicolor  Petal.Width      1.8
+522 versicolor  Petal.Width      1.3
+523 versicolor  Petal.Width      1.5
+524 versicolor  Petal.Width      1.2
+525 versicolor  Petal.Width      1.3
+526 versicolor  Petal.Width      1.4
+527 versicolor  Petal.Width      1.4
+528 versicolor  Petal.Width      1.7
+529 versicolor  Petal.Width      1.5
+530 versicolor  Petal.Width      1.0
+531 versicolor  Petal.Width      1.1
+532 versicolor  Petal.Width      1.0
+533 versicolor  Petal.Width      1.2
+534 versicolor  Petal.Width      1.6
+535 versicolor  Petal.Width      1.5
+536 versicolor  Petal.Width      1.6
+537 versicolor  Petal.Width      1.5
+538 versicolor  Petal.Width      1.3
+539 versicolor  Petal.Width      1.3
+540 versicolor  Petal.Width      1.3
+541 versicolor  Petal.Width      1.2
+542 versicolor  Petal.Width      1.4
+543 versicolor  Petal.Width      1.2
+544 versicolor  Petal.Width      1.0
+545 versicolor  Petal.Width      1.3
+546 versicolor  Petal.Width      1.2
+547 versicolor  Petal.Width      1.3
+548 versicolor  Petal.Width      1.3
+549 versicolor  Petal.Width      1.1
+550 versicolor  Petal.Width      1.3
+551  virginica  Petal.Width      2.5
+552  virginica  Petal.Width      1.9
+553  virginica  Petal.Width      2.1
+554  virginica  Petal.Width      1.8
+555  virginica  Petal.Width      2.2
+556  virginica  Petal.Width      2.1
+557  virginica  Petal.Width      1.7
+558  virginica  Petal.Width      1.8
+559  virginica  Petal.Width      1.8
+560  virginica  Petal.Width      2.5
+561  virginica  Petal.Width      2.0
+562  virginica  Petal.Width      1.9
+563  virginica  Petal.Width      2.1
+564  virginica  Petal.Width      2.0
+565  virginica  Petal.Width      2.4
+566  virginica  Petal.Width      2.3
+567  virginica  Petal.Width      1.8
+568  virginica  Petal.Width      2.2
+569  virginica  Petal.Width      2.3
+570  virginica  Petal.Width      1.5
+571  virginica  Petal.Width      2.3
+572  virginica  Petal.Width      2.0
+573  virginica  Petal.Width      2.0
+574  virginica  Petal.Width      1.8
+575  virginica  Petal.Width      2.1
+576  virginica  Petal.Width      1.8
+577  virginica  Petal.Width      1.8
+578  virginica  Petal.Width      1.8
+579  virginica  Petal.Width      2.1
+580  virginica  Petal.Width      1.6
+581  virginica  Petal.Width      1.9
+582  virginica  Petal.Width      2.0
+583  virginica  Petal.Width      2.2
+584  virginica  Petal.Width      1.5
+585  virginica  Petal.Width      1.4
+586  virginica  Petal.Width      2.3
+587  virginica  Petal.Width      2.4
+588  virginica  Petal.Width      1.8
+589  virginica  Petal.Width      1.8
+590  virginica  Petal.Width      2.1
+591  virginica  Petal.Width      2.4
+592  virginica  Petal.Width      2.3
+593  virginica  Petal.Width      1.9
+594  virginica  Petal.Width      2.3
+595  virginica  Petal.Width      2.5
+596  virginica  Petal.Width      2.3
+597  virginica  Petal.Width      1.9
+598  virginica  Petal.Width      2.0
+599  virginica  Petal.Width      2.3
+600  virginica  Petal.Width      1.8
 ```
 
 
@@ -1111,13 +1075,13 @@ We call `gather`, telling it that we want to 'gather' everything *except* for `s
 
 
 ```
-  Species     variable value
-1  setosa Sepal.Length   5.1
-2  setosa Sepal.Length   4.9
-3  setosa Sepal.Length   4.7
-4  setosa Sepal.Length   4.6
-5  setosa Sepal.Length   5.0
-6  setosa Sepal.Length   5.4
+  Species     variable value_cm
+1  setosa Sepal.Length      5.1
+2  setosa Sepal.Length      4.9
+3  setosa Sepal.Length      4.7
+4  setosa Sepal.Length      4.6
+5  setosa Sepal.Length      5.0
+6  setosa Sepal.Length      5.4
 ```
 
 What's the problem here, though?
@@ -1129,613 +1093,613 @@ Reshaping datasets
 
 ```r
 iris %>% 
-  gather(variable, value, -Species) %>% 
+  gather(variable, value_cm, -Species) %>% 
   separate(variable, 
            into = c("part", "dimension"))
 ```
 
 ```
-       Species  part dimension value
-1       setosa Sepal    Length   5.1
-2       setosa Sepal    Length   4.9
-3       setosa Sepal    Length   4.7
-4       setosa Sepal    Length   4.6
-5       setosa Sepal    Length   5.0
-6       setosa Sepal    Length   5.4
-7       setosa Sepal    Length   4.6
-8       setosa Sepal    Length   5.0
-9       setosa Sepal    Length   4.4
-10      setosa Sepal    Length   4.9
-11      setosa Sepal    Length   5.4
-12      setosa Sepal    Length   4.8
-13      setosa Sepal    Length   4.8
-14      setosa Sepal    Length   4.3
-15      setosa Sepal    Length   5.8
-16      setosa Sepal    Length   5.7
-17      setosa Sepal    Length   5.4
-18      setosa Sepal    Length   5.1
-19      setosa Sepal    Length   5.7
-20      setosa Sepal    Length   5.1
-21      setosa Sepal    Length   5.4
-22      setosa Sepal    Length   5.1
-23      setosa Sepal    Length   4.6
-24      setosa Sepal    Length   5.1
-25      setosa Sepal    Length   4.8
-26      setosa Sepal    Length   5.0
-27      setosa Sepal    Length   5.0
-28      setosa Sepal    Length   5.2
-29      setosa Sepal    Length   5.2
-30      setosa Sepal    Length   4.7
-31      setosa Sepal    Length   4.8
-32      setosa Sepal    Length   5.4
-33      setosa Sepal    Length   5.2
-34      setosa Sepal    Length   5.5
-35      setosa Sepal    Length   4.9
-36      setosa Sepal    Length   5.0
-37      setosa Sepal    Length   5.5
-38      setosa Sepal    Length   4.9
-39      setosa Sepal    Length   4.4
-40      setosa Sepal    Length   5.1
-41      setosa Sepal    Length   5.0
-42      setosa Sepal    Length   4.5
-43      setosa Sepal    Length   4.4
-44      setosa Sepal    Length   5.0
-45      setosa Sepal    Length   5.1
-46      setosa Sepal    Length   4.8
-47      setosa Sepal    Length   5.1
-48      setosa Sepal    Length   4.6
-49      setosa Sepal    Length   5.3
-50      setosa Sepal    Length   5.0
-51  versicolor Sepal    Length   7.0
-52  versicolor Sepal    Length   6.4
-53  versicolor Sepal    Length   6.9
-54  versicolor Sepal    Length   5.5
-55  versicolor Sepal    Length   6.5
-56  versicolor Sepal    Length   5.7
-57  versicolor Sepal    Length   6.3
-58  versicolor Sepal    Length   4.9
-59  versicolor Sepal    Length   6.6
-60  versicolor Sepal    Length   5.2
-61  versicolor Sepal    Length   5.0
-62  versicolor Sepal    Length   5.9
-63  versicolor Sepal    Length   6.0
-64  versicolor Sepal    Length   6.1
-65  versicolor Sepal    Length   5.6
-66  versicolor Sepal    Length   6.7
-67  versicolor Sepal    Length   5.6
-68  versicolor Sepal    Length   5.8
-69  versicolor Sepal    Length   6.2
-70  versicolor Sepal    Length   5.6
-71  versicolor Sepal    Length   5.9
-72  versicolor Sepal    Length   6.1
-73  versicolor Sepal    Length   6.3
-74  versicolor Sepal    Length   6.1
-75  versicolor Sepal    Length   6.4
-76  versicolor Sepal    Length   6.6
-77  versicolor Sepal    Length   6.8
-78  versicolor Sepal    Length   6.7
-79  versicolor Sepal    Length   6.0
-80  versicolor Sepal    Length   5.7
-81  versicolor Sepal    Length   5.5
-82  versicolor Sepal    Length   5.5
-83  versicolor Sepal    Length   5.8
-84  versicolor Sepal    Length   6.0
-85  versicolor Sepal    Length   5.4
-86  versicolor Sepal    Length   6.0
-87  versicolor Sepal    Length   6.7
-88  versicolor Sepal    Length   6.3
-89  versicolor Sepal    Length   5.6
-90  versicolor Sepal    Length   5.5
-91  versicolor Sepal    Length   5.5
-92  versicolor Sepal    Length   6.1
-93  versicolor Sepal    Length   5.8
-94  versicolor Sepal    Length   5.0
-95  versicolor Sepal    Length   5.6
-96  versicolor Sepal    Length   5.7
-97  versicolor Sepal    Length   5.7
-98  versicolor Sepal    Length   6.2
-99  versicolor Sepal    Length   5.1
-100 versicolor Sepal    Length   5.7
-101  virginica Sepal    Length   6.3
-102  virginica Sepal    Length   5.8
-103  virginica Sepal    Length   7.1
-104  virginica Sepal    Length   6.3
-105  virginica Sepal    Length   6.5
-106  virginica Sepal    Length   7.6
-107  virginica Sepal    Length   4.9
-108  virginica Sepal    Length   7.3
-109  virginica Sepal    Length   6.7
-110  virginica Sepal    Length   7.2
-111  virginica Sepal    Length   6.5
-112  virginica Sepal    Length   6.4
-113  virginica Sepal    Length   6.8
-114  virginica Sepal    Length   5.7
-115  virginica Sepal    Length   5.8
-116  virginica Sepal    Length   6.4
-117  virginica Sepal    Length   6.5
-118  virginica Sepal    Length   7.7
-119  virginica Sepal    Length   7.7
-120  virginica Sepal    Length   6.0
-121  virginica Sepal    Length   6.9
-122  virginica Sepal    Length   5.6
-123  virginica Sepal    Length   7.7
-124  virginica Sepal    Length   6.3
-125  virginica Sepal    Length   6.7
-126  virginica Sepal    Length   7.2
-127  virginica Sepal    Length   6.2
-128  virginica Sepal    Length   6.1
-129  virginica Sepal    Length   6.4
-130  virginica Sepal    Length   7.2
-131  virginica Sepal    Length   7.4
-132  virginica Sepal    Length   7.9
-133  virginica Sepal    Length   6.4
-134  virginica Sepal    Length   6.3
-135  virginica Sepal    Length   6.1
-136  virginica Sepal    Length   7.7
-137  virginica Sepal    Length   6.3
-138  virginica Sepal    Length   6.4
-139  virginica Sepal    Length   6.0
-140  virginica Sepal    Length   6.9
-141  virginica Sepal    Length   6.7
-142  virginica Sepal    Length   6.9
-143  virginica Sepal    Length   5.8
-144  virginica Sepal    Length   6.8
-145  virginica Sepal    Length   6.7
-146  virginica Sepal    Length   6.7
-147  virginica Sepal    Length   6.3
-148  virginica Sepal    Length   6.5
-149  virginica Sepal    Length   6.2
-150  virginica Sepal    Length   5.9
-151     setosa Sepal     Width   3.5
-152     setosa Sepal     Width   3.0
-153     setosa Sepal     Width   3.2
-154     setosa Sepal     Width   3.1
-155     setosa Sepal     Width   3.6
-156     setosa Sepal     Width   3.9
-157     setosa Sepal     Width   3.4
-158     setosa Sepal     Width   3.4
-159     setosa Sepal     Width   2.9
-160     setosa Sepal     Width   3.1
-161     setosa Sepal     Width   3.7
-162     setosa Sepal     Width   3.4
-163     setosa Sepal     Width   3.0
-164     setosa Sepal     Width   3.0
-165     setosa Sepal     Width   4.0
-166     setosa Sepal     Width   4.4
-167     setosa Sepal     Width   3.9
-168     setosa Sepal     Width   3.5
-169     setosa Sepal     Width   3.8
-170     setosa Sepal     Width   3.8
-171     setosa Sepal     Width   3.4
-172     setosa Sepal     Width   3.7
-173     setosa Sepal     Width   3.6
-174     setosa Sepal     Width   3.3
-175     setosa Sepal     Width   3.4
-176     setosa Sepal     Width   3.0
-177     setosa Sepal     Width   3.4
-178     setosa Sepal     Width   3.5
-179     setosa Sepal     Width   3.4
-180     setosa Sepal     Width   3.2
-181     setosa Sepal     Width   3.1
-182     setosa Sepal     Width   3.4
-183     setosa Sepal     Width   4.1
-184     setosa Sepal     Width   4.2
-185     setosa Sepal     Width   3.1
-186     setosa Sepal     Width   3.2
-187     setosa Sepal     Width   3.5
-188     setosa Sepal     Width   3.6
-189     setosa Sepal     Width   3.0
-190     setosa Sepal     Width   3.4
-191     setosa Sepal     Width   3.5
-192     setosa Sepal     Width   2.3
-193     setosa Sepal     Width   3.2
-194     setosa Sepal     Width   3.5
-195     setosa Sepal     Width   3.8
-196     setosa Sepal     Width   3.0
-197     setosa Sepal     Width   3.8
-198     setosa Sepal     Width   3.2
-199     setosa Sepal     Width   3.7
-200     setosa Sepal     Width   3.3
-201 versicolor Sepal     Width   3.2
-202 versicolor Sepal     Width   3.2
-203 versicolor Sepal     Width   3.1
-204 versicolor Sepal     Width   2.3
-205 versicolor Sepal     Width   2.8
-206 versicolor Sepal     Width   2.8
-207 versicolor Sepal     Width   3.3
-208 versicolor Sepal     Width   2.4
-209 versicolor Sepal     Width   2.9
-210 versicolor Sepal     Width   2.7
-211 versicolor Sepal     Width   2.0
-212 versicolor Sepal     Width   3.0
-213 versicolor Sepal     Width   2.2
-214 versicolor Sepal     Width   2.9
-215 versicolor Sepal     Width   2.9
-216 versicolor Sepal     Width   3.1
-217 versicolor Sepal     Width   3.0
-218 versicolor Sepal     Width   2.7
-219 versicolor Sepal     Width   2.2
-220 versicolor Sepal     Width   2.5
-221 versicolor Sepal     Width   3.2
-222 versicolor Sepal     Width   2.8
-223 versicolor Sepal     Width   2.5
-224 versicolor Sepal     Width   2.8
-225 versicolor Sepal     Width   2.9
-226 versicolor Sepal     Width   3.0
-227 versicolor Sepal     Width   2.8
-228 versicolor Sepal     Width   3.0
-229 versicolor Sepal     Width   2.9
-230 versicolor Sepal     Width   2.6
-231 versicolor Sepal     Width   2.4
-232 versicolor Sepal     Width   2.4
-233 versicolor Sepal     Width   2.7
-234 versicolor Sepal     Width   2.7
-235 versicolor Sepal     Width   3.0
-236 versicolor Sepal     Width   3.4
-237 versicolor Sepal     Width   3.1
-238 versicolor Sepal     Width   2.3
-239 versicolor Sepal     Width   3.0
-240 versicolor Sepal     Width   2.5
-241 versicolor Sepal     Width   2.6
-242 versicolor Sepal     Width   3.0
-243 versicolor Sepal     Width   2.6
-244 versicolor Sepal     Width   2.3
-245 versicolor Sepal     Width   2.7
-246 versicolor Sepal     Width   3.0
-247 versicolor Sepal     Width   2.9
-248 versicolor Sepal     Width   2.9
-249 versicolor Sepal     Width   2.5
-250 versicolor Sepal     Width   2.8
-251  virginica Sepal     Width   3.3
-252  virginica Sepal     Width   2.7
-253  virginica Sepal     Width   3.0
-254  virginica Sepal     Width   2.9
-255  virginica Sepal     Width   3.0
-256  virginica Sepal     Width   3.0
-257  virginica Sepal     Width   2.5
-258  virginica Sepal     Width   2.9
-259  virginica Sepal     Width   2.5
-260  virginica Sepal     Width   3.6
-261  virginica Sepal     Width   3.2
-262  virginica Sepal     Width   2.7
-263  virginica Sepal     Width   3.0
-264  virginica Sepal     Width   2.5
-265  virginica Sepal     Width   2.8
-266  virginica Sepal     Width   3.2
-267  virginica Sepal     Width   3.0
-268  virginica Sepal     Width   3.8
-269  virginica Sepal     Width   2.6
-270  virginica Sepal     Width   2.2
-271  virginica Sepal     Width   3.2
-272  virginica Sepal     Width   2.8
-273  virginica Sepal     Width   2.8
-274  virginica Sepal     Width   2.7
-275  virginica Sepal     Width   3.3
-276  virginica Sepal     Width   3.2
-277  virginica Sepal     Width   2.8
-278  virginica Sepal     Width   3.0
-279  virginica Sepal     Width   2.8
-280  virginica Sepal     Width   3.0
-281  virginica Sepal     Width   2.8
-282  virginica Sepal     Width   3.8
-283  virginica Sepal     Width   2.8
-284  virginica Sepal     Width   2.8
-285  virginica Sepal     Width   2.6
-286  virginica Sepal     Width   3.0
-287  virginica Sepal     Width   3.4
-288  virginica Sepal     Width   3.1
-289  virginica Sepal     Width   3.0
-290  virginica Sepal     Width   3.1
-291  virginica Sepal     Width   3.1
-292  virginica Sepal     Width   3.1
-293  virginica Sepal     Width   2.7
-294  virginica Sepal     Width   3.2
-295  virginica Sepal     Width   3.3
-296  virginica Sepal     Width   3.0
-297  virginica Sepal     Width   2.5
-298  virginica Sepal     Width   3.0
-299  virginica Sepal     Width   3.4
-300  virginica Sepal     Width   3.0
-301     setosa Petal    Length   1.4
-302     setosa Petal    Length   1.4
-303     setosa Petal    Length   1.3
-304     setosa Petal    Length   1.5
-305     setosa Petal    Length   1.4
-306     setosa Petal    Length   1.7
-307     setosa Petal    Length   1.4
-308     setosa Petal    Length   1.5
-309     setosa Petal    Length   1.4
-310     setosa Petal    Length   1.5
-311     setosa Petal    Length   1.5
-312     setosa Petal    Length   1.6
-313     setosa Petal    Length   1.4
-314     setosa Petal    Length   1.1
-315     setosa Petal    Length   1.2
-316     setosa Petal    Length   1.5
-317     setosa Petal    Length   1.3
-318     setosa Petal    Length   1.4
-319     setosa Petal    Length   1.7
-320     setosa Petal    Length   1.5
-321     setosa Petal    Length   1.7
-322     setosa Petal    Length   1.5
-323     setosa Petal    Length   1.0
-324     setosa Petal    Length   1.7
-325     setosa Petal    Length   1.9
-326     setosa Petal    Length   1.6
-327     setosa Petal    Length   1.6
-328     setosa Petal    Length   1.5
-329     setosa Petal    Length   1.4
-330     setosa Petal    Length   1.6
-331     setosa Petal    Length   1.6
-332     setosa Petal    Length   1.5
-333     setosa Petal    Length   1.5
-334     setosa Petal    Length   1.4
-335     setosa Petal    Length   1.5
-336     setosa Petal    Length   1.2
-337     setosa Petal    Length   1.3
-338     setosa Petal    Length   1.4
-339     setosa Petal    Length   1.3
-340     setosa Petal    Length   1.5
-341     setosa Petal    Length   1.3
-342     setosa Petal    Length   1.3
-343     setosa Petal    Length   1.3
-344     setosa Petal    Length   1.6
-345     setosa Petal    Length   1.9
-346     setosa Petal    Length   1.4
-347     setosa Petal    Length   1.6
-348     setosa Petal    Length   1.4
-349     setosa Petal    Length   1.5
-350     setosa Petal    Length   1.4
-351 versicolor Petal    Length   4.7
-352 versicolor Petal    Length   4.5
-353 versicolor Petal    Length   4.9
-354 versicolor Petal    Length   4.0
-355 versicolor Petal    Length   4.6
-356 versicolor Petal    Length   4.5
-357 versicolor Petal    Length   4.7
-358 versicolor Petal    Length   3.3
-359 versicolor Petal    Length   4.6
-360 versicolor Petal    Length   3.9
-361 versicolor Petal    Length   3.5
-362 versicolor Petal    Length   4.2
-363 versicolor Petal    Length   4.0
-364 versicolor Petal    Length   4.7
-365 versicolor Petal    Length   3.6
-366 versicolor Petal    Length   4.4
-367 versicolor Petal    Length   4.5
-368 versicolor Petal    Length   4.1
-369 versicolor Petal    Length   4.5
-370 versicolor Petal    Length   3.9
-371 versicolor Petal    Length   4.8
-372 versicolor Petal    Length   4.0
-373 versicolor Petal    Length   4.9
-374 versicolor Petal    Length   4.7
-375 versicolor Petal    Length   4.3
-376 versicolor Petal    Length   4.4
-377 versicolor Petal    Length   4.8
-378 versicolor Petal    Length   5.0
-379 versicolor Petal    Length   4.5
-380 versicolor Petal    Length   3.5
-381 versicolor Petal    Length   3.8
-382 versicolor Petal    Length   3.7
-383 versicolor Petal    Length   3.9
-384 versicolor Petal    Length   5.1
-385 versicolor Petal    Length   4.5
-386 versicolor Petal    Length   4.5
-387 versicolor Petal    Length   4.7
-388 versicolor Petal    Length   4.4
-389 versicolor Petal    Length   4.1
-390 versicolor Petal    Length   4.0
-391 versicolor Petal    Length   4.4
-392 versicolor Petal    Length   4.6
-393 versicolor Petal    Length   4.0
-394 versicolor Petal    Length   3.3
-395 versicolor Petal    Length   4.2
-396 versicolor Petal    Length   4.2
-397 versicolor Petal    Length   4.2
-398 versicolor Petal    Length   4.3
-399 versicolor Petal    Length   3.0
-400 versicolor Petal    Length   4.1
-401  virginica Petal    Length   6.0
-402  virginica Petal    Length   5.1
-403  virginica Petal    Length   5.9
-404  virginica Petal    Length   5.6
-405  virginica Petal    Length   5.8
-406  virginica Petal    Length   6.6
-407  virginica Petal    Length   4.5
-408  virginica Petal    Length   6.3
-409  virginica Petal    Length   5.8
-410  virginica Petal    Length   6.1
-411  virginica Petal    Length   5.1
-412  virginica Petal    Length   5.3
-413  virginica Petal    Length   5.5
-414  virginica Petal    Length   5.0
-415  virginica Petal    Length   5.1
-416  virginica Petal    Length   5.3
-417  virginica Petal    Length   5.5
-418  virginica Petal    Length   6.7
-419  virginica Petal    Length   6.9
-420  virginica Petal    Length   5.0
-421  virginica Petal    Length   5.7
-422  virginica Petal    Length   4.9
-423  virginica Petal    Length   6.7
-424  virginica Petal    Length   4.9
-425  virginica Petal    Length   5.7
-426  virginica Petal    Length   6.0
-427  virginica Petal    Length   4.8
-428  virginica Petal    Length   4.9
-429  virginica Petal    Length   5.6
-430  virginica Petal    Length   5.8
-431  virginica Petal    Length   6.1
-432  virginica Petal    Length   6.4
-433  virginica Petal    Length   5.6
-434  virginica Petal    Length   5.1
-435  virginica Petal    Length   5.6
-436  virginica Petal    Length   6.1
-437  virginica Petal    Length   5.6
-438  virginica Petal    Length   5.5
-439  virginica Petal    Length   4.8
-440  virginica Petal    Length   5.4
-441  virginica Petal    Length   5.6
-442  virginica Petal    Length   5.1
-443  virginica Petal    Length   5.1
-444  virginica Petal    Length   5.9
-445  virginica Petal    Length   5.7
-446  virginica Petal    Length   5.2
-447  virginica Petal    Length   5.0
-448  virginica Petal    Length   5.2
-449  virginica Petal    Length   5.4
-450  virginica Petal    Length   5.1
-451     setosa Petal     Width   0.2
-452     setosa Petal     Width   0.2
-453     setosa Petal     Width   0.2
-454     setosa Petal     Width   0.2
-455     setosa Petal     Width   0.2
-456     setosa Petal     Width   0.4
-457     setosa Petal     Width   0.3
-458     setosa Petal     Width   0.2
-459     setosa Petal     Width   0.2
-460     setosa Petal     Width   0.1
-461     setosa Petal     Width   0.2
-462     setosa Petal     Width   0.2
-463     setosa Petal     Width   0.1
-464     setosa Petal     Width   0.1
-465     setosa Petal     Width   0.2
-466     setosa Petal     Width   0.4
-467     setosa Petal     Width   0.4
-468     setosa Petal     Width   0.3
-469     setosa Petal     Width   0.3
-470     setosa Petal     Width   0.3
-471     setosa Petal     Width   0.2
-472     setosa Petal     Width   0.4
-473     setosa Petal     Width   0.2
-474     setosa Petal     Width   0.5
-475     setosa Petal     Width   0.2
-476     setosa Petal     Width   0.2
-477     setosa Petal     Width   0.4
-478     setosa Petal     Width   0.2
-479     setosa Petal     Width   0.2
-480     setosa Petal     Width   0.2
-481     setosa Petal     Width   0.2
-482     setosa Petal     Width   0.4
-483     setosa Petal     Width   0.1
-484     setosa Petal     Width   0.2
-485     setosa Petal     Width   0.2
-486     setosa Petal     Width   0.2
-487     setosa Petal     Width   0.2
-488     setosa Petal     Width   0.1
-489     setosa Petal     Width   0.2
-490     setosa Petal     Width   0.2
-491     setosa Petal     Width   0.3
-492     setosa Petal     Width   0.3
-493     setosa Petal     Width   0.2
-494     setosa Petal     Width   0.6
-495     setosa Petal     Width   0.4
-496     setosa Petal     Width   0.3
-497     setosa Petal     Width   0.2
-498     setosa Petal     Width   0.2
-499     setosa Petal     Width   0.2
-500     setosa Petal     Width   0.2
-501 versicolor Petal     Width   1.4
-502 versicolor Petal     Width   1.5
-503 versicolor Petal     Width   1.5
-504 versicolor Petal     Width   1.3
-505 versicolor Petal     Width   1.5
-506 versicolor Petal     Width   1.3
-507 versicolor Petal     Width   1.6
-508 versicolor Petal     Width   1.0
-509 versicolor Petal     Width   1.3
-510 versicolor Petal     Width   1.4
-511 versicolor Petal     Width   1.0
-512 versicolor Petal     Width   1.5
-513 versicolor Petal     Width   1.0
-514 versicolor Petal     Width   1.4
-515 versicolor Petal     Width   1.3
-516 versicolor Petal     Width   1.4
-517 versicolor Petal     Width   1.5
-518 versicolor Petal     Width   1.0
-519 versicolor Petal     Width   1.5
-520 versicolor Petal     Width   1.1
-521 versicolor Petal     Width   1.8
-522 versicolor Petal     Width   1.3
-523 versicolor Petal     Width   1.5
-524 versicolor Petal     Width   1.2
-525 versicolor Petal     Width   1.3
-526 versicolor Petal     Width   1.4
-527 versicolor Petal     Width   1.4
-528 versicolor Petal     Width   1.7
-529 versicolor Petal     Width   1.5
-530 versicolor Petal     Width   1.0
-531 versicolor Petal     Width   1.1
-532 versicolor Petal     Width   1.0
-533 versicolor Petal     Width   1.2
-534 versicolor Petal     Width   1.6
-535 versicolor Petal     Width   1.5
-536 versicolor Petal     Width   1.6
-537 versicolor Petal     Width   1.5
-538 versicolor Petal     Width   1.3
-539 versicolor Petal     Width   1.3
-540 versicolor Petal     Width   1.3
-541 versicolor Petal     Width   1.2
-542 versicolor Petal     Width   1.4
-543 versicolor Petal     Width   1.2
-544 versicolor Petal     Width   1.0
-545 versicolor Petal     Width   1.3
-546 versicolor Petal     Width   1.2
-547 versicolor Petal     Width   1.3
-548 versicolor Petal     Width   1.3
-549 versicolor Petal     Width   1.1
-550 versicolor Petal     Width   1.3
-551  virginica Petal     Width   2.5
-552  virginica Petal     Width   1.9
-553  virginica Petal     Width   2.1
-554  virginica Petal     Width   1.8
-555  virginica Petal     Width   2.2
-556  virginica Petal     Width   2.1
-557  virginica Petal     Width   1.7
-558  virginica Petal     Width   1.8
-559  virginica Petal     Width   1.8
-560  virginica Petal     Width   2.5
-561  virginica Petal     Width   2.0
-562  virginica Petal     Width   1.9
-563  virginica Petal     Width   2.1
-564  virginica Petal     Width   2.0
-565  virginica Petal     Width   2.4
-566  virginica Petal     Width   2.3
-567  virginica Petal     Width   1.8
-568  virginica Petal     Width   2.2
-569  virginica Petal     Width   2.3
-570  virginica Petal     Width   1.5
-571  virginica Petal     Width   2.3
-572  virginica Petal     Width   2.0
-573  virginica Petal     Width   2.0
-574  virginica Petal     Width   1.8
-575  virginica Petal     Width   2.1
-576  virginica Petal     Width   1.8
-577  virginica Petal     Width   1.8
-578  virginica Petal     Width   1.8
-579  virginica Petal     Width   2.1
-580  virginica Petal     Width   1.6
-581  virginica Petal     Width   1.9
-582  virginica Petal     Width   2.0
-583  virginica Petal     Width   2.2
-584  virginica Petal     Width   1.5
-585  virginica Petal     Width   1.4
-586  virginica Petal     Width   2.3
-587  virginica Petal     Width   2.4
-588  virginica Petal     Width   1.8
-589  virginica Petal     Width   1.8
-590  virginica Petal     Width   2.1
-591  virginica Petal     Width   2.4
-592  virginica Petal     Width   2.3
-593  virginica Petal     Width   1.9
-594  virginica Petal     Width   2.3
-595  virginica Petal     Width   2.5
-596  virginica Petal     Width   2.3
-597  virginica Petal     Width   1.9
-598  virginica Petal     Width   2.0
-599  virginica Petal     Width   2.3
-600  virginica Petal     Width   1.8
+       Species  part dimension value_cm
+1       setosa Sepal    Length      5.1
+2       setosa Sepal    Length      4.9
+3       setosa Sepal    Length      4.7
+4       setosa Sepal    Length      4.6
+5       setosa Sepal    Length      5.0
+6       setosa Sepal    Length      5.4
+7       setosa Sepal    Length      4.6
+8       setosa Sepal    Length      5.0
+9       setosa Sepal    Length      4.4
+10      setosa Sepal    Length      4.9
+11      setosa Sepal    Length      5.4
+12      setosa Sepal    Length      4.8
+13      setosa Sepal    Length      4.8
+14      setosa Sepal    Length      4.3
+15      setosa Sepal    Length      5.8
+16      setosa Sepal    Length      5.7
+17      setosa Sepal    Length      5.4
+18      setosa Sepal    Length      5.1
+19      setosa Sepal    Length      5.7
+20      setosa Sepal    Length      5.1
+21      setosa Sepal    Length      5.4
+22      setosa Sepal    Length      5.1
+23      setosa Sepal    Length      4.6
+24      setosa Sepal    Length      5.1
+25      setosa Sepal    Length      4.8
+26      setosa Sepal    Length      5.0
+27      setosa Sepal    Length      5.0
+28      setosa Sepal    Length      5.2
+29      setosa Sepal    Length      5.2
+30      setosa Sepal    Length      4.7
+31      setosa Sepal    Length      4.8
+32      setosa Sepal    Length      5.4
+33      setosa Sepal    Length      5.2
+34      setosa Sepal    Length      5.5
+35      setosa Sepal    Length      4.9
+36      setosa Sepal    Length      5.0
+37      setosa Sepal    Length      5.5
+38      setosa Sepal    Length      4.9
+39      setosa Sepal    Length      4.4
+40      setosa Sepal    Length      5.1
+41      setosa Sepal    Length      5.0
+42      setosa Sepal    Length      4.5
+43      setosa Sepal    Length      4.4
+44      setosa Sepal    Length      5.0
+45      setosa Sepal    Length      5.1
+46      setosa Sepal    Length      4.8
+47      setosa Sepal    Length      5.1
+48      setosa Sepal    Length      4.6
+49      setosa Sepal    Length      5.3
+50      setosa Sepal    Length      5.0
+51  versicolor Sepal    Length      7.0
+52  versicolor Sepal    Length      6.4
+53  versicolor Sepal    Length      6.9
+54  versicolor Sepal    Length      5.5
+55  versicolor Sepal    Length      6.5
+56  versicolor Sepal    Length      5.7
+57  versicolor Sepal    Length      6.3
+58  versicolor Sepal    Length      4.9
+59  versicolor Sepal    Length      6.6
+60  versicolor Sepal    Length      5.2
+61  versicolor Sepal    Length      5.0
+62  versicolor Sepal    Length      5.9
+63  versicolor Sepal    Length      6.0
+64  versicolor Sepal    Length      6.1
+65  versicolor Sepal    Length      5.6
+66  versicolor Sepal    Length      6.7
+67  versicolor Sepal    Length      5.6
+68  versicolor Sepal    Length      5.8
+69  versicolor Sepal    Length      6.2
+70  versicolor Sepal    Length      5.6
+71  versicolor Sepal    Length      5.9
+72  versicolor Sepal    Length      6.1
+73  versicolor Sepal    Length      6.3
+74  versicolor Sepal    Length      6.1
+75  versicolor Sepal    Length      6.4
+76  versicolor Sepal    Length      6.6
+77  versicolor Sepal    Length      6.8
+78  versicolor Sepal    Length      6.7
+79  versicolor Sepal    Length      6.0
+80  versicolor Sepal    Length      5.7
+81  versicolor Sepal    Length      5.5
+82  versicolor Sepal    Length      5.5
+83  versicolor Sepal    Length      5.8
+84  versicolor Sepal    Length      6.0
+85  versicolor Sepal    Length      5.4
+86  versicolor Sepal    Length      6.0
+87  versicolor Sepal    Length      6.7
+88  versicolor Sepal    Length      6.3
+89  versicolor Sepal    Length      5.6
+90  versicolor Sepal    Length      5.5
+91  versicolor Sepal    Length      5.5
+92  versicolor Sepal    Length      6.1
+93  versicolor Sepal    Length      5.8
+94  versicolor Sepal    Length      5.0
+95  versicolor Sepal    Length      5.6
+96  versicolor Sepal    Length      5.7
+97  versicolor Sepal    Length      5.7
+98  versicolor Sepal    Length      6.2
+99  versicolor Sepal    Length      5.1
+100 versicolor Sepal    Length      5.7
+101  virginica Sepal    Length      6.3
+102  virginica Sepal    Length      5.8
+103  virginica Sepal    Length      7.1
+104  virginica Sepal    Length      6.3
+105  virginica Sepal    Length      6.5
+106  virginica Sepal    Length      7.6
+107  virginica Sepal    Length      4.9
+108  virginica Sepal    Length      7.3
+109  virginica Sepal    Length      6.7
+110  virginica Sepal    Length      7.2
+111  virginica Sepal    Length      6.5
+112  virginica Sepal    Length      6.4
+113  virginica Sepal    Length      6.8
+114  virginica Sepal    Length      5.7
+115  virginica Sepal    Length      5.8
+116  virginica Sepal    Length      6.4
+117  virginica Sepal    Length      6.5
+118  virginica Sepal    Length      7.7
+119  virginica Sepal    Length      7.7
+120  virginica Sepal    Length      6.0
+121  virginica Sepal    Length      6.9
+122  virginica Sepal    Length      5.6
+123  virginica Sepal    Length      7.7
+124  virginica Sepal    Length      6.3
+125  virginica Sepal    Length      6.7
+126  virginica Sepal    Length      7.2
+127  virginica Sepal    Length      6.2
+128  virginica Sepal    Length      6.1
+129  virginica Sepal    Length      6.4
+130  virginica Sepal    Length      7.2
+131  virginica Sepal    Length      7.4
+132  virginica Sepal    Length      7.9
+133  virginica Sepal    Length      6.4
+134  virginica Sepal    Length      6.3
+135  virginica Sepal    Length      6.1
+136  virginica Sepal    Length      7.7
+137  virginica Sepal    Length      6.3
+138  virginica Sepal    Length      6.4
+139  virginica Sepal    Length      6.0
+140  virginica Sepal    Length      6.9
+141  virginica Sepal    Length      6.7
+142  virginica Sepal    Length      6.9
+143  virginica Sepal    Length      5.8
+144  virginica Sepal    Length      6.8
+145  virginica Sepal    Length      6.7
+146  virginica Sepal    Length      6.7
+147  virginica Sepal    Length      6.3
+148  virginica Sepal    Length      6.5
+149  virginica Sepal    Length      6.2
+150  virginica Sepal    Length      5.9
+151     setosa Sepal     Width      3.5
+152     setosa Sepal     Width      3.0
+153     setosa Sepal     Width      3.2
+154     setosa Sepal     Width      3.1
+155     setosa Sepal     Width      3.6
+156     setosa Sepal     Width      3.9
+157     setosa Sepal     Width      3.4
+158     setosa Sepal     Width      3.4
+159     setosa Sepal     Width      2.9
+160     setosa Sepal     Width      3.1
+161     setosa Sepal     Width      3.7
+162     setosa Sepal     Width      3.4
+163     setosa Sepal     Width      3.0
+164     setosa Sepal     Width      3.0
+165     setosa Sepal     Width      4.0
+166     setosa Sepal     Width      4.4
+167     setosa Sepal     Width      3.9
+168     setosa Sepal     Width      3.5
+169     setosa Sepal     Width      3.8
+170     setosa Sepal     Width      3.8
+171     setosa Sepal     Width      3.4
+172     setosa Sepal     Width      3.7
+173     setosa Sepal     Width      3.6
+174     setosa Sepal     Width      3.3
+175     setosa Sepal     Width      3.4
+176     setosa Sepal     Width      3.0
+177     setosa Sepal     Width      3.4
+178     setosa Sepal     Width      3.5
+179     setosa Sepal     Width      3.4
+180     setosa Sepal     Width      3.2
+181     setosa Sepal     Width      3.1
+182     setosa Sepal     Width      3.4
+183     setosa Sepal     Width      4.1
+184     setosa Sepal     Width      4.2
+185     setosa Sepal     Width      3.1
+186     setosa Sepal     Width      3.2
+187     setosa Sepal     Width      3.5
+188     setosa Sepal     Width      3.6
+189     setosa Sepal     Width      3.0
+190     setosa Sepal     Width      3.4
+191     setosa Sepal     Width      3.5
+192     setosa Sepal     Width      2.3
+193     setosa Sepal     Width      3.2
+194     setosa Sepal     Width      3.5
+195     setosa Sepal     Width      3.8
+196     setosa Sepal     Width      3.0
+197     setosa Sepal     Width      3.8
+198     setosa Sepal     Width      3.2
+199     setosa Sepal     Width      3.7
+200     setosa Sepal     Width      3.3
+201 versicolor Sepal     Width      3.2
+202 versicolor Sepal     Width      3.2
+203 versicolor Sepal     Width      3.1
+204 versicolor Sepal     Width      2.3
+205 versicolor Sepal     Width      2.8
+206 versicolor Sepal     Width      2.8
+207 versicolor Sepal     Width      3.3
+208 versicolor Sepal     Width      2.4
+209 versicolor Sepal     Width      2.9
+210 versicolor Sepal     Width      2.7
+211 versicolor Sepal     Width      2.0
+212 versicolor Sepal     Width      3.0
+213 versicolor Sepal     Width      2.2
+214 versicolor Sepal     Width      2.9
+215 versicolor Sepal     Width      2.9
+216 versicolor Sepal     Width      3.1
+217 versicolor Sepal     Width      3.0
+218 versicolor Sepal     Width      2.7
+219 versicolor Sepal     Width      2.2
+220 versicolor Sepal     Width      2.5
+221 versicolor Sepal     Width      3.2
+222 versicolor Sepal     Width      2.8
+223 versicolor Sepal     Width      2.5
+224 versicolor Sepal     Width      2.8
+225 versicolor Sepal     Width      2.9
+226 versicolor Sepal     Width      3.0
+227 versicolor Sepal     Width      2.8
+228 versicolor Sepal     Width      3.0
+229 versicolor Sepal     Width      2.9
+230 versicolor Sepal     Width      2.6
+231 versicolor Sepal     Width      2.4
+232 versicolor Sepal     Width      2.4
+233 versicolor Sepal     Width      2.7
+234 versicolor Sepal     Width      2.7
+235 versicolor Sepal     Width      3.0
+236 versicolor Sepal     Width      3.4
+237 versicolor Sepal     Width      3.1
+238 versicolor Sepal     Width      2.3
+239 versicolor Sepal     Width      3.0
+240 versicolor Sepal     Width      2.5
+241 versicolor Sepal     Width      2.6
+242 versicolor Sepal     Width      3.0
+243 versicolor Sepal     Width      2.6
+244 versicolor Sepal     Width      2.3
+245 versicolor Sepal     Width      2.7
+246 versicolor Sepal     Width      3.0
+247 versicolor Sepal     Width      2.9
+248 versicolor Sepal     Width      2.9
+249 versicolor Sepal     Width      2.5
+250 versicolor Sepal     Width      2.8
+251  virginica Sepal     Width      3.3
+252  virginica Sepal     Width      2.7
+253  virginica Sepal     Width      3.0
+254  virginica Sepal     Width      2.9
+255  virginica Sepal     Width      3.0
+256  virginica Sepal     Width      3.0
+257  virginica Sepal     Width      2.5
+258  virginica Sepal     Width      2.9
+259  virginica Sepal     Width      2.5
+260  virginica Sepal     Width      3.6
+261  virginica Sepal     Width      3.2
+262  virginica Sepal     Width      2.7
+263  virginica Sepal     Width      3.0
+264  virginica Sepal     Width      2.5
+265  virginica Sepal     Width      2.8
+266  virginica Sepal     Width      3.2
+267  virginica Sepal     Width      3.0
+268  virginica Sepal     Width      3.8
+269  virginica Sepal     Width      2.6
+270  virginica Sepal     Width      2.2
+271  virginica Sepal     Width      3.2
+272  virginica Sepal     Width      2.8
+273  virginica Sepal     Width      2.8
+274  virginica Sepal     Width      2.7
+275  virginica Sepal     Width      3.3
+276  virginica Sepal     Width      3.2
+277  virginica Sepal     Width      2.8
+278  virginica Sepal     Width      3.0
+279  virginica Sepal     Width      2.8
+280  virginica Sepal     Width      3.0
+281  virginica Sepal     Width      2.8
+282  virginica Sepal     Width      3.8
+283  virginica Sepal     Width      2.8
+284  virginica Sepal     Width      2.8
+285  virginica Sepal     Width      2.6
+286  virginica Sepal     Width      3.0
+287  virginica Sepal     Width      3.4
+288  virginica Sepal     Width      3.1
+289  virginica Sepal     Width      3.0
+290  virginica Sepal     Width      3.1
+291  virginica Sepal     Width      3.1
+292  virginica Sepal     Width      3.1
+293  virginica Sepal     Width      2.7
+294  virginica Sepal     Width      3.2
+295  virginica Sepal     Width      3.3
+296  virginica Sepal     Width      3.0
+297  virginica Sepal     Width      2.5
+298  virginica Sepal     Width      3.0
+299  virginica Sepal     Width      3.4
+300  virginica Sepal     Width      3.0
+301     setosa Petal    Length      1.4
+302     setosa Petal    Length      1.4
+303     setosa Petal    Length      1.3
+304     setosa Petal    Length      1.5
+305     setosa Petal    Length      1.4
+306     setosa Petal    Length      1.7
+307     setosa Petal    Length      1.4
+308     setosa Petal    Length      1.5
+309     setosa Petal    Length      1.4
+310     setosa Petal    Length      1.5
+311     setosa Petal    Length      1.5
+312     setosa Petal    Length      1.6
+313     setosa Petal    Length      1.4
+314     setosa Petal    Length      1.1
+315     setosa Petal    Length      1.2
+316     setosa Petal    Length      1.5
+317     setosa Petal    Length      1.3
+318     setosa Petal    Length      1.4
+319     setosa Petal    Length      1.7
+320     setosa Petal    Length      1.5
+321     setosa Petal    Length      1.7
+322     setosa Petal    Length      1.5
+323     setosa Petal    Length      1.0
+324     setosa Petal    Length      1.7
+325     setosa Petal    Length      1.9
+326     setosa Petal    Length      1.6
+327     setosa Petal    Length      1.6
+328     setosa Petal    Length      1.5
+329     setosa Petal    Length      1.4
+330     setosa Petal    Length      1.6
+331     setosa Petal    Length      1.6
+332     setosa Petal    Length      1.5
+333     setosa Petal    Length      1.5
+334     setosa Petal    Length      1.4
+335     setosa Petal    Length      1.5
+336     setosa Petal    Length      1.2
+337     setosa Petal    Length      1.3
+338     setosa Petal    Length      1.4
+339     setosa Petal    Length      1.3
+340     setosa Petal    Length      1.5
+341     setosa Petal    Length      1.3
+342     setosa Petal    Length      1.3
+343     setosa Petal    Length      1.3
+344     setosa Petal    Length      1.6
+345     setosa Petal    Length      1.9
+346     setosa Petal    Length      1.4
+347     setosa Petal    Length      1.6
+348     setosa Petal    Length      1.4
+349     setosa Petal    Length      1.5
+350     setosa Petal    Length      1.4
+351 versicolor Petal    Length      4.7
+352 versicolor Petal    Length      4.5
+353 versicolor Petal    Length      4.9
+354 versicolor Petal    Length      4.0
+355 versicolor Petal    Length      4.6
+356 versicolor Petal    Length      4.5
+357 versicolor Petal    Length      4.7
+358 versicolor Petal    Length      3.3
+359 versicolor Petal    Length      4.6
+360 versicolor Petal    Length      3.9
+361 versicolor Petal    Length      3.5
+362 versicolor Petal    Length      4.2
+363 versicolor Petal    Length      4.0
+364 versicolor Petal    Length      4.7
+365 versicolor Petal    Length      3.6
+366 versicolor Petal    Length      4.4
+367 versicolor Petal    Length      4.5
+368 versicolor Petal    Length      4.1
+369 versicolor Petal    Length      4.5
+370 versicolor Petal    Length      3.9
+371 versicolor Petal    Length      4.8
+372 versicolor Petal    Length      4.0
+373 versicolor Petal    Length      4.9
+374 versicolor Petal    Length      4.7
+375 versicolor Petal    Length      4.3
+376 versicolor Petal    Length      4.4
+377 versicolor Petal    Length      4.8
+378 versicolor Petal    Length      5.0
+379 versicolor Petal    Length      4.5
+380 versicolor Petal    Length      3.5
+381 versicolor Petal    Length      3.8
+382 versicolor Petal    Length      3.7
+383 versicolor Petal    Length      3.9
+384 versicolor Petal    Length      5.1
+385 versicolor Petal    Length      4.5
+386 versicolor Petal    Length      4.5
+387 versicolor Petal    Length      4.7
+388 versicolor Petal    Length      4.4
+389 versicolor Petal    Length      4.1
+390 versicolor Petal    Length      4.0
+391 versicolor Petal    Length      4.4
+392 versicolor Petal    Length      4.6
+393 versicolor Petal    Length      4.0
+394 versicolor Petal    Length      3.3
+395 versicolor Petal    Length      4.2
+396 versicolor Petal    Length      4.2
+397 versicolor Petal    Length      4.2
+398 versicolor Petal    Length      4.3
+399 versicolor Petal    Length      3.0
+400 versicolor Petal    Length      4.1
+401  virginica Petal    Length      6.0
+402  virginica Petal    Length      5.1
+403  virginica Petal    Length      5.9
+404  virginica Petal    Length      5.6
+405  virginica Petal    Length      5.8
+406  virginica Petal    Length      6.6
+407  virginica Petal    Length      4.5
+408  virginica Petal    Length      6.3
+409  virginica Petal    Length      5.8
+410  virginica Petal    Length      6.1
+411  virginica Petal    Length      5.1
+412  virginica Petal    Length      5.3
+413  virginica Petal    Length      5.5
+414  virginica Petal    Length      5.0
+415  virginica Petal    Length      5.1
+416  virginica Petal    Length      5.3
+417  virginica Petal    Length      5.5
+418  virginica Petal    Length      6.7
+419  virginica Petal    Length      6.9
+420  virginica Petal    Length      5.0
+421  virginica Petal    Length      5.7
+422  virginica Petal    Length      4.9
+423  virginica Petal    Length      6.7
+424  virginica Petal    Length      4.9
+425  virginica Petal    Length      5.7
+426  virginica Petal    Length      6.0
+427  virginica Petal    Length      4.8
+428  virginica Petal    Length      4.9
+429  virginica Petal    Length      5.6
+430  virginica Petal    Length      5.8
+431  virginica Petal    Length      6.1
+432  virginica Petal    Length      6.4
+433  virginica Petal    Length      5.6
+434  virginica Petal    Length      5.1
+435  virginica Petal    Length      5.6
+436  virginica Petal    Length      6.1
+437  virginica Petal    Length      5.6
+438  virginica Petal    Length      5.5
+439  virginica Petal    Length      4.8
+440  virginica Petal    Length      5.4
+441  virginica Petal    Length      5.6
+442  virginica Petal    Length      5.1
+443  virginica Petal    Length      5.1
+444  virginica Petal    Length      5.9
+445  virginica Petal    Length      5.7
+446  virginica Petal    Length      5.2
+447  virginica Petal    Length      5.0
+448  virginica Petal    Length      5.2
+449  virginica Petal    Length      5.4
+450  virginica Petal    Length      5.1
+451     setosa Petal     Width      0.2
+452     setosa Petal     Width      0.2
+453     setosa Petal     Width      0.2
+454     setosa Petal     Width      0.2
+455     setosa Petal     Width      0.2
+456     setosa Petal     Width      0.4
+457     setosa Petal     Width      0.3
+458     setosa Petal     Width      0.2
+459     setosa Petal     Width      0.2
+460     setosa Petal     Width      0.1
+461     setosa Petal     Width      0.2
+462     setosa Petal     Width      0.2
+463     setosa Petal     Width      0.1
+464     setosa Petal     Width      0.1
+465     setosa Petal     Width      0.2
+466     setosa Petal     Width      0.4
+467     setosa Petal     Width      0.4
+468     setosa Petal     Width      0.3
+469     setosa Petal     Width      0.3
+470     setosa Petal     Width      0.3
+471     setosa Petal     Width      0.2
+472     setosa Petal     Width      0.4
+473     setosa Petal     Width      0.2
+474     setosa Petal     Width      0.5
+475     setosa Petal     Width      0.2
+476     setosa Petal     Width      0.2
+477     setosa Petal     Width      0.4
+478     setosa Petal     Width      0.2
+479     setosa Petal     Width      0.2
+480     setosa Petal     Width      0.2
+481     setosa Petal     Width      0.2
+482     setosa Petal     Width      0.4
+483     setosa Petal     Width      0.1
+484     setosa Petal     Width      0.2
+485     setosa Petal     Width      0.2
+486     setosa Petal     Width      0.2
+487     setosa Petal     Width      0.2
+488     setosa Petal     Width      0.1
+489     setosa Petal     Width      0.2
+490     setosa Petal     Width      0.2
+491     setosa Petal     Width      0.3
+492     setosa Petal     Width      0.3
+493     setosa Petal     Width      0.2
+494     setosa Petal     Width      0.6
+495     setosa Petal     Width      0.4
+496     setosa Petal     Width      0.3
+497     setosa Petal     Width      0.2
+498     setosa Petal     Width      0.2
+499     setosa Petal     Width      0.2
+500     setosa Petal     Width      0.2
+501 versicolor Petal     Width      1.4
+502 versicolor Petal     Width      1.5
+503 versicolor Petal     Width      1.5
+504 versicolor Petal     Width      1.3
+505 versicolor Petal     Width      1.5
+506 versicolor Petal     Width      1.3
+507 versicolor Petal     Width      1.6
+508 versicolor Petal     Width      1.0
+509 versicolor Petal     Width      1.3
+510 versicolor Petal     Width      1.4
+511 versicolor Petal     Width      1.0
+512 versicolor Petal     Width      1.5
+513 versicolor Petal     Width      1.0
+514 versicolor Petal     Width      1.4
+515 versicolor Petal     Width      1.3
+516 versicolor Petal     Width      1.4
+517 versicolor Petal     Width      1.5
+518 versicolor Petal     Width      1.0
+519 versicolor Petal     Width      1.5
+520 versicolor Petal     Width      1.1
+521 versicolor Petal     Width      1.8
+522 versicolor Petal     Width      1.3
+523 versicolor Petal     Width      1.5
+524 versicolor Petal     Width      1.2
+525 versicolor Petal     Width      1.3
+526 versicolor Petal     Width      1.4
+527 versicolor Petal     Width      1.4
+528 versicolor Petal     Width      1.7
+529 versicolor Petal     Width      1.5
+530 versicolor Petal     Width      1.0
+531 versicolor Petal     Width      1.1
+532 versicolor Petal     Width      1.0
+533 versicolor Petal     Width      1.2
+534 versicolor Petal     Width      1.6
+535 versicolor Petal     Width      1.5
+536 versicolor Petal     Width      1.6
+537 versicolor Petal     Width      1.5
+538 versicolor Petal     Width      1.3
+539 versicolor Petal     Width      1.3
+540 versicolor Petal     Width      1.3
+541 versicolor Petal     Width      1.2
+542 versicolor Petal     Width      1.4
+543 versicolor Petal     Width      1.2
+544 versicolor Petal     Width      1.0
+545 versicolor Petal     Width      1.3
+546 versicolor Petal     Width      1.2
+547 versicolor Petal     Width      1.3
+548 versicolor Petal     Width      1.3
+549 versicolor Petal     Width      1.1
+550 versicolor Petal     Width      1.3
+551  virginica Petal     Width      2.5
+552  virginica Petal     Width      1.9
+553  virginica Petal     Width      2.1
+554  virginica Petal     Width      1.8
+555  virginica Petal     Width      2.2
+556  virginica Petal     Width      2.1
+557  virginica Petal     Width      1.7
+558  virginica Petal     Width      1.8
+559  virginica Petal     Width      1.8
+560  virginica Petal     Width      2.5
+561  virginica Petal     Width      2.0
+562  virginica Petal     Width      1.9
+563  virginica Petal     Width      2.1
+564  virginica Petal     Width      2.0
+565  virginica Petal     Width      2.4
+566  virginica Petal     Width      2.3
+567  virginica Petal     Width      1.8
+568  virginica Petal     Width      2.2
+569  virginica Petal     Width      2.3
+570  virginica Petal     Width      1.5
+571  virginica Petal     Width      2.3
+572  virginica Petal     Width      2.0
+573  virginica Petal     Width      2.0
+574  virginica Petal     Width      1.8
+575  virginica Petal     Width      2.1
+576  virginica Petal     Width      1.8
+577  virginica Petal     Width      1.8
+578  virginica Petal     Width      1.8
+579  virginica Petal     Width      2.1
+580  virginica Petal     Width      1.6
+581  virginica Petal     Width      1.9
+582  virginica Petal     Width      2.0
+583  virginica Petal     Width      2.2
+584  virginica Petal     Width      1.5
+585  virginica Petal     Width      1.4
+586  virginica Petal     Width      2.3
+587  virginica Petal     Width      2.4
+588  virginica Petal     Width      1.8
+589  virginica Petal     Width      1.8
+590  virginica Petal     Width      2.1
+591  virginica Petal     Width      2.4
+592  virginica Petal     Width      2.3
+593  virginica Petal     Width      1.9
+594  virginica Petal     Width      2.3
+595  virginica Petal     Width      2.5
+596  virginica Petal     Width      2.3
+597  virginica Petal     Width      1.9
+598  virginica Petal     Width      2.0
+599  virginica Petal     Width      2.3
+600  virginica Petal     Width      1.8
 ```
 
 
@@ -2149,18 +2113,18 @@ We can use `tidyr::separate` to split this into individual columns:
 ```r
 cmip5 %>%
   separate(filename,
-           into = c("var", "domain", 
+           into = c("var", "dom", 
                     "model","scenario", 
-                    "en", "yrs"), 
+                    "ens", "yrs"), 
            sep = "_")
 ```
 
 
 ```
-     var domain      model   scenario     en
-1 dissic    Oyr HadGEM2-ES      rcp85 r1i1p1
-2    npp   Lmon  CESM1-BGC historical r1i1p1
-3    npp   Lmon HadGEM2-ES      rcp45 r3i1p1
+     var  dom      model   scenario    ens
+1 dissic  Oyr HadGEM2-ES      rcp85 r1i1p1
+2    npp Lmon  CESM1-BGC historical r1i1p1
+3    npp Lmon HadGEM2-ES      rcp45 r3i1p1
 ```
 
 
@@ -2203,10 +2167,10 @@ type: section
 Summarizing and manipulating data
 ========================================================
 
-Thinking back to the typical data pipeline, we often want to summarize data by groups as an intermediate or final step. For example, for each subgroup we might want to:
+We often want to summarize data by groups as an intermediate or final step. For example, for each subgroup we might want to:
 
 * Compute mean, max, min, etc. (`n`->1)
-* Compute rolling mean and other window functions (`n`->`n`)
+* Compute rolling mean, rank, etc. (window functions, `n`->`n`)
 * Fit models and extract their parameters, goodness of fit, etc.
 
 Specific examples:
@@ -2279,7 +2243,9 @@ Verbs
 
 `dplyr` provides functions for each basic *verb* of data manipulation. These almost all have analogues in base R, but use a consistent, compact syntax, and are very high performance.
 
-* `filter()` - subset rows; like `base::subset()`
+The most important basic ones are:
+
+* `filter()` - select rows; like `base::subset()`
 * `arrange()` - reorder rows; like `order()`
 * `select()` - select columns
 * `mutate()` - add new columns
@@ -2481,7 +2447,29 @@ Groups: year [135]
 ```
 
 
-Summarizing babynames
+Summarizing babynames: speed
+========================================================
+
+
+```r
+system.time(x <- babynames %>% group_by(year) %>% summarise(n()))
+```
+
+```
+   user  system elapsed 
+  0.052   0.012   0.063 
+```
+
+```r
+system.time(x <- aggregate(name ~ year, data = babynames, FUN = length))
+```
+
+```
+   user  system elapsed 
+  3.090   0.155   3.261 
+```
+
+
 ========================================================
 
 What does this calculate?
@@ -2569,7 +2557,7 @@ Hands-on: `babynames`
 type: prompt
 incremental: false
 
-* Does your name occur in the SSA database? Plot the number of entries for it (or any name) name over time. This will involve a `filter` step, a `group_by` step, and a `summarise` step (and finally a `qplot`).
+* Does your name occur in the SSA database? Plot the number of entries for it (or any name) name over time. This will involve a `filter` step, a `group_by` step, and a `summarise` step (and finally a `ggplot2::qplot`).
 
 
 ```r
@@ -2584,7 +2572,7 @@ Hands-on: `babynames`
 type: prompt
 incremental: false
 
-* Harder: compute the _rank_ of your name over time.
+* Trickier: use a _window function_ (n -> n) to compute the rank of your name over time.
 
 
 ```r
@@ -2628,6 +2616,17 @@ type: prompt
 incremental: false
 
 ![plot of chunk unnamed-chunk-51](R-data-picarro-figure/unnamed-chunk-51-1.png)
+
+
+Final notes on data manipulation
+========================================================
+
+Remember that everything you can do in `tidyr` and `dplyr` you can do in base R! But often slower, and less clearly (imho).
+
+Things `dplyr` is **not** good for:
+
+* processing arrays, matrices, and (mostly) lists - i.e., anything that's not a data frame
+* simple/small tasks - `aggregate` may be faster in some cases
 
 
 Things we didn't talk much about

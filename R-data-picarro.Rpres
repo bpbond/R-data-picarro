@@ -4,7 +4,7 @@ author: Ben Bond-Lamberty
 date: August 2016
 font-family: 'Helvetica'
 
-A workshop covering reproducibility and repository design; data cleaning and reshaping; and using the `dplyr` package for computation.
+A workshop covering reproducibility and repository design; data cleaning and reshaping using `tidyr`; and using the `dplyr` package for computation.
 
 JGCRI
 
@@ -129,9 +129,10 @@ For me almost any project starts from my [default script](https://github.com/bpb
 Reproducible research example
 ========================================================
 
-<img src="images/repository.png" />
+<img src="images/repository.png" width="600" />
 
 From [this paper of mine](http://iopscience.iop.org/article/10.1088/1748-9326/11/8/084004/meta).
+
 
 Hands-on: setting up R and RStudio
 ========================================================
@@ -146,10 +147,6 @@ packages:
 
 We'll also use this data package:
 - `babynames` - names provided to the SSA 1880-2013
-
-Finally, we'll download a [repository](https://github.com/bpbond/R-data-picarro) (collection of code and data) for this workshop.
-
-Let's do that now.
 
 
 Getting ready to process data in R
@@ -177,7 +174,7 @@ help(package = 'tidyr')
 ```
 
 
-Things you should know: vectors and data frames
+TYSK: vectors and data frames
 ========================================================
 
 - A `data.frame` is what we'll mostly use today
@@ -190,13 +187,13 @@ str(cars)
 - Lists are also extremely useful - learn how to use them efficiently (e.g. `lapply`)
 
 
-Understanding and dealing with NA
+TYSK: NA and friends
 ========================================================
 
 One of R's strengths is that missing values are a first-class data type: `NA`.
 
 ```{r}
-x <- c(1, 2, 3, NA, 5)
+x <- c(1:3, NA, 5)
 # Which are NA?
 is.na(x)
 any(is.na(x))
@@ -209,21 +206,10 @@ which(is.na(x))
 x[!is.na(x)]
 ```
 
-
-Understanding and dealing with NA
-========================================================
-
-Like `NaN` and `Inf`, generally `NA` 'poisons' operations, so NA values must be explicitly ignored and/or removed.
-
-```{r}
-x <- c(1, 2, 3, NA, 5)
-any(is.na(x))
-sum(x) # NA
-sum(x, na.rm = TRUE)
-```
+It's also useful to be familiar with `is.infinite` and `is.nan`.
 
 
-Things you should know: vectorization
+TYSK: vectorization
 ========================================================
 
 - *Vectorised operations* operate on a vector or data frame all at once. One of the simplest:
@@ -242,17 +228,14 @@ for(i in seq_along(myvector)) {
 ```
 
 
-Things you should know: packages
+TYSK: packages
 ========================================================
 
 - *Packages* are pieces of software that can be loaded into R. There are thousands, for all kinds of tasks and needs.
 
 ```{r, eval=FALSE}
-# The single most popular R package is `ggplot2`
 library(ggplot2)
-
-# qplot:
-# a "quick plot" function in ggplot2
+# qplot: a "quick plot" function in ggplot2
 qplot(speed, dist, data = cars)
 ```
 
@@ -266,7 +249,7 @@ qplot(speed, dist, data=cars)
 ```
 
 
-Is R the right tool for the job?
+TYSK: is R the right tool for the job?
 ========================================================
 
 R is great, but it might not be the right (or at least only) thing you want. There are other tools that might be better for your specific need!
@@ -286,7 +269,7 @@ incremental: false
 * What's the maximum `Petal.Length` value? What row is it in? (See `which.max`.)
 * Pull out (using base R's `subset`) all the observations with `Petal.Length` greater than 6. How many observations are there?
 * Remove colums 1 and 3 from `iris`. What are the names of the remaining columns? 
-* Look at the underlying structure of `iris` using `str()`.
+* Look at the underlying structure of `iris` using `str()` and `class()`.
 
 
 Reshaping and tidying data
@@ -322,7 +305,7 @@ data.frame(name = c("John Smith", "Jane Doe", "Mary Johnson", "John Smith", "Jan
 ```
 
 
-Pipelines in R
+Brief detour: pipelines in R
 ========================================================
 
 `dplyr` and `tidyr` both *import* the [magrittr](https://github.com/smbache/magrittr) package, which introduces a **pipeline** operator `%>%` to R.
@@ -404,12 +387,12 @@ str(iris)
 Reshaping datasets
 ========================================================
 
-We call `gather`, telling it that we want to 'gather' everything *except* for `species`, and we want the resulting columns to be named `variable` and `value`:
+We call `gather`, telling it that we want to 'gather' everything *except* for `Species`, and we want the resulting columns to be named `variable` and `value`:
 
 ```{r}
 library(tidyr)
 iris %>% 
-  gather(variable, value, -Species)
+  gather(variable, value_cm, -Species)
 ```
 
 
@@ -421,7 +404,7 @@ We call `gather`, telling it that we want to 'gather' everything *except* for `s
 ```{r, echo=FALSE}
 library(tidyr)
 iris %>% 
-  gather(variable, value, -Species) %>% head
+  gather(variable, value_cm, -Species) %>% head
 ```
 
 What's the problem here, though?
@@ -432,7 +415,7 @@ Reshaping datasets
 
 ```{r}
 iris %>% 
-  gather(variable, value, -Species) %>% 
+  gather(variable, value_cm, -Species) %>% 
   separate(variable, 
            into = c("part", "dimension"))
 ``` 
@@ -588,18 +571,18 @@ We can use `tidyr::separate` to split this into individual columns:
 ```{r, eval=FALSE}
 cmip5 %>%
   separate(filename,
-           into = c("var", "domain", 
+           into = c("var", "dom", 
                     "model","scenario", 
-                    "en", "yrs"), 
+                    "ens", "yrs"), 
            sep = "_")
 ```
 
 ```{r, echo=FALSE}
 cmip5 %>%
   separate(filename,
-           into = c("var", "domain", 
+           into = c("var", "dom", 
                     "model","scenario", 
-                    "en", "yrs"), 
+                    "ens", "yrs"), 
            sep = "_") -> cmip5
 cmip5[1:5]
 ```
@@ -635,10 +618,10 @@ type: section
 Summarizing and manipulating data
 ========================================================
 
-Thinking back to the typical data pipeline, we often want to summarize data by groups as an intermediate or final step. For example, for each subgroup we might want to:
+We often want to summarize data by groups as an intermediate or final step. For example, for each subgroup we might want to:
 
 * Compute mean, max, min, etc. (`n`->1)
-* Compute rolling mean and other window functions (`n`->`n`)
+* Compute rolling mean, rank, etc. (window functions, `n`->`n`)
 * Fit models and extract their parameters, goodness of fit, etc.
 
 Specific examples:
@@ -687,7 +670,9 @@ Verbs
 
 `dplyr` provides functions for each basic *verb* of data manipulation. These almost all have analogues in base R, but use a consistent, compact syntax, and are very high performance.
 
-* `filter()` - subset rows; like `base::subset()`
+The most important basic ones are:
+
+* `filter()` - select rows; like `base::subset()`
 * `arrange()` - reorder rows; like `order()`
 * `select()` - select columns
 * `mutate()` - add new columns
@@ -775,7 +760,15 @@ babynames %>%
 ```
 
 
-Summarizing babynames
+Summarizing babynames: speed
+========================================================
+
+```{r, cache=TRUE}
+system.time(x <- babynames %>% group_by(year) %>% summarise(n()))
+system.time(x <- aggregate(name ~ year, data = babynames, FUN = length))
+```
+
+
 ========================================================
 
 What does this calculate?
@@ -847,7 +840,7 @@ Hands-on: `babynames`
 type: prompt
 incremental: false
 
-* Does your name occur in the SSA database? Plot the number of entries for it (or any name) name over time. This will involve a `filter` step, a `group_by` step, and a `summarise` step (and finally a `qplot`).
+* Does your name occur in the SSA database? Plot the number of entries for it (or any name) name over time. This will involve a `filter` step, a `group_by` step, and a `summarise` step (and finally a `ggplot2::qplot`).
 
 ```{r, eval=FALSE}
 babynames %>% 
@@ -861,7 +854,7 @@ Hands-on: `babynames`
 type: prompt
 incremental: false
 
-* Harder: compute the _rank_ of your name over time.
+* Trickier: use a _window function_ (n -> n) to compute the rank of your name over time.
 
 ```{r}
 babynames %>% 
@@ -914,6 +907,17 @@ babynames%>%
   qplot(year, prop, data = ., color = sex) +
   facet_wrap(~name)
 ```
+
+
+Final notes on data manipulation
+========================================================
+
+Remember that everything you can do in `tidyr` and `dplyr` you can do in base R! But often slower, and less clearly (imho).
+
+Things `dplyr` is **not** good for:
+
+* processing arrays, matrices, and (mostly) lists - i.e., anything that's not a data frame
+* simple/small tasks - `aggregate` may be faster in some cases
 
 
 Things we didn't talk much about
