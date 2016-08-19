@@ -825,7 +825,7 @@ Hands-on: `babynames`
 type: prompt
 incremental: false
 
-* Use `dplyr` to calculate the total number of names in the SSA database for each year. This will involve a `group_by` step and then a `summarise` step.
+* Use `dplyr` to calculate the total number of babies registered in the SSA database for each year and sex. This will involve a `group_by` step and then a `summarise` step.
 
 ```{r, echo=FALSE}
 babynames %>%
@@ -878,11 +878,11 @@ babynames %>%
   summarise(totaln = sum(n)) %>%
   mutate(rnk = 
            min_rank(desc(totaln))) %>%
-  filter(rnk <= 10) ->
-  top10
+  filter(rnk <= 20) ->
+  top20
 
 babynames%>%
-  filter(name %in% top10$name) %>%
+  filter(name %in% top20$name) %>%
   qplot(year, prop, data = ., color = name) +
     facet_wrap(~name)
 ```
@@ -899,11 +899,11 @@ babynames %>%
   summarise(totaln = sum(n)) %>%
   mutate(rnk = 
            min_rank(desc(totaln))) %>%
-  filter(rnk <= 10) ->
-  top10
+  filter(rnk <= 20) ->
+  top20
 
 babynames%>%
-  filter(name %in% top10$name) %>%
+  filter(name %in% top20$name) %>%
   qplot(year, prop, data = ., color = sex) +
   facet_wrap(~name)
 ```
