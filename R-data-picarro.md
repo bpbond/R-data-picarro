@@ -1,48 +1,37 @@
-Reproducible data analysis using R
+Data analysis and management using R
 ========================================================
 author: Ben Bond-Lamberty
-date: February 2016
+date: April 2017
 font-family: 'Helvetica'
 
-A workshop covering a bit of R basics; reproducibility; graphics and pipelines; and data summarizing and manipulation.
+A _short_ workshop covering reproducibility and data management; data reshaping; and summarizing and manipulation.
 
-Purdue University
+Stanford University
 
 
-The next three hours of your life
+The plan
 ========================================================
 
-* Introduction: R basics and reproducible research (45 minutes; hands-on: installing the packages we'll need)
-* Examining and cleaning data (45 minutes; hands-on: the `iris` dataset)
-* Summarizing and manipulating data (45 minutes; hands-on: the `babynames` dataset)
-* Bringing things together: working with Picarro data (45 minutes; hands-on: real-world scientific data)
+* Reproducible research and data management (30 minutes)
+* Filtering and reshaping data (45 minutes; the `gapminder` dataset)
+* Summarizing and manipulating data (45 minutes; the `babynames` dataset)
 
 Feedback: <a href="mailto:bondlamberty@pnnl">bondlamberty@pnnl.gov</a> or  [@BenBondLamberty](https://twitter.com/BenBondLamberty).
 
 
-Is R the right tool for the job?
+Requirements
 ========================================================
 
->R has simple and obvious appeal. Through R, you can sift through complex data sets, manipulate data through sophisticated modeling functions, and create sleek graphics to represent the numbers, in just a few lines of code...R’s greatest asset is the vibrant ecosystem has developed around it: The R community is constantly adding new packages and features to its already rich function sets.
->
->-- [The 9 Best Languages For Crunching Data](http://www.fastcompany.com/3030716/the-9-best-languages-for-crunching-data)
+This workshop assumes an intermediate knowledge of R.
+
+If you want to do the hands-on exercises (encouraged!), make sure up-to-date versions of the following packages are installed:
+* `dplyr`
+* `tidyr`
+* `gapminder`
+* `babynames`
 
 
-Is R the right tool for the job?
-========================================================
-
-But it might not be. R has limitations and weaknesses:
-- nontrivial learning curve; quirks; inconsistent syntax
-- documentation patchy and terse
-- package quality varies
-- not designed for *large* datasets
-
-There are other tools that might be better for your specific need!
-- Python, C++, Hadoop, CDO/NCL, bash, ...
-- Excel in _extremely_ limited circumstances
-
-
-Reproducibility
+Reproducibility and data management
 ========================================================
 type: section
 
@@ -56,7 +45,27 @@ We are in the era of collaborative 'big data', but even if you work by yourself 
 
 >Your most important collaborator is your future self. It’s important to make a workflow that you can use time and time again, and even pass on to others in such a way that you don’t have to be there to walk them through it. [Source](http://berkeleysciencereview.com/reproducible-collaborative-data-science/)
 
-Reproducibility generally means *scripts* or *programs* tied to *open source software*.
+
+Reproducibility
+========================================================
+
+Even if you don't buy it, **prepare yourself for the future**. Funders, journals, governments, colleagues are all pushing for more reproducibility and openness. It's a slow but steady ratchet.
+
+NSF, DOE, Wellcome, Gates, etc. are increasingly requiring data management plans; data deposition; publication in open-access journals.
+
+>Please ensure the data shown in all figures, and supporting all main results, is publicly available, describing this is in the text. Note that it is not acceptable for the authors to be the sole named individuals responsible for ensuring data access.
+
+
+Reproducibility
+========================================================
+
+Reproducibility generally means *scripts* tied to *open source software* with effective *data management* and *archiving*.
+
+Scripts provide an auditable, reproducible record of what you did.
+
+***
+
+<img src="images/sample-screenplay-page.gif" width="400" />
 
 
 You can't reproduce
@@ -80,7 +89,7 @@ You can't reproduce
 
 ...what you've lost. What if you need access to a file as it existed 1, 10, or 100, or 1000 days ago?
 - Incremental backups (minimum)
-- Version control (better). A *repository* holds files and tracks changes: what, by whom, why
+- Version control. A *repository* holds files and tracks changes: what, by whom, why
 
 ***
 
@@ -99,6 +108,45 @@ Version control
 ***
 
 <img src="images/github.png" width="400" />
+<img src="images/git_commit_2x.png" width="400" />
+
+
+Version control
+========================================================
+
+As a [recent paper](http://dx.doi.org/10.1088/1748-9326/11/8/084004) noted, version control is **not easy enough yet**. It needs to get better.
+
+***
+
+<img src="images/git_2x.png" width="400" />
+
+
+Data management during analysis
+========================================================
+
+Version control and scripts address two of the biggest problems with managing data: tracking *changes over time*, and understanding/reproducing *analytical steps*.
+
+Ideally, _every_ step in your analysis is programmatic--done by a script--so it can be 'read': understood and reproduced later.
+
+See e.g. Sandve et al. (2013), [Ten Simple Rules for Reproducible Computational Research](https://doi.org/10.1371/journal.pcbi.1003285).
+
+
+Full reproducibility is hard!
+========================================================
+
+<img src="images/repository.png" />
+
+
+Reproducibility is a process
+========================================================
+
+Upgrade and improve your workflow and skills over time.
+
+>Organizing analyses so that they are reproducible is not easy. It requires diligence and a considerable investment of time: to learn new computational tools, and to organize and document analyses as you go.
+
+>But partially reproducible is better than not at all reproducible. Just try to make your next paper or project better organized than the last.
+
+A great and practical guide: http://kbroman.org/steps2rr/
 
 
 Reproducible research example
@@ -110,6 +158,7 @@ A typical project/paper directory for me:
 2-process_data.R
 3-analyze_data.R
 4-make_graphs.R
+5-manuscript.R   (perhaps)
 logs/
 output/
 rawdata/
@@ -121,10 +170,78 @@ This directory contains *scripts* that are backed up both *locally* and *remotel
 Reproducible research example
 ========================================================
 
-<img src="images/repository.png" />
+```
+Mon Mar  6 09:12:49 2017  Opening outputs//2-prepdata/2-prepdata.R.log.txt 
+Mon Mar  6 09:12:49 2017  Welcome to 2-prepdata.R 
+...
+Mon Mar  6 12:24:21 2017  All done 2-prepdata.R
+
+R version 3.3.3 (2017-03-06)
+Platform: x86_64-apple-darwin13.4.0 (64-bit)
+Running under: OS X El Capitan 10.11.6
+
+locale:
+[1] en_US.UTF-8/en_US.UTF-8/en_US.UTF-8/C/en_US.UTF-8/en_US.UTF-8
+
+attached base packages:
+[1] stats     graphics  grDevices utils     datasets  methods   base     
+
+other attached packages:
+[1] babynames_0.3.0
+
+loaded via a namespace (and not attached):
+[1] assertthat_0.1 tools_3.3.3    tibble_1.2     Rcpp_0.12.9   
+```
 
 
-Hands-on: setting up R and RStudio
+Data management after publication
+========================================================
+
+[Vines et al. (2014)](http://dx.doi.org/10.1016/j.cub.2013.11.014) published a shocking finding, based on a survey of 516 biology articles from 2 to 22 years old:
+
+>The odds of a data set being available post-publication fell by 17% each year, and the chances that the contact author’s email address still worked declined by 7% per year.
+
+Data loss hits ecosystem, soil, and global change ecology particularly hard: climate changes make ecological data effectively irreproducible.
+
+
+Data management after publication
+========================================================
+
+In my opinion, many repositories and archives have made it _way too hard_ to deposit data.
+
+>Please fill out this 100-item questionnaire, entering carbon flux numbers in some units you've never used before. Also, you need to put your data into our required format, which is going to be a complete PITA, and write up a 1000-word metadata file in Aramaic.
+
+I exaggerate only slightly.
+
+
+Data management after publication
+========================================================
+
+Don't let the perfect be the enemy of the good.
+
+Be aware of 'unstructured' data repositories like [GitHub](https://github.com) (intended primarily for code), [figshare](https://figshare.com) (super easy, gives instant DOIs), etc.
+
+Far better the data be available permanently, however imperfectly they're formatted or described (though those things are good), than lost forever.
+
+Again, a practical guide: http://kbroman.org/steps2rr/
+
+
+Data management after publication
+========================================================
+
+This has the promise to
+
+* Fight the data loss problem described by Vines et al.
+* Fight the "file drawer problem"
+* Increase trust in science
+* **SPEED UP AND ENABLE NEW SCIENCE**
+
+See for example BAAD, SRDB, TRY, FRED, FLUXNET!
+
+These vary in their degree of structure, centralization, and openness, but are all hugely better than nothing.
+
+
+Hands-on: setting up
 ========================================================
 type: prompt
 incremental: false
@@ -132,459 +249,266 @@ incremental: false
 If you're doing the exercises and problems, you'll need these
 packages:
 - `dplyr` - fast, flexible tool for working with data frames
+- `tidyr` - reshaping and cleaning data
 - `ggplot2` - popular package for visualizing data
 
-We'll also use this data package:
+We'll also use these data package:
 - `babynames` - names provided to the SSA 1880-2013
-
-Finally, we'll download a [repository](https://github.com/bpbond/R-data-picarro) (collection of code and data) for this workshop.
-
-Let's do that, and get oriented in [RStudio](https://www.rstudio.com/products/RStudio/), now.
+- `gapminder` - life expectancy, GDP per capita, and population for 142 countries
 
 
-R basics
-========================================================
-type: section
-
-
-Things you should know: basics
+Reshaping datasets
 ========================================================
 
-This workshop assumes you understand a few basics of R:
-
-- What R is
-- How to start and quit it
-- How to get help
+In honor of the late [Hans Rosling](https://en.wikipedia.org/wiki/Hans_Rosling), we'll use the `gapminder` dataset today.
 
 
 ```r
-# This is a comment
-# Get help for the `summary` function
-?summary
+library(dplyr)
+library(gapminder)
+gapminder
+```
 
-# Get help for an entire package
-help(package = 'ggplot2')
+```
+# A tibble: 1,704 × 6
+       country continent  year lifeExp      pop gdpPercap
+        <fctr>    <fctr> <int>   <dbl>    <int>     <dbl>
+1  Afghanistan      Asia  1952  28.801  8425333  779.4453
+2  Afghanistan      Asia  1957  30.332  9240934  820.8530
+3  Afghanistan      Asia  1962  31.997 10267083  853.1007
+4  Afghanistan      Asia  1967  34.020 11537966  836.1971
+5  Afghanistan      Asia  1972  36.088 13079460  739.9811
+6  Afghanistan      Asia  1977  38.438 14880372  786.1134
+7  Afghanistan      Asia  1982  39.854 12881816  978.0114
+8  Afghanistan      Asia  1987  40.822 13867957  852.3959
+9  Afghanistan      Asia  1992  41.674 16317921  649.3414
+10 Afghanistan      Asia  1997  41.763 22227415  635.3414
+# ... with 1,694 more rows
 ```
 
 
-Things you should know: basics
+
+
+Pipelines
 ========================================================
 
-- The idea of *objects*, *functions*, *assignment*, and *comments*
+The `magrittr` package (used by both `dplyr` and `tidyr`) provides the `%>%` operator, which allows us to pipe an object forward into a function or call expression.
+
+Note that `x %>% f` is _usually_ equivalent to `f(x)`.
 
 
 ```r
-x <- 10 + 2 # `x` is an object
-log(x) # `log` is a function
-```
-
-```
-[1] 2.484907
-```
-
-- The idea of *data types*
-
-```r
-x <- 3.14     # numeric
-y <- "hello"  # character
-z <- TRUE     # logical
-# We're going to avoid this next one
-f <- factor(c("apple", "pear", "banana")) 
+print(gapminder)
+gapminder %>% print
+gagminder %>% head
+gapminder %>% head(n=20)
+gapminder %>% 
+  print %>% 
+  summary    # what is non-piped equivalent?
+summary(print(gapminder))
 ```
 
 
-Things you should know: vectors
+Pipelines
 ========================================================
 
-- The *vector* data type
+By default, the left hand expression is put in as the first argument of the right hand expression (rhs). But you can put it into any other position too:
 
 
 ```r
-myvector <- 1:5
-myvector <- c(1, 2, 3, 4, 5)
-myvector <- seq(1, 5)
-myvector
-```
-
-```
-[1] 1 2 3 4 5
-```
-
-```r
-myvector[2:3]
-```
-
-```
-[1] 2 3
-```
-
-***
-
-
-```r
-sum(myvector)
-```
-
-```
-[1] 15
-```
-
-*Vectorised operations* operate on a vector all at once:
-
-
-```r
-myvector * 2
-```
-
-```
-[1]  2  4  6  8 10
-```
-
-
-Things you should know: data frames
-========================================================
-
-- The idea of a *data frame* (tightly coupled vectors)
-
-
-```r
-head(cars)  # one of R's built-in datasets
-```
-
-```
-  speed dist
-1     4    2
-2     4   10
-3     7    4
-4     7   22
-5     8   16
-6     9   10
-```
-
-Data frames are the most frequently used data type in R.
-
-
-Things you should know: control flow
-========================================================
-
-- Basic  *control flow* statements
-
-
-```r
-if(sum(1:4) == 10) {
-  print("right!")
-} else {
-  print("wrong!")
-}
-```
-
-```
-[1] "right!"
-```
-
-
-```r
-for(i in 1:4) { cat(i) }
-```
-
-```
-1234
-```
-
-
-Things you should know: scripts
-========================================================
-
-The difference between a *script* (stored program) and *command line* (immediate response).
-
-In general, you want to use scripts, which provide *reproducibility*.
-
-
-
-```r
-source("myscript.R")
-```
-
-***
-
-<img src="images/mayan_script.gif" />
-
-
-Things you should know: packages
-========================================================
-
-- *Packages* are pieces of software that can be loaded into R. There are thousands, for all kinds of tasks and needs.
-
-
-```r
-# The single most popular R package is `ggplot2`
 library(ggplot2)
+gapminder %>% qplot(gdpPercap, lifeExp, data=., log="xy")
+gapminder %>% qplot(gdpPercap, lifeExp, data=., log="xy", color=continent, size=pop)
+gapminder %>% qplot(gdpPercap, lifeExp, data=., log="xy", color=year, size=pop)
 
-# qplot:
-# a "quick plot" function in ggplot2
-qplot(speed, 
-      dist, 
-      data = cars)
+help("%>%")
 ```
 
-***
 
-![plot of chunk unnamed-chunk-12](R-data-picarro-figure/unnamed-chunk-12-1.png)
+Tibbles
+========================================================
+
+Notice when we print `gapminder` only a bit of the data frame prints, whereas if we type `cars` (a built-in dataset) everything scrolls off the screen. Examine:
 
 
-Hands-on: examining the `iris` dataset
+```r
+class(cars)
+```
+
+```
+[1] "data.frame"
+```
+
+```r
+class(gapminder)
+```
+
+```
+[1] "tbl_df"     "tbl"        "data.frame"
+```
+
+
+Tibbles
+========================================================
+
+Tibbles are a re-imagining of R's venerable `data.frame` for more convenience and speed:
+* Only print first 10 rows and columns that fit on screen
+* Subsetting always returns data frame
+* Never changes the type of data (no factors)
+* Faster in many operations
+* Usually (but not always) drop-in substitute
+
+For more information, see `?tibble::tibble`.
+
+
+dplyr
+========================================================
+
+The `dplyr` package uses _verbs_ (functions) to operate on _tibbles_ (data frames).
+
+
+filter
+========================================================
+
+Very commonly used.
+
+
+```r
+gapminder %>% filter(country == "Egypt")
+gapminder %>% filter(country == "Egypt", year > 2000)
+```
+
+IMPORTANT NOTE AT THIS POINT. We have `dplyr::filter` but there's also `stats::filter` in base R; similar confusing can exist for other `dplyr` verbs too.
+
+**Either load `dplyr` last or specify which function you want to use.**
+
+
+select
+========================================================
+
+Also extremely useful. Note different notations for selecting columns:
+
+
+```r
+select(gapminder, pop, year)
+gapminder %>% select(pop, year)
+gapminder %>% select(-lifeExp, -gdpPercap)
+gapminder %>% select(-1)
+```
+
+There are lots of other cool ways to select columns--see `?select`.
+
+
+Reshaping data
 ========================================================
 type: prompt
-incremental: false
+incremental: true
 
-Hands-on work in RStudio.
-* Built-in datasets
-* Using `summary`, `names`, `head`, `tail`
-* Looking at particular rows and columns
-* Subsetting the data
-* Basic plots of the data
-
-
-Computing on columns
-========================================================
-
-This can be simple...
+Let's focus on a single country's data for a bit. Write a pipeline that picks out Egypt data only, removes the continent and country columns, and assigns the result to a variable `Egypt`.
 
 
 ```r
-d <- data.frame(x = 1:3)
-d$y <- d$x * 2
-d$z <- cumsum(d$y) # cumulative sum
-d$four <- ifelse(d$y == 4, "four", "not 4") 
-d
-```
-
-```
-  x y  z  four
-1 1 2  2 not 4
-2 2 4  6  four
-3 3 6 12 not 4
+gapminder %>% 
+  filter(country == "Egypt") %>% 
+  select(-continent, -country) -> 
+  Egypt
 ```
 
 
-Computing on columns
+Reshaping data
 ========================================================
 
-...or more complex. For example, the [Picarro](http://www.picarro.com/products_solutions/trace_gas_analyzers/co_co2_ch4_h2o) gas analyzer produces data with multiplexer valve numbers (i.e., in an experiment, the multiplexer automatically switches between valves). Whenever the valve number changes, we want to assign a new sample number.
+Put this into long format--where every row is a different observation. For this we use `tidyr::gather`, which asks: what's the data source? Name of variable column (i.e. that will get old names of columns)? Name of data column? And what columns to operate on?
 
 
 ```r
-# Toy data set
-# Analyzer is switching between valves 1, 2, and 3
-vn <- c(1, 1, 2, 3, 3, 3, 1, 2, 2, 3)
+library(tidyr)
+Egypt %>% gather(variable, value, lifeExp, pop, gdpPercap)
 ```
 
-There are 6 samples here, and we want to produce `1, 1, 2, 3, 3, 3, 4, 5, 5, 6`.
+```
+# A tibble: 36 × 3
+    year variable  value
+   <int>    <chr>  <dbl>
+1   1952  lifeExp 41.893
+2   1957  lifeExp 44.444
+3   1962  lifeExp 46.992
+4   1967  lifeExp 49.293
+5   1972  lifeExp 51.137
+6   1977  lifeExp 53.319
+7   1982  lifeExp 56.006
+8   1987  lifeExp 59.797
+9   1992  lifeExp 63.674
+10  1997  lifeExp 67.217
+# ... with 26 more rows
+```
 
 
-Exercise: Computing on columns
+Reshaping data
 ========================================================
 
 
 ```r
-# Works, but slow
-samplenums <- rep(NA, length(vn))
-samplenums[1] <- 1
-s <- 1
-
-# Loop and compare valve numbes one by one
-for(i in 2:length(vn)) {
-  if(vn[i] != vn[i-1])
-    s <- s + 1
-  samplenums[i] <- s
-}
-samplenums
+library(ggplot2)
+Egypt %>% 
+  gather(variable, value, -year) %>% 
+  qplot(year, value, data=., geom="line") + 
+   facet_wrap(~variable, scales="free")
 ```
 
-```
- [1] 1 1 2 3 3 3 4 5 5 6
-```
+![plot of chunk unnamed-chunk-10](R-data-picarro-figure/unnamed-chunk-10-1.png)
 
 
-Exercise: Computing on columns
+Reshaping data
 ========================================================
 
+Experiment. Why do these do what they do?
+
 
 ```r
-# Vectorised: fast and elegant
-newvalve <- vn[-length(vn)] != vn[-1]
-newvalve <- c(TRUE, newvalve)
-newvalve
+Egypt %>% gather(variable, value, lifeExp)
+Egypt %>% gather(variable, value, -lifeExp)
 ```
 
-```
- [1]  TRUE FALSE  TRUE  TRUE FALSE FALSE  TRUE  TRUE FALSE  TRUE
-```
-
-```r
-cumsum(newvalve)  # "cumulative sum"
-```
-
-```
- [1] 1 1 2 3 3 3 4 5 5 6
-```
+Why?
 
 
-Exercise: Computing on columns - time
+Reshaping data
 ========================================================
 
+We can also spread our data out into a table form, like what you'd see in a spreadsheet, using `spread`:
 
 
-This has big consequences!
+```r
+Egypt %>% 
+  gather(variable, value, -year) %>% 
+  spread(year, value)
+```
 
-For a data frame with 1,100,000 rows:
-
-**The larger lesson to take away here** is that in R, `for` loops are rarely the fastest way to do something (although they may be the clearest).
-
-When possible, take advantage of R's *vectorised operations*.
-
-
-***
-
-![plot of chunk unnamed-chunk-18](R-data-picarro-figure/unnamed-chunk-18-1.png)
+`spread` is easy. It asks, 
+* What goes across the new column names? 
+* What's the data column to use?
 
 
-Understanding and dealing with NA
+Uniting, separating, mutating, and renaming
 ========================================================
 
-One of R's strengths is that missing values are a first-class data type: `NA`.
+These functions can be very useful.
 
 
 ```r
-x <- c(1, 2, 3, NA)
-# Which are NA?
-is.na(x)
-```
-
-```
-[1] FALSE FALSE FALSE  TRUE
-```
-
-```r
-any(is.na(x))
-```
-
-```
-[1] TRUE
-```
-
-***
-
-
-```r
-which(is.na(x))
-```
-
-```
-[1] 4
-```
-
-```r
-x[!is.na(x)]
-```
-
-```
-[1] 1 2 3
+gapminder %>% unite(coco, country, continent)
+gapminder %>% 
+  unite(coco, country, continent) %>% 
+  separate(coco, into = c("country", "continent"), sep="_", extra="merge")
+gapminder %>% mutate(logpop = log(pop))
+gapminder %>% rename(population = pop)
 ```
 
 
-Understanding and dealing with NA
-========================================================
-
-Like `NaN` and `Inf`, generally `NA` 'poisons' operations, so NA values must be explicitly ignored and/or removed.
-
-
-```r
-x <- c(1, 2, 3, NA)
-sum(x) # NA
-```
-
-```
-[1] NA
-```
-
-```r
-sum(x, na.rm = TRUE)
-```
-
-```
-[1] 6
-```
-
-
-Dealing with dates
-========================================================
-
-R has a `Date` class representing calendar dates, and an `as.Date` function for converting to Dates. The `lubridate` package is often useful (and easier) for these cases:
-
-
-```r
-library(lubridate)
-x <- c("09-01-01", "09-01-02") # character!
-ymd(x)   # there's also dmy, ymd_hms, etc.
-```
-
-```
-[1] "2009-01-01 UTC" "2009-01-02 UTC"
-```
-
-Once data are in `Date` format, the time interval between them can be computed simply by subtraction. See `?difftime`
-
-
-Merging datasets
-========================================================
-
-Often, as we clean and reshape data, we want to merge different datasets together. The built-in `merge` command does this well.
-
-Let's say we have a data frame containing information on how pretty each of the `iris` species is:
-
-
-```
-     Species pretty
-1     setosa   ugly
-2 versicolor     ok
-3  virginica lovely
-```
-
-
-Merging datasets
-========================================================
-
-`merge` looks for names in common between two data frames, and uses these to merge.
-
-
-```r
-merge(iris, howpretty)
-```
-
-
-```
-  Species Sepal.Length pretty
-1  setosa          5.1   ugly
-2  setosa          4.9   ugly
-3  setosa          4.7   ugly
-4  setosa          4.6   ugly
-5  setosa          5.0   ugly
-6  setosa          5.4   ugly
-```
-
-(Viewing only a few columns and rows.) The `dplyr` package has more varied, faster database-style join operations.
-
-
-Summarizing and manipulating data
+Summarizing data
 ========================================================
 type: section
-
-
-History lesson
-========================================================
-
-<img src="images/history.png" width="850" />
 
 
 Summarizing and manipulating data
@@ -598,8 +522,7 @@ Thinking back to the typical data pipeline, we often want to summarize data by g
 
 Specific examples:
 
-* `cars`: for each speed, what's the farthest distance traveled?
-* `iris`: how many samples were taken from each species?
+* `gapminder`: what's the year of maximum GDP for each country?
 * `babynames`: what's the most common name over time?
 
 
@@ -613,44 +536,6 @@ These are generally known as *split-apply-combine* problems.
 From https://github.com/ramnathv/rblocks/issues/8
 
 
-aggregate
-========================================================
-
-Base R has an `aggregate` function. It's not particularly fast or flexible, and confusingly it has different forms (syntax).
-
-It can however be useful for simple operations:
-
-
-```r
-# What's the farthest distance at each speed?
-aggregate(dist ~ speed, 
-          data = cars, FUN = max)
-```
-
-```
-   speed dist
-1      4   10
-2      7   22
-3      8   16
-4      9   10
-5     10   34
-6     11   28
-7     12   28
-8     13   46
-9     14   80
-10    15   54
-11    16   40
-12    17   50
-13    18   84
-14    19   68
-15    20   64
-16    22   66
-17    23   54
-18    24  120
-19    25   85
-```
-
-
 dplyr
 ========================================================
 
@@ -658,39 +543,7 @@ The newer `dplyr` package specializes in data frames, recognizing that most peop
 
 `dplyr` also allows you to work with remote, out-of-memory databases, using exactly the same tools, because it abstracts away *how* your data is stored.
 
-`dplyr` is **extremely fast**.
-
-
-Operation pipelines in R
-========================================================
-
-`dplyr` *imports*, and its examples make heavy use of, the [magrittr](https://github.com/smbache/magrittr) package, which introduces a **pipeline** operator `%>%` to R.
-
-Not everyone is a fan of piping, and there are situations where it's not appropriate; but we'll stick to `dplyr` convention and use it frequently.
-
-
-Operation pipelines in R
-========================================================
-
-Standard R notation:
-
-
-```r
-x <- read_my_data(f)
-y <- merge_data(clean_data(x), otherdata)
-z <- summarize_data(y)
-```
-
-Pipeline notation:
-
-
-```r
-read_my_data(f) %>%
-  clean_data %>%
-  merge_data(otherdata) %>%
-  summarize_data ->
-  z
-```
+`dplyr` is **extremely fast** for most, though not all, kinds of data that can be stored in data frames.
 
 
 Verbs
@@ -705,124 +558,164 @@ Verbs
 * `summarise()` - like `aggregate`
 
 
+Why use dplyr?
+========================================================
+
+* Clean, concise, and consistent syntax.
+
+* In general `dplyr` is ~10x faster than the older `plyr` package. (And `plyr` was ~10x faster than base R.)
+
+* Same code can work with data frames or remote databases.
+
+
 Grouping
 ========================================================
 
-`dplyr` verbs become particularly powerful when used in conjunction with *groups* we define in the dataset. The `group_by` function converts an existing data frame into a grouped `tbl`.
+`dplyr` verbs become particularly powerful when used in conjunction with *groups* we define in the dataset. This doesn't change the data but instead groups it, ready for the next operation we perform.
 
 
 ```r
 library(dplyr)
-cars %>%
-  group_by(speed)
+gapminder %>% 
+  group_by(country)
 ```
 
 ```
-Source: local data frame [50 x 2]
-Groups: speed [19]
+Source: local data frame [1,704 x 6]
+Groups: country [142]
 
-   speed  dist
-   (dbl) (dbl)
-1      4     2
-2      4    10
-3      7     4
-4      7    22
-5      8    16
-6      9    10
-7     10    18
-8     10    26
-9     10    34
-10    11    17
-..   ...   ...
+       country continent  year lifeExp      pop gdpPercap
+        <fctr>    <fctr> <int>   <dbl>    <int>     <dbl>
+1  Afghanistan      Asia  1952  28.801  8425333  779.4453
+2  Afghanistan      Asia  1957  30.332  9240934  820.8530
+3  Afghanistan      Asia  1962  31.997 10267083  853.1007
+4  Afghanistan      Asia  1967  34.020 11537966  836.1971
+5  Afghanistan      Asia  1972  36.088 13079460  739.9811
+6  Afghanistan      Asia  1977  38.438 14880372  786.1134
+7  Afghanistan      Asia  1982  39.854 12881816  978.0114
+8  Afghanistan      Asia  1987  40.822 13867957  852.3959
+9  Afghanistan      Asia  1992  41.674 16317921  649.3414
+10 Afghanistan      Asia  1997  41.763 22227415  635.3414
+# ... with 1,694 more rows
 ```
 
 
-Summarizing cars
-========================================================
-
-We previously did this using `aggregate`. Now, `dplyr`:
-
-
-```r
-cars %>% 
-  group_by(speed) %>% 
-  summarise(max(dist))
-```
-
-```
-Source: local data frame [19 x 2]
-
-   speed max(dist)
-   (dbl)     (dbl)
-1      4        10
-2      7        22
-3      8        16
-4      9        10
-5     10        34
-6     11        28
-7     12        28
-8     13        46
-9     14        80
-10    15        54
-11    16        40
-12    17        50
-13    18        84
-14    19        68
-15    20        64
-16    22        66
-17    23        54
-18    24       120
-19    25        85
-```
-
-
-Summarizing iris
+Summarising
 ========================================================
 
 
 ```r
-iris %>% 
-  group_by(Species) %>% 
-  summarise(msl = mean(Sepal.Length))
+gapminder %>% 
+  group_by(country) %>% 
+  summarise(max(pop))
 ```
 
 ```
-Source: local data frame [3 x 2]
-
-     Species   msl
-      (fctr) (dbl)
-1     setosa 5.006
-2 versicolor 5.936
-3  virginica 6.588
+# A tibble: 142 × 2
+       country `max(pop)`
+        <fctr>      <int>
+1  Afghanistan   31889923
+2      Albania    3600523
+3      Algeria   33333216
+4       Angola   12420476
+5    Argentina   40301927
+6    Australia   20434176
+7      Austria    8199783
+8      Bahrain     708573
+9   Bangladesh  150448339
+10     Belgium   10392226
+# ... with 132 more rows
 ```
 
 
-Summarizing iris
+Summarising
 ========================================================
-
-We can apply (multiple) functions across (multiple) columns.
 
 
 ```r
-iris %>% 
-  group_by(Species) %>% 
-  summarise_each(funs(mean, median, sd), 
-                 Sepal.Length)
+gapminder %>% 
+  group_by(country) %>% 
+  summarise(maxpop = max(pop))
 ```
 
 ```
-Source: local data frame [3 x 4]
-
-     Species  mean median        sd
-      (fctr) (dbl)  (dbl)     (dbl)
-1     setosa 5.006    5.0 0.3524897
-2 versicolor 5.936    5.9 0.5161711
-3  virginica 6.588    6.5 0.6358796
+# A tibble: 142 × 2
+       country    maxpop
+        <fctr>     <int>
+1  Afghanistan  31889923
+2      Albania   3600523
+3      Algeria  33333216
+4       Angola  12420476
+5    Argentina  40301927
+6    Australia  20434176
+7      Austria   8199783
+8      Bahrain    708573
+9   Bangladesh 150448339
+10     Belgium  10392226
+# ... with 132 more rows
 ```
 
 
-Introducting `babynames`
+Summarising
 ========================================================
+
+We can apply a function to multiple columns, or multiple functions to a column (or both):
+
+
+```r
+gapminder %>% 
+  select(-continent, -year) %>% 
+  group_by(country) %>% 
+  summarise_all(max)
+gapminder %>% 
+  select(country, pop) %>% 
+  group_by(country) %>% 
+  summarise_all(max)
+gapminder %>% 
+  group_by(country) %>% 
+  summarise_if(is.numeric, max)
+```
+
+
+Summarising
+========================================================
+
+We can apply a function to multiple columns, or multiple functions to a column (or both):
+
+
+```r
+gapminder %>% 
+  select(country, pop) %>% 
+  group_by(country) %>% 
+  summarise_all(funs(min, max, mean))
+gapminder %>% 
+  select(-year) %>% 
+  group_by(country) %>% 
+  summarise_if(is.numeric, funs(min, max, mean))
+```
+
+
+Summarising
+========================================================
+
+We can build up a long pipeline to, e.g., summarise min, mean, max for all numeric variables and end up with a table with min-mean-max as columns headers, and variable (gdpPercap, lifeExp, pop) rows.
+
+
+```r
+gapminder %>% 
+  select(-year) %>% 
+  group_by(country) %>% 
+  summarise_if(is.numeric, funs(min, max, mean)) %>% 
+  gather(variable, value, -country) %>% 
+  separate(variable, into=c("variable", "stat")) %>% 
+  spread(stat, value)
+```
+
+
+Introducing `babynames`
+========================================================
+
+Explore `babynames` a bit. How many rows, columns does it have? How many unique names?
 
 
 ```r
@@ -831,21 +724,20 @@ babynames
 ```
 
 ```
-Source: local data frame [1,792,091 x 5]
-
+# A tibble: 1,858,689 × 5
     year   sex      name     n       prop
-   (dbl) (chr)     (chr) (int)      (dbl)
-1   1880     F      Mary  7065 0.07238359
-2   1880     F      Anna  2604 0.02667896
-3   1880     F      Emma  2003 0.02052149
-4   1880     F Elizabeth  1939 0.01986579
-5   1880     F    Minnie  1746 0.01788843
-6   1880     F  Margaret  1578 0.01616720
-7   1880     F       Ida  1472 0.01508119
-8   1880     F     Alice  1414 0.01448696
-9   1880     F    Bertha  1320 0.01352390
-10  1880     F     Sarah  1288 0.01319605
-..   ...   ...       ...   ...        ...
+   <dbl> <chr>     <chr> <int>      <dbl>
+1   1880     F      Mary  7065 0.07238433
+2   1880     F      Anna  2604 0.02667923
+3   1880     F      Emma  2003 0.02052170
+4   1880     F Elizabeth  1939 0.01986599
+5   1880     F    Minnie  1746 0.01788861
+6   1880     F  Margaret  1578 0.01616737
+7   1880     F       Ida  1472 0.01508135
+8   1880     F     Alice  1414 0.01448711
+9   1880     F    Bertha  1320 0.01352404
+10  1880     F     Sarah  1288 0.01319618
+# ... with 1,858,679 more rows
 ```
 
 
@@ -863,22 +755,22 @@ babynames %>%
 ```
 
 ```
-Source: local data frame [268 x 4]
+Source: local data frame [272 x 4]
 Groups: year [?]
 
     year   sex       prop  name
-   (dbl) (chr)      (dbl) (chr)
-1   1880     F 0.07238359  Mary
-2   1880     M 0.08154561  John
-3   1881     F 0.06998999  Mary
-4   1881     M 0.08098075  John
-5   1882     F 0.07042473  Mary
-6   1882     M 0.07831552  John
-7   1883     F 0.06673052  Mary
-8   1883     M 0.07907113  John
-9   1884     F 0.06698985  Mary
-10  1884     M 0.07648564  John
-..   ...   ...        ...   ...
+   <dbl> <chr>      <dbl> <chr>
+1   1880     F 0.07238433  Mary
+2   1880     M 0.08154630  John
+3   1881     F 0.06999140  Mary
+4   1881     M 0.08098299  John
+5   1882     F 0.07042594  Mary
+6   1882     M 0.07831617  John
+7   1883     F 0.06673386  Mary
+8   1883     M 0.07907324  John
+9   1884     F 0.06699083  Mary
+10  1884     M 0.07648751  John
+# ... with 262 more rows
 ```
 
 
@@ -890,17 +782,7 @@ Summarizing babynames
 https://en.wikipedia.org/wiki/Linda_(1946_song)
 
 
-Why use dplyr?
-========================================================
-
-* Clean, concise, and consistent syntax.
-
-* In general `dplyr` is ~10x faster than the older `plyr` package. (And `plyr` was ~10x faster than base R.)
-
-* Same code can work with data frames or remote databases.
-
-
-Hands-on: manipulating the `babynames` dataset
+Hands-on: the `babynames` dataset
 ========================================================
 type: prompt
 incremental: false
@@ -909,105 +791,39 @@ Load the dataset using `library(babynames)`.
 
 Read its help page. Look at its structure (rows, columns, summary).
 
-Use `dplyr` to calculate the total number of names in the SSA database for each year. 
+Use `dplyr` to calculate the total number of names in the SSA database for each year. Hint: `n()`.
 
-Calculate the 5th most popular name for girls in each year. Hint: `nth()`.
-
-
-Processing Picarro data
-========================================================
-type: section
+Make a graph or table showing how popular YOUR name has been over time (either its proportion, or rank).
 
 
-Picarro data
+Summarizing babynames
 ========================================================
 
-The Picarro outputs text files with names like 
-
->CFADS2283-20150831-171845Z-DataLog_User.dat 
-
->(1.2 MB)
-
-They're bulky and I will often store them gzip'd or zip'd (R will transparently decompress on reading).
-
->CFADS2283-20150831-171845Z-DataLog_User.dat.gz
-
->0.1 MB
-
-
-Picarro data
-========================================================
-
-These files are straightfoward text files.
-
-<img src="images/datafile.png" width="800" />
-
-
-Picarro data
-========================================================
-
-Data in the Picarro output stream include:
-
-* **`DATE`: yyyy-mm-dd format**
-* **`TIME`: hh:mm:ss.sss**
-* Time in other forms: `FRAC_DAYS_SINCE_JAN1`, `FRAC_HRS_SINCE_JAN1`, `JULIAN_DAYS`, `EPOCH_TIME`
-* `ALARM_STATUS` and `INST_STATUS`
-* `species`
-* **`MPVPosition` and `solenoid_valves`**
-* **Gas data: `CH4`, `CH4_dry`, `CO2`, `CO2_dry`, `H2O`, `h2o_reported`**
-
-
-Picarro data cautions
-========================================================
-type: alert
-incremental: true
-
-**Fractional `MPVPosition` valve numbers**
-
-The analyzer records fractional valve numbers when switching between multiplexer valves. You'll want to discard these.
-
-**Date and time stamps**
-
-Know what time the analyzer is set to. If local time, does your experiment cross a daylight savings transition? Does it cross into a new year (which would screw up e.g. `FRAC_HRS_SINCE_JAN1`)?
-
-I recommend setting it to UTC and LEAVE IT THERE. Then it's easy to convert the `DATE` and `TIME` fields into a true R date field and adjust to local time zone if necessary.
-
-
-Getting data into R
-========================================================
-
-The most common way to bring data into R is via `read.table()`:
 
 ```r
-d <- read.table("mydata.csv", header = TRUE)
-```
+babynames %>% 
+  filter(name == "Benjamin") %>% 
+  qplot(year, n, color = sex, data = .)
 
-The `readr` package provides `read_table()`, which is faster and easier to use.
-
-```r
-library(readr)
-d <- read_table("mydata.csv")
+babynames %>% 
+  group_by(year, sex) %>% 
+  mutate(rank = row_number(desc(n))) %>% 
+  filter(name == "Benjamin") %>% 
+  qplot(year, rank, color = sex, data = .)
 ```
 
 
-Hands-on: Picarro data
+Summarizing babynames
 ========================================================
-type: prompt
 
-Let's open the `picarro.R` file, which I started but didn't finish.
-
-At this point, we have the tools to complete the job. Can you help?
+![plot of chunk unnamed-chunk-23](R-data-picarro-figure/unnamed-chunk-23-1.png)
 
 
 Things we didn't talk about
 ========================================================
 
-- reading data into R (not much)
 - working with non-text data
-- reshaping data
-- writing data
-- graphing data
-
+- joins and merges
 
 
 Last thoughts
