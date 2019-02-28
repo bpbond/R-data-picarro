@@ -3,18 +3,21 @@ Data analysis and management using R
 author: Ben Bond-Lamberty
 date: October 2018
 font-family: 'Helvetica'
+autosize: true
 
 A short workshop covering reproducibility and data management; data reshaping; and summarizing and manipulation.
 
 University of Delaware
 
+http://rpubs.com/bpbond/r-data-delaware
+
 
 The plan
 ========================================================
 
-* Reproducible research and data management (30 minutes)
-* Filtering and reshaping data (45 minutes; the `gapminder` dataset)
-* Summarizing and manipulating data (45 minutes; the `babynames` dataset)
+* Reproducible research and data management (~30 minutes)
+* Filtering and reshaping data (~50 minutes; the `gapminder` dataset)
+* Summarizing and manipulating data (~60 minutes; the `babynames` dataset)
 
 Feedback: <a href="mailto:bondlamberty@pnnl">bondlamberty@pnnl.gov</a> or  [@BenBondLamberty](https://twitter.com/BenBondLamberty).
 
@@ -29,6 +32,8 @@ If you want to do the hands-on exercises (encouraged!), make sure up-to-date ver
 * `tidyr`
 * `gapminder`
 * `babynames`
+
+Note this is effectively a particular dialect of R, but principles are broadly applicable.
 
 
 Reproducibility and data management
@@ -65,7 +70,7 @@ Scripts provide an auditable, reproducible record of what you did.
 
 ***
 
-<img src="images/sample-screenplay-page.gif" width="400" />
+<img src="images/sample-screenplay-page.gif" width="800" />
 
 
 You can't reproduce
@@ -128,7 +133,22 @@ Version control and scripts address two of the biggest problems with managing da
 
 Ideally, _every_ step in your analysis is programmatic--done by a script--so it can be 'read': understood and reproduced later.
 
-See e.g. Sandve et al. (2013), [Ten Simple Rules for Reproducible Computational Research](https://doi.org/10.1371/journal.pcbi.1003285).
+
+Ten simple rules worth reading
+========================================================
+
+* Rule 1: For Every Result, Keep Track of How Produced
+* Rule 2: Avoid Manual Data Manipulation Steps
+* Rule 3: Archive External Programs...
+* Rule 4: Version Control All Custom Scripts
+* Rule 5: Record All Intermediate Results...
+* Rule 6: ...Note Underlying Random Seeds
+* Rule 7: Always Store Raw Data behind Plots
+* Rule 8: Generate Hierarchical Analysis Output...
+* Rule 9: Connect Textual Statements to Underlying Results
+* Rule 10: Provide Public Access...
+
+From Sandve et al. (2013), [Ten Simple Rules for Reproducible Computational Research](https://doi.org/10.1371/journal.pcbi.1003285).
 
 
 Full reproducibility is hard!
@@ -346,9 +366,9 @@ gapminder %>% filter(country == "Egypt")
 gapminder %>% filter(country == "Egypt", year > 2000)
 ```
 
-IMPORTANT NOTE AT THIS POINT. We have `dplyr::filter` but there's also `stats::filter` in base R; similar confusing can exist for other `dplyr` verbs too.
+IMPORTANT NOTE AT THIS POINT. We have `dplyr::filter` but there's also `stats::filter` in base R; similar confusing overlaps can exist for other `dplyr` verbs too. (This is a more general problem, that of _namespace collision_.)
 
-**Either load `dplyr` last or specify which function you want to use.**
+**Either load `dplyr` last or specify (`::`) which function you want to use.**
 
 
 select
@@ -481,11 +501,9 @@ From https://github.com/ramnathv/rblocks/issues/8
 dplyr
 ========================================================
 
-The newer `dplyr` package specializes in data frames, recognizing that most people use them most of the time.
+The newer `dplyr` package specializes in data frames, but also allows you to work with remote, out-of-memory databases, using exactly the same tools, because it abstracts away *how* your data is stored.
 
-`dplyr` also allows you to work with remote, out-of-memory databases, using exactly the same tools, because it abstracts away *how* your data is stored.
-
-`dplyr` is **extremely fast** for most, though not all, kinds of data that can be stored in data frames.
+`dplyr` is extremely fast for most, though **not** all, operations on data frames.
 
 
 Verbs
@@ -504,10 +522,14 @@ Why use dplyr?
 ========================================================
 
 * Clean, concise, and consistent syntax.
-
 * In general `dplyr` is ~10x faster than the older `plyr` package. (And `plyr` was ~10x faster than base R.)
-
 * Same code can work with data frames or remote databases.
+
+Why not?
+* Package still changing
+* Programming can be trickier in some circumstances
+* Not as fast in certain cases
+* The `data.table` package is also worth checking out for its speed.
 
 
 Grouping
@@ -683,7 +705,7 @@ Last thoughts
 >
 >-- Bow Cowgill
 
-All the source code for this presentation is available at https://github.com/bpbond/R-data-picarro
+All the source code for this presentation is available at https://github.com/bpbond/R-data-picarro (under the `delaware` branch)
 
 
 Resources
@@ -720,3 +742,4 @@ R has many contributed *packages* across a wide variety of scientific fields. Al
 - [**Reproducible Research**](http://cran.r-project.org/web/views/ReproducibleResearch.html)
 - Spatial Statistics
 - Time Series
+

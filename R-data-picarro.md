@@ -1,12 +1,12 @@
 Data analysis and management using R
 ========================================================
 author: Ben Bond-Lamberty
-date: April 2017
+date: October 2018
 font-family: 'Helvetica'
 
-A _short_ workshop covering reproducibility and data management; data reshaping; and summarizing and manipulation.
+A short workshop covering reproducibility and data management; data reshaping; and summarizing and manipulation.
 
-Stanford University
+University of Delaware
 
 
 The plan
@@ -140,7 +140,7 @@ Full reproducibility is hard!
 Reproducibility is a process
 ========================================================
 
-Upgrade and improve your workflow and skills over time.
+*Don't let the perfect be the enemy of the good.* Upgrade and improve your workflow and skills over time.
 
 >Organizing analyses so that they are reproducible is not easy. It requires diligence and a considerable investment of time: to learn new computational tools, and to organize and document analyses as you go.
 
@@ -155,7 +155,7 @@ Reproducible research example
 A typical project/paper directory for me:
 ```
 1-download.R
-2-process_data.R
+2-prepdata.R
 3-analyze_data.R
 4-make_graphs.R
 5-manuscript.R   (perhaps)
@@ -217,13 +217,11 @@ I exaggerate only slightly.
 Data management after publication
 ========================================================
 
-Don't let the perfect be the enemy of the good.
+Again...don't let the perfect be the enemy of the good.
 
-Be aware of 'unstructured' data repositories like [GitHub](https://github.com) (intended primarily for code), [figshare](https://figshare.com) (super easy, gives instant DOIs), etc.
+Be aware of 'unstructured' data repositories like [GitHub](https://github.com) (intended primarily for code development, not permanent deposition), [figshare](https://figshare.com) (super easy, gives instant DOIs), etc.
 
 Far better the data be available permanently, however imperfectly they're formatted or described (though those things are good), than lost forever.
-
-Again, a practical guide: http://kbroman.org/steps2rr/
 
 
 Data management after publication
@@ -270,19 +268,19 @@ gapminder
 ```
 
 ```
-# A tibble: 1,704 × 6
-       country continent  year lifeExp      pop gdpPercap
-        <fctr>    <fctr> <int>   <dbl>    <int>     <dbl>
-1  Afghanistan      Asia  1952  28.801  8425333  779.4453
-2  Afghanistan      Asia  1957  30.332  9240934  820.8530
-3  Afghanistan      Asia  1962  31.997 10267083  853.1007
-4  Afghanistan      Asia  1967  34.020 11537966  836.1971
-5  Afghanistan      Asia  1972  36.088 13079460  739.9811
-6  Afghanistan      Asia  1977  38.438 14880372  786.1134
-7  Afghanistan      Asia  1982  39.854 12881816  978.0114
-8  Afghanistan      Asia  1987  40.822 13867957  852.3959
-9  Afghanistan      Asia  1992  41.674 16317921  649.3414
-10 Afghanistan      Asia  1997  41.763 22227415  635.3414
+# A tibble: 1,704 x 6
+   country     continent  year lifeExp      pop gdpPercap
+   <fct>       <fct>     <int>   <dbl>    <int>     <dbl>
+ 1 Afghanistan Asia       1952    28.8  8425333       779
+ 2 Afghanistan Asia       1957    30.3  9240934       821
+ 3 Afghanistan Asia       1962    32.0 10267083       853
+ 4 Afghanistan Asia       1967    34.0 11537966       836
+ 5 Afghanistan Asia       1972    36.1 13079460       740
+ 6 Afghanistan Asia       1977    38.4 14880372       786
+ 7 Afghanistan Asia       1982    39.9 12881816       978
+ 8 Afghanistan Asia       1987    40.8 13867957       852
+ 9 Afghanistan Asia       1992    41.7 16317921       649
+10 Afghanistan Asia       1997    41.8 22227415       635
 # ... with 1,694 more rows
 ```
 
@@ -427,19 +425,19 @@ Egypt %>% gather(variable, value, lifeExp, pop, gdpPercap)
 ```
 
 ```
-# A tibble: 36 × 3
-    year variable  value
-   <int>    <chr>  <dbl>
-1   1952  lifeExp 41.893
-2   1957  lifeExp 44.444
-3   1962  lifeExp 46.992
-4   1967  lifeExp 49.293
-5   1972  lifeExp 51.137
-6   1977  lifeExp 53.319
-7   1982  lifeExp 56.006
-8   1987  lifeExp 59.797
-9   1992  lifeExp 63.674
-10  1997  lifeExp 67.217
+# A tibble: 36 x 3
+    year variable value
+   <int> <chr>    <dbl>
+ 1  1952 lifeExp   41.9
+ 2  1957 lifeExp   44.4
+ 3  1962 lifeExp   47.0
+ 4  1967 lifeExp   49.3
+ 5  1972 lifeExp   51.1
+ 6  1977 lifeExp   53.3
+ 7  1982 lifeExp   56.0
+ 8  1987 lifeExp   59.8
+ 9  1992 lifeExp   63.7
+10  1997 lifeExp   67.2
 # ... with 26 more rows
 ```
 
@@ -581,21 +579,20 @@ gapminder %>%
 ```
 
 ```
-Source: local data frame [1,704 x 6]
-Groups: country [142]
-
-       country continent  year lifeExp      pop gdpPercap
-        <fctr>    <fctr> <int>   <dbl>    <int>     <dbl>
-1  Afghanistan      Asia  1952  28.801  8425333  779.4453
-2  Afghanistan      Asia  1957  30.332  9240934  820.8530
-3  Afghanistan      Asia  1962  31.997 10267083  853.1007
-4  Afghanistan      Asia  1967  34.020 11537966  836.1971
-5  Afghanistan      Asia  1972  36.088 13079460  739.9811
-6  Afghanistan      Asia  1977  38.438 14880372  786.1134
-7  Afghanistan      Asia  1982  39.854 12881816  978.0114
-8  Afghanistan      Asia  1987  40.822 13867957  852.3959
-9  Afghanistan      Asia  1992  41.674 16317921  649.3414
-10 Afghanistan      Asia  1997  41.763 22227415  635.3414
+# A tibble: 1,704 x 6
+# Groups:   country [142]
+   country     continent  year lifeExp      pop gdpPercap
+   <fct>       <fct>     <int>   <dbl>    <int>     <dbl>
+ 1 Afghanistan Asia       1952    28.8  8425333       779
+ 2 Afghanistan Asia       1957    30.3  9240934       821
+ 3 Afghanistan Asia       1962    32.0 10267083       853
+ 4 Afghanistan Asia       1967    34.0 11537966       836
+ 5 Afghanistan Asia       1972    36.1 13079460       740
+ 6 Afghanistan Asia       1977    38.4 14880372       786
+ 7 Afghanistan Asia       1982    39.9 12881816       978
+ 8 Afghanistan Asia       1987    40.8 13867957       852
+ 9 Afghanistan Asia       1992    41.7 16317921       649
+10 Afghanistan Asia       1997    41.8 22227415       635
 # ... with 1,694 more rows
 ```
 
@@ -611,19 +608,19 @@ gapminder %>%
 ```
 
 ```
-# A tibble: 142 × 2
-       country `max(pop)`
-        <fctr>      <int>
-1  Afghanistan   31889923
-2      Albania    3600523
-3      Algeria   33333216
-4       Angola   12420476
-5    Argentina   40301927
-6    Australia   20434176
-7      Austria    8199783
-8      Bahrain     708573
-9   Bangladesh  150448339
-10     Belgium   10392226
+# A tibble: 142 x 2
+   country     `max(pop)`
+   <fct>            <dbl>
+ 1 Afghanistan   31889923
+ 2 Albania        3600523
+ 3 Algeria       33333216
+ 4 Angola        12420476
+ 5 Argentina     40301927
+ 6 Australia     20434176
+ 7 Austria        8199783
+ 8 Bahrain         708573
+ 9 Bangladesh   150448339
+10 Belgium       10392226
 # ... with 132 more rows
 ```
 
@@ -639,19 +636,19 @@ gapminder %>%
 ```
 
 ```
-# A tibble: 142 × 2
-       country    maxpop
-        <fctr>     <int>
-1  Afghanistan  31889923
-2      Albania   3600523
-3      Algeria  33333216
-4       Angola  12420476
-5    Argentina  40301927
-6    Australia  20434176
-7      Austria   8199783
-8      Bahrain    708573
-9   Bangladesh 150448339
-10     Belgium  10392226
+# A tibble: 142 x 2
+   country        maxpop
+   <fct>           <dbl>
+ 1 Afghanistan  31889923
+ 2 Albania       3600523
+ 3 Algeria      33333216
+ 4 Angola       12420476
+ 5 Argentina    40301927
+ 6 Australia    20434176
+ 7 Austria       8199783
+ 8 Bahrain        708573
+ 9 Bangladesh  150448339
+10 Belgium      10392226
 # ... with 132 more rows
 ```
 
@@ -724,19 +721,19 @@ babynames
 ```
 
 ```
-# A tibble: 1,858,689 × 5
-    year   sex      name     n       prop
-   <dbl> <chr>     <chr> <int>      <dbl>
-1   1880     F      Mary  7065 0.07238433
-2   1880     F      Anna  2604 0.02667923
-3   1880     F      Emma  2003 0.02052170
-4   1880     F Elizabeth  1939 0.01986599
-5   1880     F    Minnie  1746 0.01788861
-6   1880     F  Margaret  1578 0.01616737
-7   1880     F       Ida  1472 0.01508135
-8   1880     F     Alice  1414 0.01448711
-9   1880     F    Bertha  1320 0.01352404
-10  1880     F     Sarah  1288 0.01319618
+# A tibble: 1,858,689 x 5
+    year sex   name          n   prop
+   <dbl> <chr> <chr>     <int>  <dbl>
+ 1  1880 F     Mary       7065 0.0724
+ 2  1880 F     Anna       2604 0.0267
+ 3  1880 F     Emma       2003 0.0205
+ 4  1880 F     Elizabeth  1939 0.0199
+ 5  1880 F     Minnie     1746 0.0179
+ 6  1880 F     Margaret   1578 0.0162
+ 7  1880 F     Ida        1472 0.0151
+ 8  1880 F     Alice      1414 0.0145
+ 9  1880 F     Bertha     1320 0.0135
+10  1880 F     Sarah      1288 0.0132
 # ... with 1,858,679 more rows
 ```
 
@@ -755,21 +752,20 @@ babynames %>%
 ```
 
 ```
-Source: local data frame [272 x 4]
-Groups: year [?]
-
-    year   sex       prop  name
-   <dbl> <chr>      <dbl> <chr>
-1   1880     F 0.07238433  Mary
-2   1880     M 0.08154630  John
-3   1881     F 0.06999140  Mary
-4   1881     M 0.08098299  John
-5   1882     F 0.07042594  Mary
-6   1882     M 0.07831617  John
-7   1883     F 0.06673386  Mary
-8   1883     M 0.07907324  John
-9   1884     F 0.06699083  Mary
-10  1884     M 0.07648751  John
+# A tibble: 272 x 4
+# Groups:   year [?]
+    year sex     prop name 
+   <dbl> <chr>  <dbl> <chr>
+ 1  1880 F     0.0724 Mary 
+ 2  1880 M     0.0815 John 
+ 3  1881 F     0.0700 Mary 
+ 4  1881 M     0.0810 John 
+ 5  1882 F     0.0704 Mary 
+ 6  1882 M     0.0783 John 
+ 7  1883 F     0.0667 Mary 
+ 8  1883 M     0.0791 John 
+ 9  1884 F     0.0670 Mary 
+10  1884 M     0.0765 John 
 # ... with 262 more rows
 ```
 
