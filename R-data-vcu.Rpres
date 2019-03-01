@@ -551,7 +551,7 @@ Important things we didn't talk about
 - getting your data _into_ R
 - working with non-text/tabular data
 - lists
-- joins and merges
+- joins (merging datasets)
 - handling dates and timestamps
 - plotting (though we had many examples)
 
