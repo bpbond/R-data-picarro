@@ -11,14 +11,14 @@ Virginia Commonwealth University
 
 
 
-http://rpubs.com/bpbond/r-data-delaware
+http://rpubs.com/bpbond/r-data-vcu
 
 
 The plan
 ========================================================
 
-* Reproducible research and data management (~20 minutes)
-* Filtering and reshaping data (~35 minutes; the `gapminder` dataset)
+* Reproducible research and data management (~15 minutes)
+* Filtering and reshaping data (~45 minutes; the `gapminder` dataset)
 * Summarizing and manipulating data (~60 minutes; the `babynames` dataset)
 
 Feedback: <a href="mailto:bondlamberty@pnnl">bondlamberty@pnnl.gov</a> or  [@BenBondLamberty](https://twitter.com/BenBondLamberty).
@@ -35,7 +35,7 @@ If you want to do the hands-on exercises (encouraged!), make sure up-to-date ver
 * `gapminder`
 * `babynames`
 
-Note this is a [particular dialect of R](http://tidyverse.org), but the principles are broadly applicable.
+Note the first two constitute a [particular and popular dialect of R](http://tidyverse.org), but the principles we'll go over are broadly applicable.
 
 
 Reproducibility and data management
@@ -85,8 +85,6 @@ Version control
 - issue tracking
 - public or private
 
-**Alexey will talk more about this.**
-
 ***
 
 <img src="images/git_2x.png" width="400" />
@@ -95,15 +93,9 @@ Version control
 Data management during analysis
 ========================================================
 
-Version control and scripts address two of the biggest problems with managing data: tracking *changes over time*, and understanding/reproducing *analytical steps*.
+Version control and scripts address two of the biggest problems with managing code and data: tracking *changes over time*, and understanding/reproducing *analytical steps*.
 
 Ideally, _every_ step in your analysis is programmatic--done by a script--so it can be 'read': understood and reproduced later.
-
-
-Full reproducibility is hard!
-========================================================
-
-<img src="images/repository.png" />
 
 
 Reproducibility is a process
@@ -117,23 +109,26 @@ Reproducibility is a process
 
 A great and practical guide: http://kbroman.org/steps2rr/
 
+<img src="images/repository.png" />
+
 
 Reproducible research example
 ========================================================
 
-A typical project/paper directory for me:
+A typical project/paper directory for me, slightly idealized:
 ```
 1-download.R
 2-prepdata.R
 3-analyze_data.R
-4-make_graphs.R
-5-manuscript.R   (perhaps)
+4-manuscript_report.Rmd
 logs/
 output/
 rawdata/
 ```
 
 This directory contains *scripts* that are backed up both *locally* and *remotely*. It is under *version control*, so it's easy to track changes over time.
+
+There's also [drake](https://github.com/ropensci/drake), but that's a topic for another day.
 
 
 Hands-on: setting up
@@ -210,6 +205,19 @@ dplyr
 The `dplyr` package uses _verbs_ (functions) to operate on _tibbles_ (data frames).
 
 
+```r
+some_data_frame %>% 
+
+  do_something() %>%
+  
+  do_something_else() %>% 
+  
+  getting_dizzy_from_so_much_doing()
+```
+
+Let's go over some of those possible `do_something` steps.
+
+
 filter
 ========================================================
 
@@ -219,11 +227,23 @@ Very commonly used.
 ```r
 gapminder %>% filter(country == "Egypt")
 gapminder %>% filter(country == "Egypt", year > 2000)
+gapminder %>% filter(country %in% c("Egypt", "New Zealand", "Chad"))
 ```
 
-IMPORTANT NOTE AT THIS POINT. We have `dplyr::filter` but there's also `stats::filter` in base R; similar confusing overlaps can exist for other `dplyr` verbs too. (This is a more general problem, that of _namespace collision_.)
 
-**Either load `dplyr` last or specify (`::`) which function you want to use.**
+filter
+========================================================
+
+
+```r
+gapminder %>%
+  filter(year == 1977) %>%
+  ggplot(aes(gdpPercap, lifeExp, size = pop, color = continent)) +
+  geom_point() +
+  scale_x_log10()
+```
+
+![plot of chunk unnamed-chunk-6](R-data-vcu-figure/unnamed-chunk-6-1.png)
 
 
 select
@@ -258,10 +278,29 @@ gapminder %>%
 ```
 
 
+```
+# A tibble: 12 x 4
+    year lifeExp      pop gdpPercap
+   <int>   <dbl>    <int>     <dbl>
+ 1  1952    41.9 22223309     1419.
+ 2  1957    44.4 25009741     1459.
+ 3  1962    47.0 28173309     1693.
+ 4  1967    49.3 31681188     1815.
+ 5  1972    51.1 34807417     2024.
+ 6  1977    53.3 38783863     2785.
+ 7  1982    56.0 45681811     3504.
+ 8  1987    59.8 52799062     3885.
+ 9  1992    63.7 59402198     3795.
+10  1997    67.2 66134291     4173.
+11  2002    69.8 73312559     4755.
+12  2007    71.3 80264543     5581.
+```
+
+
 Reshaping data
 ========================================================
 
-Put this into long format--where every row is a different observation. For this we use `tidyr::gather`, which asks: what's the data source? Name of variable column (i.e. that will get old names of columns)? Name of data column? And what columns to operate on?
+Put this into long (or _tidy_) format--where every row is a different observation. For this we use `tidyr::gather`, which asks: what's the data source? Name of variable column (i.e. that will get old names of columns)? Name of data column? And what columns to operate on?
 
 
 ```r
@@ -295,11 +334,11 @@ Reshaping data
 library(ggplot2)
 Egypt %>% 
   gather(variable, value, -year) %>% 
-  qplot(year, value, data=., geom="line") + 
-   facet_wrap(~variable, scales="free")
+  ggplot(aes(year, value)) + geom_line() +
+   facet_wrap(~variable, scales = "free")
 ```
 
-![plot of chunk unnamed-chunk-8](R-data-vcu-figure/unnamed-chunk-8-1.png)
+![plot of chunk unnamed-chunk-11](R-data-vcu-figure/unnamed-chunk-11-1.png)
 
 
 Reshaping data
@@ -343,7 +382,10 @@ These functions can be very useful.
 gapminder %>% unite(coco, country, continent)
 gapminder %>% 
   unite(coco, country, continent) %>% 
-  separate(coco, into = c("country", "continent"), sep="_", extra="merge")
+  separate(coco, 
+           into = c("country", "continent"), 
+           sep = "_", 
+           extra = "merge")
 gapminder %>% mutate(logpop = log(pop))
 gapminder %>% rename(population = pop)
 ```
@@ -382,32 +424,36 @@ From https://github.com/ramnathv/rblocks/issues/8
 dplyr
 ========================================================
 
-The newer `dplyr` package specializes in data frames, but also allows you to work with remote, out-of-memory databases, using exactly the same tools, because it abstracts away *how* your data is stored.
+The `dplyr` package specializes in data frames, but also allows you to work with remote, out-of-memory databases, using exactly the same tools, because it abstracts away *how* your data is stored.
 
-`dplyr` is extremely fast for most, though **not** all, operations on data frames.
+`dplyr` is very fast for most, though not all, operations on _data frames_ (tabular data).
 
 
 Verbs
 ========================================================
 
-`dplyr` provides functions for each basic *verb* of data manipulation. These tend to have analogues in base R, but use a consistent, compact syntax, and are very high performance.
+`dplyr` provides functions for each basic *verb* of data manipulation. These tend to have analogues in base R, but use a consistent, compact syntax, and are high performance.
 
 * `filter()` - subset rows; like `base::subset()`
 * `arrange()` - reorder rows; like `order()`
-* `select()` - select columns
+* `select()` - select (or drop) columns
 * `mutate()` - add new columns
-* `summarise()` - like `aggregate`
+* `summarise()` - like base R's `aggregate`
 
 
 Why use dplyr?
 ========================================================
 
+Why use `dplyr`?
+
 * Clean, concise, and consistent syntax.
-* In general `dplyr` is ~10x faster than the older `plyr` package. (And `plyr` was ~10x faster than base R.)
+* High performance in most cases.
 * Same code can work with data frames or remote databases.
+* Very popular; lots of help/documentation
 
 Why not?
-* Package still changing
+
+* Package still changing--your code might 'break'
 * Programming can be trickier in some circumstances
 * Not as fast in certain cases
 * The `data.table` package is also worth checking out for its speed.
@@ -451,23 +497,23 @@ Summarising
 ```r
 gapminder %>% 
   group_by(country) %>% 
-  summarise(max(pop))
+  summarise(maxpop = max(pop))
 ```
 
 ```
 # A tibble: 142 x 2
-   country     `max(pop)`
-   <fct>            <dbl>
- 1 Afghanistan   31889923
- 2 Albania        3600523
- 3 Algeria       33333216
- 4 Angola        12420476
- 5 Argentina     40301927
- 6 Australia     20434176
- 7 Austria        8199783
- 8 Bahrain         708573
- 9 Bangladesh   150448339
-10 Belgium       10392226
+   country        maxpop
+   <fct>           <dbl>
+ 1 Afghanistan  31889923
+ 2 Albania       3600523
+ 3 Algeria      33333216
+ 4 Angola       12420476
+ 5 Argentina    40301927
+ 6 Australia    20434176
+ 7 Austria       8199783
+ 8 Bahrain        708573
+ 9 Bangladesh  150448339
+10 Belgium      10392226
 # … with 132 more rows
 ```
 
@@ -511,31 +557,21 @@ gapminder %>%
   select(-continent, -year) %>% 
   group_by(country) %>% 
   summarise_all(max)
-gapminder %>% 
-  select(country, pop) %>% 
-  group_by(country) %>% 
-  summarise_all(max)
-gapminder %>% 
-  group_by(country) %>% 
-  summarise_if(is.numeric, max)
 ```
-
-
-Summarising
-========================================================
-
-We can apply a function to multiple columns, or multiple functions to a column (or both):
 
 
 ```r
 gapminder %>% 
   select(country, pop) %>% 
   group_by(country) %>% 
-  summarise_all(funs(min, max, mean))
+  summarise_all(max)
+```
+
+
+```r
 gapminder %>% 
-  select(-year) %>% 
   group_by(country) %>% 
-  summarise_if(is.numeric, funs(min, max, mean))
+  summarise_if(is.numeric, max)
 ```
 
 
@@ -551,7 +587,7 @@ gapminder %>%
   group_by(country) %>% 
   summarise_if(is.numeric, funs(min, max, mean)) %>% 
   gather(variable, value, -country) %>% 
-  separate(variable, into=c("variable", "stat")) %>% 
+  separate(variable, into = c("variable", "stat")) %>% 
   spread(stat, value)
 ```
 
@@ -659,14 +695,95 @@ babynames %>%
 Summarizing babynames
 ========================================================
 
-![plot of chunk unnamed-chunk-21](R-data-vcu-figure/unnamed-chunk-21-1.png)
+![plot of chunk unnamed-chunk-25](R-data-vcu-figure/unnamed-chunk-25-1.png)
 
 
-Things we didn't talk about
+Important things we didn't talk about
 ========================================================
 
-- working with non-text data
+- getting your data _into_ R
+- working with non-text/tabular data
+- lists
 - joins and merges
+- handling dates and timestamps
+- plotting (though we had many examples)
+
+But the tools we've covered here can do a lot!
+
+
+Split-apply-combine: Max
+========================================================
+
+Compute relative growth for each treatment.
+
+
+```r
+tree_diameter_data %>%
+  # Each day's diameter is in a separate column. Reshape
+  gather(date, diameter, -treatment) %>% 
+  
+  # Make sure the data are in chronological order
+  arrange(date) %>% 
+  
+  # For each tree, compute growth from beginning of the season
+  group_by(tree_id) %>% 
+  mutate(growth = diameter - first(diameter)) %>% 
+  
+  # For each treatment and species, 
+  # compute average growth over all trees
+  group_by(treatment, species) %>% 
+  summarise(mean_growth = mean(growth)) ->
+  
+  tree_growth_by_trt
+```
+
+
+Split-apply-combine: Kayla
+========================================================
+
+How does the spatial variability of soil respiration evolve over time?
+
+
+```r
+licor_sr_data %>% 
+  # Select the columns we're interested in
+  select(date, flux, collar_number, t10, sm) %>% 
+  
+  # We are fundamentally interested in treatment; use a 'join'
+  # to pull in that information from a table of collars/treatments
+  left_join(collar_treatments, by = "collar_number") %>% 
+  
+  # Compute variability between collars by month and treatment
+  group_by(month(date), treatment) %>% 
+  summarise(spatial_variability = sd(flux) / mean(flux)) ->
+  
+  tree_growth_by_trt
+```
+
+
+Split-apply-combine: Lisa
+========================================================
+
+Calculate canopy and subcanopy assimilation for aspen in three size classes, weighting appropriately.
+
+
+```r
+licor_leaf_data %>%
+  # We only have a tree number; pull in complete information
+  left_join(tree_database, by = "tree_number") %>% 
+  
+  filter(species == "POGR") %>% 
+  
+  # Split the trees into small, medium, big
+  mutate(size_class = cut(dbh, breaks = 3)) %>% 
+  
+  # We want to weight the computation by leaf area, which scales
+  # nonlinearly with diameter
+  group_by(size_class, canopy_position) %>% 
+  summarise(flux = weighted.mean(flux, w = dbh ^ 2)) ->
+  
+  leaf_assimilation
+```
 
 
 Last thoughts
@@ -676,7 +793,15 @@ Last thoughts
 >
 >-- Bow Cowgill
 
-All the source code for this presentation is available at https://github.com/bpbond/R-data-picarro (under the `delaware` branch)
+All the source code for this presentation is available at https://github.com/bpbond/R-data-picarro (under the `vcu` branch)
+
+>source code for this presentation
+
+Wait, what?
+
+_This presentation was generated from an RMarkdown document._
+
+<img src="images/no_pkg_error.png" width="800" />
 
 
 Resources
